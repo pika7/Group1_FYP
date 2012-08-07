@@ -26,6 +26,7 @@ package
 			
 			Registry.guard = new Guard(150, 20);
 			add(Registry.guard);
+			add(Registry.bulletGroup);
 		}
 		
 		override public function update():void
