@@ -29,10 +29,8 @@ package actors.enemy
 			bullet = new FlxSprite;
 			bullet.loadGraphic(bulletPNG, false, false, 10, 10);
 			bullet.exists = false;			
-			if (FlxG.state.toString == PlayState)
-			{
-				FlxG.state.add(bullet);
-			}
+			FlxG.state.add(bullet);
+		
  		}
 		
 		override public function update():void
