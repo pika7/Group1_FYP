@@ -26,11 +26,14 @@ package actors.enemy
 			acceleration.y = GRAVITY;
 			velocity.x = xVelocity;
 			facing = RIGHT;			
-			bullet = new FlxSprite;
-			bullet.loadGraphic(bulletPNG, false, false, 10, 10);
-			bullet.exists = false;			
-			Registry.bulletGroup.add(bullet);
-		
+			
+			for (var i:int = 0; i < 3; i++)
+			{
+				bullet = new FlxSprite;
+				bullet.loadGraphic(bulletPNG, false, false, 10, 10);
+				bullet.exists = false;	
+				Registry.bulletGroup.add(bullet);
+			}
  		}
 		
 		override public function update():void
@@ -51,8 +54,13 @@ package actors.enemy
 				currentBullet.reset(x, y);
 				currentBullet.exists = true;
 				currentBullet.velocity.x = -100;
+				if (currentBullet.x < 0)
+				{
+					currentBullet.exists = false;
+				}
 				
 			}
+			
 			
 		}
 		
