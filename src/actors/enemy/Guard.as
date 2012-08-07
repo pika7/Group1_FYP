@@ -14,7 +14,7 @@ package actors.enemy
 		private const xVelocity:Number = 200;
 		private var alertLevel:Number;
 		private var bullet:FlxSprite;
-		
+		private var currentBullet:FlxSprite;
 		
 		public function Guard(X:int, Y:int) 
 		{
@@ -29,7 +29,7 @@ package actors.enemy
 			bullet = new FlxSprite;
 			bullet.loadGraphic(bulletPNG, false, false, 10, 10);
 			bullet.exists = false;			
-			FlxG.state.add(bullet);
+			Registry.bulletGroup.add(bullet);
 		
  		}
 		
@@ -43,11 +43,15 @@ package actors.enemy
 		
 		public function shootPlayer():void
 		{
+		
+			currentBullet = Registry.bulletGroup.recycle() as FlxSprite;
+			
 			if (justTouched(RIGHT))
 			{
-				bullet.reset(x, y);
-				bullet.exists = true;
-				bullet.velocity.x = -100;
+				currentBullet.reset(x, y);
+				currentBullet.exists = true;
+				currentBullet.velocity.x = -100;
+				
 			}
 			
 		}
