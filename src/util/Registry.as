@@ -10,7 +10,8 @@ package util
 		public static var level:Level;
 		public static var player:Player;
 		public static var guard:Guard;
-		public static var enemyGroup:FlxGroup = new FlxGroup;
+		public static var enemyGroup:FlxGroup = new FlxGroup; //enemies will be added here later
+		public static var bulletGroup:FlxGroup = new FlxGroup;
 		
 		public function Registry() 
 		{
