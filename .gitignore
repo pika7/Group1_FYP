@@ -1,6 +1,8 @@
 # Build and Release Folders
-bin-debug/
-bin-release/
+bin/
+obj/
+assets/
+GROUP1.as3proj
 
 # Project property files
 .actionScriptProperties
