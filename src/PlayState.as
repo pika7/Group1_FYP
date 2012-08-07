@@ -8,6 +8,7 @@ package
 	import levels.TestLevel;
 	import org.flixel.*;
 	import util.Registry;
+	import objs.*;
 	
 	public class PlayState extends FlxState
 	{
@@ -24,6 +25,9 @@ package
 			Registry.player = new Player(20, 20);
 			add(Registry.player);
 			
+			add(Registry.goalItem);
+			
+			/* FOR TESTING */
 			Registry.guard = new Guard(150, 20);
 			add(Registry.guard);
 			add(Registry.bulletGroup);
@@ -44,7 +48,18 @@ package
 			FlxG.collide(Registry.level, Registry.player);
 			FlxG.collide(Registry.level, Registry.guard);
 			
+			FlxG.overlap(Registry.player, Registry.goalItem, getGoalItem);
+			
 			super.update();
+		}
+		
+		/////////////////////////////////////////
+		// OVERLAP CALLBACKS
+		/////////////////////////////////////////
+		private function getGoalItem(player:Player, goalItem:GoalItem):void
+		{
+			player.gotGoalItem = true;
+			goalItem.kill();
 		}
 		
 	}

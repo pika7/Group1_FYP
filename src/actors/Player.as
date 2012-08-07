@@ -14,15 +14,19 @@ package actors
 		private const RUNNING_ACCELERATION:int = 800;
 		private const SNEAKING_ACCELERATION:int = 400;
 		
-		/* booleans */
+		/* private booleans */
 		private var isSneakingFlag:Boolean = false;
+		
+		/* public booleans, because I'm lazy */
+		public var gotGoalItem:Boolean = false;
 		
 		public function Player(X:int, Y:int) 
 		{
 			super(X, Y);
 			loadGraphic(playerPNG, true, true, 128, 128, true);
-			width = 128;
+			width = 64;
 			height = 128;
+			centerOffsets();
 			
 			drag.x = FRICTION;
 			acceleration.y = GRAVITY;
