@@ -6,7 +6,7 @@ package actors
 	{	
 		[Embed(source = '../../assets/img/player/test_player.png')] private var playerPNG:Class;
 		
-		private const FRICTION:int = 700;
+		private const FRICTION:int = 900;
 		private const GRAVITY:int = 600;
 		private const MAX_RUNNING_VELOCITY_X:int = 200;
 		private const MAX_SNEAKING_VELOCITY_X:int = 100;
@@ -16,6 +16,10 @@ package actors
 		
 		/* private booleans */
 		private var isSneakingFlag:Boolean = false;
+		private var isLadderFlag:Boolean = false; // whether or not the player is climbing a ladder
+		
+		/* timers */
+		private var turnTimer
 		
 		/* public booleans, because I'm lazy */
 		public var gotGoalItem:Boolean = false;
@@ -41,6 +45,12 @@ package actors
 			{
 				facing = FlxObject.LEFT;
 				
+				/* test... stops when changing direction */
+				if (velocity.x > 0)
+				{
+					velocity.x = 0;
+				}
+				
 				if (!isSneakingFlag)
 				{
 					acceleration.x = -RUNNING_ACCELERATION;
@@ -53,6 +63,12 @@ package actors
 			else if (FlxG.keys.pressed("D"))
 			{
 				facing = FlxObject.RIGHT;
+				
+				/* test... stops when changing direction */
+				if (velocity.x < 0)
+				{
+					velocity.x = 0;
+				}
 				
 				if (!isSneakingFlag)
 				{
@@ -96,6 +112,20 @@ package actors
 				maxVelocity.x = MAX_SNEAKING_VELOCITY_X;
 				frame = 1;
 			}			
+		}
+		
+		private function toggleLadderMode():void
+		{
+			isLadderFlag = !isLadderFlag;
+			
+			if (!isLadderFlag)
+			{
+				acceleration.y = GRAVITY;
+			}
+			else
+			{
+				acceleration.y = 0;
+			}
 		}
 		
 	}

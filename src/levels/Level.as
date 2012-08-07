@@ -14,6 +14,7 @@ package levels
 		public var map:FlxTilemap;
 		public var background:FlxTilemap;
 		public var items:FlxTilemap;
+		public var markers:FlxTilemap;
 		
 		public var width:int;
 		public var height:int;
