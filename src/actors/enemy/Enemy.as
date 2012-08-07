@@ -10,6 +10,8 @@ package actors.enemy
 	{
 		private var group:FlxGroup;
 		private var alertLevel:Number;
+		private var counter:Number = 0; //for checking time
+		
 		
 		
 		public function Enemy(X:int, Y:int) 
