@@ -2,7 +2,6 @@
 bin/
 obj/
 assets/
-GROUP1.as3proj
 
 # Project property files
 .actionScriptProperties
