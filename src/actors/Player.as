@@ -1,6 +1,7 @@
 package actors 
 {
 	import org.flixel.*;
+	import objs.Marker;	
 	
 	public class Player extends FlxSprite
 	{	
@@ -10,16 +11,25 @@ package actors
 		private const GRAVITY:int = 600;
 		private const MAX_RUNNING_VELOCITY_X:int = 200;
 		private const MAX_SNEAKING_VELOCITY_X:int = 100;
-		private const MAX_VELOCITY_Y:int = 400;
+		private const MAX_VELOCITY_Y:int = 700;
 		private const RUNNING_ACCELERATION:int = 800;
 		private const SNEAKING_ACCELERATION:int = 400;
+		private const LADDER_VELOCITY:int = 100;
+		
+		/* private variables */
+		private var tempMarker:FlxPoint;
 		
 		/* private booleans */
-		private var isSneakingFlag:Boolean = false;
-		private var isLadderFlag:Boolean = false; // whether or not the player is climbing a ladder
+		// private var sneakingFlag:Boolean = false; // true if was sneaking. used for changing modes.
 		
-		/* timers */
-		private var turnTimer
+		/* what mode the player is in */
+		private var mode:int;
+		
+		/* constants enumerating the mode */
+		private const NORMAL:int = 0;
+		private const SNEAKING:int = 1;
+		private const LADDER:int = 2;
+		private const REACHING_LADDER_TOP:int = 3;
 		
 		/* public booleans, because I'm lazy */
 		public var gotGoalItem:Boolean = false;
@@ -36,58 +46,99 @@ package actors
 			acceleration.y = GRAVITY;
 			maxVelocity.x = MAX_RUNNING_VELOCITY_X;
 			maxVelocity.y = MAX_VELOCITY_Y;
+			mode = NORMAL;
 		}
 		
 		override public function update():void
 		{	
-			/* control left and right movement */
-			if (FlxG.keys.pressed("A"))
+			/* normal mode */
+			if (mode == NORMAL)
 			{
-				facing = FlxObject.LEFT;
-				
-				/* test... stops when changing direction */
-				if (velocity.x > 0)
+				/* control left and right movement */
+				if (FlxG.keys.pressed("A"))
 				{
-					velocity.x = 0;
-				}
-				
-				if (!isSneakingFlag)
-				{
+					facing = FlxObject.LEFT;
 					acceleration.x = -RUNNING_ACCELERATION;
 				}
-				else
+				else if (FlxG.keys.pressed("D"))
 				{
-					acceleration.x = -SNEAKING_ACCELERATION;
-				}
-			}
-			else if (FlxG.keys.pressed("D"))
-			{
-				facing = FlxObject.RIGHT;
-				
-				/* test... stops when changing direction */
-				if (velocity.x < 0)
-				{
-					velocity.x = 0;
-				}
-				
-				if (!isSneakingFlag)
-				{
+					facing = FlxObject.RIGHT;
 					acceleration.x = RUNNING_ACCELERATION;
 				}
 				else
 				{
-					acceleration.x = SNEAKING_ACCELERATION;
+					acceleration.x = 0;
+				}
+				
+				/* enter sneaking mode */
+				if (FlxG.keys.justPressed("SPACE"))
+				{
+					mode = SNEAKING;
+					maxVelocity.x = MAX_SNEAKING_VELOCITY_X;
+					
+					/* TEMPORARY: frame change */
+					frame = 1;
 				}
 			}
-			else
+			/* sneaking mode */
+			else if (mode == SNEAKING)
 			{
-				acceleration.x = 0;
+				/* control left and right movement */
+				if (FlxG.keys.pressed("A"))
+				{
+					facing = FlxObject.LEFT;
+					acceleration.x = -SNEAKING_ACCELERATION;
+				}
+				else if (FlxG.keys.pressed("D"))
+				{
+					facing = FlxObject.RIGHT;
+					acceleration.x = SNEAKING_ACCELERATION;
+				}
+				else
+				{
+					acceleration.x = 0;
+				}
+				
+				/* return to normal mode */
+				if (FlxG.keys.justPressed("SPACE"))
+				{
+					mode = NORMAL;
+					maxVelocity.x = MAX_RUNNING_VELOCITY_X;
+					
+					/* TEMPORARY: frame change */
+					frame = 0;
+				}
 			}
-			
-			/* enter or exit sneaking mode */
-			if (FlxG.keys.justPressed("SPACE"))
+			/* ladder */
+			else if (mode == LADDER)
 			{
-				toggleSneakingMode();
+				/* make absolutely sure that there is no sideways movement */
+				velocity.x = 0;
+				acceleration.x = 0;
+				
+				if (FlxG.keys.pressed("W"))
+				{
+					velocity.y = -LADDER_VELOCITY;
+				}
+				else if (FlxG.keys.pressed("S"))
+				{
+					velocity.y = LADDER_VELOCITY;
+				}
+				else
+				{
+					velocity.y = 0;
+				}
+			}
+			/* reaching the top of the ladder */
+			else if (mode == REACHING_LADDER_TOP)
+			{
+				/* just move up 128 pixels*/
+				velocity.y = -LADDER_VELOCITY;
+				
+				if (y <= tempMarker.y)
+				{
+					mode = NORMAL;
+				}
 			}
 			
 			super.update();
@@ -97,34 +148,61 @@ package actors
 		// PRIVATE HELPER FUNCTIONS
 		////////////////////////////////////////////////////////////
 		
-		private function toggleSneakingMode():void
+		
+		////////////////////////////////////////////////////////////
+		// CALLBACK FUNCTIONS (for use in PlayState)
+		////////////////////////////////////////////////////////////
+		
+		/* handle the event when overlapping with a ladder bottom */
+		public function handleLadderBottom(player:Player, marker:Marker):void
 		{
-			isSneakingFlag = !isSneakingFlag;
-			
-			/* TEMPORARY, remove the frame change later */
-			if (!isSneakingFlag)
+			/* if W pressed start ladder mode */
+			if (FlxG.keys.pressed("W"))
 			{
-				maxVelocity.x = MAX_RUNNING_VELOCITY_X;
-				frame = 0;
+				mode = LADDER;
+				velocity.x = 0;
+				velocity.y = 0;
+				acceleration.y = 0;
 			}
-			else
+			/* if S pressed end ladder mode */
+			else if (FlxG.keys.pressed("S"))
 			{
-				maxVelocity.x = MAX_SNEAKING_VELOCITY_X;
-				frame = 1;
+				mode = NORMAL;
+				acceleration.y = GRAVITY;
 			}			
 		}
 		
-		private function toggleLadderMode():void
+		/* handle the event when overlapping with a ladder top */
+		public function handleLadderTop(player:Player, marker:Marker):void
 		{
-			isLadderFlag = !isLadderFlag;
-			
-			if (!isLadderFlag)
+			/* if S pressed start ladder mode */
+			if (FlxG.keys.pressed("S"))
 			{
+				mode = LADDER;
+				acceleration.y = 0;
+			}
+			/* if W pressed end ladder mode */
+			else if (FlxG.keys.pressed("W") && mode == LADDER)
+			{
+				mode = REACHING_LADDER_TOP;
 				acceleration.y = GRAVITY;
+				tempMarker = new FlxPoint(x, y - 120);
+			}
+		}
+		
+		////////////////////////////////////////////////////////////
+		// GETTERS / SETTERS
+		////////////////////////////////////////////////////////////
+		
+		public function onLadder():Boolean
+		{
+			if (mode == LADDER)
+			{
+				return true;
 			}
 			else
 			{
-				acceleration.y = 0;
+				return false;
 			}
 		}
 		

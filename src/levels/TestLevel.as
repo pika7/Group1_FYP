@@ -11,6 +11,9 @@ package levels
 		[Embed(source = "../../assets/csv/test_level/mapCSV_test_level_background.csv", mimeType = "application/octet-stream")] public var backgroundCSV:Class;
 		[Embed(source = "../../assets/img/tilemaps/striped_bg.png")] public var backgroundTilesPNG:Class;
 		
+		[Embed(source = "../../assets/csv/test_level/mapCSV_test_level_over.csv", mimeType = "application/octet-stream")] public var overCSV:Class;
+		[Embed(source = "../../assets/img/tilemaps/over_map.png")] public var overTilesPNG:Class;
+		
 		[Embed(source = "../../assets/csv/test_level/mapCSV_test_level_markers.csv", mimeType = "application/octet-stream")] public var markersCSV:Class;
 		[Embed(source = "../../assets/img/tilemaps/marker_map.png")] public var markerTilesPNG:Class;
 		
@@ -21,10 +24,15 @@ package levels
 		public function TestLevel() 
 		{
 			map = new FlxTilemap();
-			map.loadMap(new mapCSV, mapTilesPNG, 32, 32, 0, 0, 1, 2);
+			map.loadMap(new mapCSV, mapTilesPNG, 32, 32, 0, 0, 1, 1);
 			
 			background = new FlxTilemap();
 			background.loadMap(new backgroundCSV, backgroundTilesPNG, 32, 32, 0, 0, 0, 1);
+			background.scrollFactor.x = 0.5;
+			background.scrollFactor.y = 0.5;
+			
+			over = new FlxTilemap();
+			over.loadMap(new overCSV, overTilesPNG, 32, 32, 0, 0, 0, 2);
 			
 			items = new FlxTilemap();
 			items.loadMap(new itemsCSV, itemTilesPNG, 32, 32, 0, 0, 1, 2);
@@ -37,9 +45,11 @@ package levels
 			
 			add(background);
 			add(map);
+			add(over);
 			
 			/* parse things */
 			parseGoalItem(items);
+			parseMarkers(markers);
 		}
 		
 	}

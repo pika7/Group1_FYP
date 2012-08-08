@@ -14,8 +14,13 @@ package util
 		public static var player:Player;
 		public static var guard:Guard;
 		public static var goalItem:GoalItem;
+		
 		public static var enemyGroup:FlxGroup = new FlxGroup; //enemies will be added here later
 		public static var bulletGroup:FlxGroup = new FlxGroup;
+		
+		/* marker groups */
+		public static var markers_ladderBottom:FlxGroup = new FlxGroup();
+		public static var markers_ladderTop:FlxGroup = new FlxGroup();
 		
 		public function Registry() 
 		{

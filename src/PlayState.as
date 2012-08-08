@@ -26,6 +26,8 @@ package
 			add(Registry.player);
 			
 			add(Registry.goalItem);
+			add(Registry.markers_ladderBottom);
+			add(Registry.markers_ladderTop);
 			
 			/* FOR TESTING */
 			Registry.guard = new Guard(150, 20);
@@ -45,10 +47,16 @@ package
 			/////////////////////////////////////////
 			// COLLISION CONTROLS
 			/////////////////////////////////////////
-			FlxG.collide(Registry.level, Registry.player);
+			if (!Registry.player.onLadder())
+			{
+				FlxG.collide(Registry.level, Registry.player);
+			}
+			
 			FlxG.collide(Registry.level, Registry.guard);
 			
 			FlxG.overlap(Registry.player, Registry.goalItem, getGoalItem);
+			FlxG.overlap(Registry.player, Registry.markers_ladderBottom, Registry.player.handleLadderBottom);
+			FlxG.overlap(Registry.player, Registry.markers_ladderTop, Registry.player.handleLadderTop);
 			
 			super.update();
 		}
@@ -61,6 +69,8 @@ package
 			player.gotGoalItem = true;
 			goalItem.kill();
 		}
+		
+		// TODO: make a clear registry function
 		
 	}
 
