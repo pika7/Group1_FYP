@@ -17,6 +17,7 @@ package actors.enemy
 		private var bullet:FlxSprite;
 		private var currentBullet:FlxSprite;
 		private var bulletDelay:FlxDelay;
+		private var stopDelay:FlxDelay;
 		private var tempVelocity:Number = 0;
 		private var detected:Boolean = false;
 
@@ -34,6 +35,7 @@ package actors.enemy
 			velocity.x = xVelocity;
 			facing = RIGHT;			
 			bulletDelay = new FlxDelay(2000);
+			stopDelay = new FlxDelay(5000);
 			initializeBullets();
 		
  		}
@@ -41,12 +43,32 @@ package actors.enemy
 		override public function update():void
 		{
 				boundaryCheck(xVelocity);		
+				checkIsTouching();
 				shootPlayer();
 				detected = detectPlayer(0, 0);
 				super.update();
 				
 				
 		}
+		
+		private function checkIsTouching():void
+		{
+			if (justTouched(RIGHT) || justTouched(LEFT))
+			{
+				stopDelay.start();
+				tempVelocity = velocity.x;
+				velocity.x = 0;
+				stopDelay.callback = backToPatrol;
+			}
+			
+		}
+		
+		private function backToPatrol():void
+		{
+			velocity.x = tempVelocity;
+			
+		}
+		
 		
 		private function initializeBullets():void
 		{
@@ -66,7 +88,7 @@ package actors.enemy
 		{
 			currentBullet = Registry.bulletGroup.recycle() as FlxSprite;
 			
-			if (isTouching(RIGHT))
+			if (isTouching(UP))
 			{
 				play("shoot");
 				tempVelocity = velocity.x;
