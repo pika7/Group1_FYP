@@ -11,6 +11,8 @@ package objs
 		public static const LADDER_BOTTOM:int = 1;
 		public static const LADDER_TOP:int = 2;
 		
+		public var type:int;
+		
 		/* embed some invisible picture later */
 		[Embed(source = '../../assets/img/objs/blank.png')] private var blankPNG:Class;
 		
@@ -21,6 +23,7 @@ package objs
 			
 			width = 32;
 			height = 5;
+			type = markerType;
 			
 			/* depending on the marker type, place into the corresponding Registry group */
 			switch (markerType)
@@ -30,6 +33,7 @@ package objs
 					break;
 				case LADDER_TOP:
 					offset.y = 128;
+					y -= 64;
 					Registry.markers_ladderTop.add(this);
 					break;
 				default:

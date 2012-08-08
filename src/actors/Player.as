@@ -1,7 +1,8 @@
 package actors 
 {
 	import org.flixel.*;
-	import objs.Marker;	
+	import objs.Marker;
+	import org.flixel.plugin.photonstorm.FlxVelocity;
 	
 	public class Player extends FlxSprite
 	{	
@@ -15,9 +16,11 @@ package actors
 		private const RUNNING_ACCELERATION:int = 800;
 		private const SNEAKING_ACCELERATION:int = 400;
 		private const LADDER_VELOCITY:int = 100;
+		private const PREPARE_LADDER_VELOCITY:int = 100;
 		
-		/* private variables */
-		private var tempMarker:FlxPoint;
+		/* temp variables for storage */
+		private var tempPoint:FlxPoint;
+		private var tempMarker:Marker;
 		
 		/* private booleans */
 		// private var sneakingFlag:Boolean = false; // true if was sneaking. used for changing modes.
@@ -30,6 +33,9 @@ package actors
 		private const SNEAKING:int = 1;
 		private const LADDER:int = 2;
 		private const REACHING_LADDER_TOP:int = 3;
+		private const PREPARE_LADDER:int = 4; // the player moves to the center of the ladder to prepare for ascent/descent
+		private const INITIAL_LADDER_ASCENT:int = 5; // the player climbs a little bit intially
+		private const INITIAL_LADDER_DESCENT:int = 6;
 		
 		/* public booleans, because I'm lazy */
 		public var gotGoalItem:Boolean = false;
@@ -73,8 +79,7 @@ package actors
 				/* enter sneaking mode */
 				if (FlxG.keys.justPressed("SPACE"))
 				{
-					mode = SNEAKING;
-					maxVelocity.x = MAX_SNEAKING_VELOCITY_X;
+					setMode(SNEAKING);
 					
 					/* TEMPORARY: frame change */
 					frame = 1;
@@ -102,8 +107,7 @@ package actors
 				/* return to normal mode */
 				if (FlxG.keys.justPressed("SPACE"))
 				{
-					mode = NORMAL;
-					maxVelocity.x = MAX_RUNNING_VELOCITY_X;
+					setMode(NORMAL);
 					
 					/* TEMPORARY: frame change */
 					frame = 0;
@@ -135,9 +139,60 @@ package actors
 				/* just move up 128 pixels*/
 				velocity.y = -LADDER_VELOCITY;
 				
-				if (y <= tempMarker.y)
+				if (y <= tempPoint.y)
 				{
-					mode = NORMAL;
+					setMode(NORMAL);
+				}
+			}
+			/* repositioning to the center of the ladder */
+			else if (mode == PREPARE_LADDER)
+			{
+				/* make sure absolutely no sideways movement */
+				acceleration.x = 0;
+				velocity.x = 0;
+
+				/* move the player so it is centered on the ladder */
+				if (Math.abs(x - (tempMarker.x)) < 5)
+				{
+					x = (tempMarker.x);
+					
+					if (tempMarker.type == Marker.LADDER_BOTTOM)
+					{
+						setMode(INITIAL_LADDER_ASCENT);
+					}
+					else if (tempMarker.type == Marker.LADDER_TOP)
+					{
+						setMode(INITIAL_LADDER_DESCENT);
+					}
+				}
+				else if (x < tempMarker.x)
+				{
+					velocity.x = PREPARE_LADDER_VELOCITY;
+				}
+				else if (x > tempMarker.x)
+				{
+					velocity.x = -PREPARE_LADDER_VELOCITY;
+				}
+
+			}
+			/* climb the ladder a little bit */
+			else if (mode == INITIAL_LADDER_ASCENT)
+			{
+				/* move the player up by 10 */
+				velocity.y = -LADDER_VELOCITY;
+				if (y <= tempPoint.y)
+				{
+					setMode(LADDER);
+				}
+			}
+			/* climb down the ladder a little bit */
+			else if (mode == INITIAL_LADDER_DESCENT)
+			{
+				/* move the player down by 32 */
+				velocity.y = LADDER_VELOCITY;
+				if (y >= tempPoint.y)
+				{
+					setMode(LADDER);
 				}
 			}
 			
@@ -148,6 +203,55 @@ package actors
 		// PRIVATE HELPER FUNCTIONS
 		////////////////////////////////////////////////////////////
 		
+		/* set the mode of the player */
+		private function setMode(m:int):void
+		{
+			switch (m)
+			{
+				case NORMAL:
+					mode = NORMAL;
+					maxVelocity.x = MAX_RUNNING_VELOCITY_X;
+					acceleration.y = GRAVITY;
+					break;
+					
+				case SNEAKING:
+					mode = SNEAKING;
+					maxVelocity.x = MAX_SNEAKING_VELOCITY_X;
+					acceleration.y = GRAVITY;
+					break;
+				
+				case LADDER:
+					mode = LADDER;
+					velocity.x = 0;
+					velocity.y = 0;
+					acceleration.x = 0;
+					acceleration.y = 0;
+					break;
+					
+				case REACHING_LADDER_TOP:
+					mode = REACHING_LADDER_TOP;
+					tempPoint = new FlxPoint(x, y - 60);
+					break;
+					
+				case PREPARE_LADDER:
+					velocity.x = 0;
+					velocity.y = 0;
+					acceleration.x = 0;
+					acceleration.y = 0;
+					mode = PREPARE_LADDER;
+					break;
+					
+				case INITIAL_LADDER_ASCENT:
+					mode = INITIAL_LADDER_ASCENT;
+					tempPoint = new FlxPoint(x, y - 10);
+					break;
+					
+				case INITIAL_LADDER_DESCENT:
+					mode = INITIAL_LADDER_DESCENT;
+					tempPoint = new FlxPoint(x, y + 70);
+					break;
+			}
+		}
 		
 		////////////////////////////////////////////////////////////
 		// CALLBACK FUNCTIONS (for use in PlayState)
@@ -157,18 +261,15 @@ package actors
 		public function handleLadderBottom(player:Player, marker:Marker):void
 		{
 			/* if W pressed start ladder mode */
-			if (FlxG.keys.pressed("W"))
+			if (FlxG.keys.justPressed("W"))
 			{
-				mode = LADDER;
-				velocity.x = 0;
-				velocity.y = 0;
-				acceleration.y = 0;
+				setMode(PREPARE_LADDER);
+				tempMarker = marker;
 			}
 			/* if S pressed end ladder mode */
 			else if (FlxG.keys.pressed("S"))
 			{
-				mode = NORMAL;
-				acceleration.y = GRAVITY;
+				setMode(NORMAL);
 			}			
 		}
 		
@@ -176,17 +277,15 @@ package actors
 		public function handleLadderTop(player:Player, marker:Marker):void
 		{
 			/* if S pressed start ladder mode */
-			if (FlxG.keys.pressed("S"))
+			if (FlxG.keys.justPressed("S"))
 			{
-				mode = LADDER;
-				acceleration.y = 0;
+				setMode(PREPARE_LADDER);
+				tempMarker = marker;
 			}
 			/* if W pressed end ladder mode */
 			else if (FlxG.keys.pressed("W") && mode == LADDER)
 			{
-				mode = REACHING_LADDER_TOP;
-				acceleration.y = GRAVITY;
-				tempMarker = new FlxPoint(x, y - 120);
+				setMode(REACHING_LADDER_TOP);
 			}
 		}
 		
@@ -196,7 +295,7 @@ package actors
 		
 		public function onLadder():Boolean
 		{
-			if (mode == LADDER)
+			if (mode == LADDER || mode == INITIAL_LADDER_ASCENT || mode == INITIAL_LADDER_DESCENT)
 			{
 				return true;
 			}
