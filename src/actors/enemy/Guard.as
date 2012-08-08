@@ -7,7 +7,7 @@ package actors.enemy
 
 	public class Guard extends Enemy
 	{
-		[Embed(source = '../../../assets/img/player/test_player.png')] private var guardPNG:Class;
+		[Embed(source = '../../../assets/img/enemies/guard.png')] private var guardPNG:Class;
 		[Embed(source = '../../../assets/img/bullets/scentBomb.png')] private var bulletPNG:Class;
 		
 		private const GRAVITY:int = 600;
@@ -21,9 +21,9 @@ package actors.enemy
 		{
 			
 			super(X, Y);
-			loadGraphic(guardPNG, true, true, 64, 64, true);
-			width = 64;
-			height = 64;
+			loadGraphic(guardPNG, true, true, 128, 128, true);
+			width = 128;
+			height = 128;
 			acceleration.y = GRAVITY;
 			velocity.x = xVelocity;
 			facing = RIGHT;			
