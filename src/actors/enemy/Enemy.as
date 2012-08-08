@@ -8,6 +8,7 @@ package actors.enemy
 	 */
 	public class Enemy extends FlxSprite
 	{
+		[Embed(source = '../../../assets/img/bullets/scentBomb.png')] private var bulletPNG:Class;
 		private var group:FlxGroup;
 		private var alertLevel:Number;
 		private var counter:Number = 0; //for checking time
@@ -55,9 +56,21 @@ package actors.enemy
 		
 		public function detectPlayer(sightRange:Number, noiseRange:Number):Boolean
 		{
-			return false;
-		
+			if ((Registry.player.x > x - 50))
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
+		
+		public function stopIfCollides(stopTime:Number):void
+		{
+			
+		}
+		
 		
 
 		/////////////////////////////////////////////////////////
