@@ -1,9 +1,9 @@
 package actors.enemy 
 {
-	import flash.display.Sprite;
-	import flash.sampler.NewObjectSample;
+
 	import util.Registry;
 	import org.flixel.*;
+	import org.flixel.plugin.photonstorm.*;
 
 	public class Guard extends Enemy
 	{
@@ -15,6 +15,7 @@ package actors.enemy
 		private var alertLevel:Number;
 		private var bullet:FlxSprite;
 		private var currentBullet:FlxSprite;
+		private var bulletDelay:FlxDelay;
 		
 		public function Guard(X:int, Y:int) 
 		{
@@ -34,6 +35,7 @@ package actors.enemy
 				bullet.exists = false;	
 				Registry.bulletGroup.add(bullet);
 			}
+			currentBullet = Registry.bulletGroup.recycle() as FlxSprite;
  		}
 		
 		override public function update():void
@@ -46,23 +48,16 @@ package actors.enemy
 		
 		public function shootPlayer():void
 		{
-		
-			currentBullet = Registry.bulletGroup.recycle() as FlxSprite;
-			
 			if (justTouched(RIGHT))
 			{
+				
 				currentBullet.reset(x, y);
 				currentBullet.exists = true;
-				currentBullet.velocity.x = -100;
-				if (currentBullet.x < 0)
-				{
-					currentBullet.exists = false;
-				}
+				currentBullet.velocity.x = -200;
 				
-			}
-			
-			
+			}				
 		}
+		
 		
 		public function followPlayer():void
 		{
