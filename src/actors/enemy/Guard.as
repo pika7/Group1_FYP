@@ -60,7 +60,7 @@ package actors.enemy
 			switch(alertLevel)
 			{
 				case 0:
-					sightRange = 80;
+					sightRange = 200;
 				case 1:
 					sightRange = 90;
 
@@ -127,7 +127,11 @@ package actors.enemy
 				lastLocation.x = Registry.player.x;
 				lastLocation.y = Registry.player.y;
 				
-				if ((shootingNow == false) && (alertLevel==0) ) 
+				if ((shootingNow == false) && (alertLevel == 0)) 
+				{
+					followPlayer();
+				}
+				else if((shootingNow == false) && (alertLevel==1))
 				{
 					shootPlayer();
 					
@@ -143,7 +147,6 @@ package actors.enemy
 				else //shooting now == true and the player is in sight
 				{
 					backToPatrol;
-				
 				}
 				
 			}
@@ -156,6 +159,10 @@ package actors.enemy
 		
 		public function followPlayer():void
 		{
+			if (((((Registry.player.x > x - sightRange) && (Registry.player.x < x)) && facing == LEFT)) || (((Registry.player.x < x + sightRange)&&(Registry.player.x>x)) && facing == RIGHT))  
+			{
+				FlxVelocity.moveTowardsObject(this, Registry.player, 200);
+			}
 			
 			
 		}
