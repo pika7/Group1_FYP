@@ -161,7 +161,15 @@ package actors.enemy
 		{
 			if (((((Registry.player.x > x - sightRange) && (Registry.player.x < x)) && facing == LEFT)) || (((Registry.player.x < x + sightRange)&&(Registry.player.x>x)) && facing == RIGHT))  
 			{
-				FlxVelocity.moveTowardsObject(this, Registry.player, 200);
+				if (facing == RIGHT)
+				{
+					velocity.x = 200;
+					
+				}
+				else if (facing == LEFT)
+				{
+					velocity.x = -200;
+				}
 			}
 			
 			
