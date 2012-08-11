@@ -19,12 +19,15 @@ package util
 		public static var enemyGroup:FlxGroup = new FlxGroup; //enemies will be added here later
 		public static var bulletGroup:FlxGroup = new FlxGroup;
 		
-		/* for testing */
+		/* enemy stuff */
 		public static var guard:Guard;
+		public static var sightrange:sightRange;
 		
 		/* marker groups */
 		public static var markers_ladderBottom:FlxGroup = new FlxGroup();
 		public static var markers_ladderTop:FlxGroup = new FlxGroup();
+		
+		public static var markers_enemyStop:FlxGroup = new FlxGroup();
 		
 		public function Registry() 
 		{

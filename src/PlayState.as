@@ -4,6 +4,7 @@
 package  
 {
 	import actors.enemy.Guard;
+	import actors.enemy.sightRange;
 	import actors.Player;
 	import levels.TestLevel;
 	import org.flixel.*;
@@ -32,14 +33,20 @@ package
 			add(Registry.goalItem);
 			add(Registry.markers_ladderBottom);
 			add(Registry.markers_ladderTop);
+	
 			
 			/* FOR TESTING */
 			Registry.guard = new Guard(150, 20);
+			
+			Registry.sightrange = new sightRange(160, 20);
+			add(Registry.sightrange);
+			
 			add(Registry.guard);
 			add(Registry.bulletGroup);
 			
 			/* show the mouse */
 			FlxG.mouse.show();
+
 		}
 		
 		override public function update():void
@@ -60,10 +67,13 @@ package
 			}
 			
 			FlxG.collide(Registry.level, Registry.guard);
+			FlxG.collide(Registry.level, Registry.sightrange);
 			
 			FlxG.overlap(Registry.player, Registry.goalItem, getGoalItem);
 			FlxG.overlap(Registry.player, Registry.markers_ladderBottom, Registry.player.handleLadderBottom);
 			FlxG.overlap(Registry.player, Registry.markers_ladderTop, Registry.player.handleLadderTop);
+
+			FlxG.overlap(Registry.sightrange, Registry.player, Registry.guard.followPlayer);
 			
 			super.update();
 		}
