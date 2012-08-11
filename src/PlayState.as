@@ -9,6 +9,7 @@ package
 	import org.flixel.*;
 	import util.Registry;
 	import objs.*;
+	import util.TranqBulletHandler;
 	
 	public class PlayState extends FlxState
 	{
@@ -19,12 +20,15 @@ package
 		
 		override public function create():void
 		{
+			/* initialise registry objects */
+			/* TODO: allow selection of different levels */
 			Registry.level = new TestLevel();
 			add(Registry.level);
 			
 			Registry.player = new Player(20, 20);
 			add(Registry.player);
 			
+			add(Registry.tranqBulletHandler);
 			add(Registry.goalItem);
 			add(Registry.markers_ladderBottom);
 			add(Registry.markers_ladderTop);
@@ -33,6 +37,9 @@ package
 			Registry.guard = new Guard(150, 20);
 			add(Registry.guard);
 			add(Registry.bulletGroup);
+			
+			/* show the mouse */
+			FlxG.mouse.show();
 		}
 		
 		override public function update():void
@@ -71,7 +78,6 @@ package
 		}
 		
 		// TODO: make a clear registry function
-		
 	}
 
 }

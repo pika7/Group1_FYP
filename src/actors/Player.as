@@ -3,6 +3,7 @@ package actors
 	import org.flixel.*;
 	import objs.Marker;
 	import org.flixel.plugin.photonstorm.FlxVelocity;
+	import util.Registry;
 	
 	public class Player extends FlxSprite
 	{	
@@ -23,7 +24,6 @@ package actors
 		private var tempMarker:Marker;
 		
 		/* private booleans */
-		// private var sneakingFlag:Boolean = false; // true if was sneaking. used for changing modes.
 		
 		/* what mode the player is in */
 		private var mode:int;
@@ -36,6 +36,13 @@ package actors
 		private const PREPARE_LADDER:int = 4; // the player moves to the center of the ladder to prepare for ascent/descent
 		private const INITIAL_LADDER_ASCENT:int = 5; // the player climbs a little bit intially
 		private const INITIAL_LADDER_DESCENT:int = 6;
+		
+		/* what weapon the player currently has equipped */
+		private var weapon:int;
+		
+		/* constants enumerating the currently equipped weapon */
+		private const TRANQ:int = 0;
+		private const HOOKSHOT:int = 1;
 		
 		/* public booleans, because I'm lazy */
 		public var gotGoalItem:Boolean = false;
@@ -76,6 +83,12 @@ package actors
 					acceleration.x = 0;
 				}
 				
+				/* use equipped weapon */
+				if (FlxG.mouse.justPressed())
+				{
+					useWeapon(weapon);
+				}
+				
 				/* enter sneaking mode */
 				if (FlxG.keys.justPressed("SPACE"))
 				{
@@ -102,6 +115,12 @@ package actors
 				else
 				{
 					acceleration.x = 0;
+				}
+				
+				/* use weapon */
+				if (FlxG.mouse.justPressed())
+				{
+					useWeapon(weapon);
 				}
 				
 				/* return to normal mode */
@@ -253,6 +272,20 @@ package actors
 			}
 		}
 		
+		/* use the currently equipped weapon */
+		private function useWeapon(weapon:int):void
+		{
+			switch (weapon)
+			{
+				case TRANQ:
+					/* fire a tranq bullet aimed at the mouse */
+					Registry.tranqBulletHandler.fire(x, y, FlxVelocity.angleBetweenMouse(this, false));
+					break;
+				case HOOKSHOT:
+					break;
+			}
+		}
+		
 		////////////////////////////////////////////////////////////
 		// CALLBACK FUNCTIONS (for use in PlayState)
 		////////////////////////////////////////////////////////////
@@ -293,9 +326,27 @@ package actors
 		// GETTERS / SETTERS
 		////////////////////////////////////////////////////////////
 		
+		/**
+		 * Returns true if the player is currently on a ladder.
+		 */
 		public function onLadder():Boolean
 		{
 			if (mode == LADDER || mode == INITIAL_LADDER_ASCENT || mode == INITIAL_LADDER_DESCENT)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		
+		/**
+		 * Returns true if the player is currently in sneaking mode.
+		 */
+		public function isSneaking():Boolean
+		{
+			if (mode == SNEAKING)
 			{
 				return true;
 			}
