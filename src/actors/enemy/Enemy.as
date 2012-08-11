@@ -1,7 +1,10 @@
 package actors.enemy 
 {
+	import actors.Player;
 	import org.flixel.*;
 	import util.Registry;
+	import org.flixel.plugin.photonstorm.*;
+	
 	/**
 	 * ...
 	 * @author 
@@ -9,11 +12,11 @@ package actors.enemy
 	public class Enemy extends FlxSprite
 	{
 		[Embed(source = '../../../assets/img/bullets/scentBomb.png')] private var bulletPNG:Class;
+		
 		private var group:FlxGroup;
-		private var alertLevel:Number;
-		private var counter:Number = 0; //for checking time
-		
-		
+		protected var alertLevel:Number=0; //alertLevel of each enemy (dog/guard etc)
+		private var stopDelay:FlxDelay = new FlxDelay(3000); //stop for 3 seconds		
+		protected var tempVelocity:Number = 0;
 		
 		public function Enemy(X:int, Y:int) 
 		{
@@ -25,58 +28,50 @@ package actors.enemy
 		/////////////////////////////////////////////////////////
 		// GLOBAL ENEMY BEHAVIOUR
 		/////////////////////////////////////////////////////////
-		
 		public function boundaryCheck(xVelocity:Number):void
 		{
-				if (x < 0 || x > FlxG.worldBounds.width - width|| justTouched(RIGHT) || justTouched(LEFT))
-				{
-					turnAround(xVelocity);
-				}
-			
+			if (x < 0 || x > FlxG.worldBounds.width - width|| justTouched(RIGHT)||justTouched(LEFT))
+			{
+				turnAround(xVelocity);
+			}
 		}		
-		
 		
 		public function turnAround(xVelocity:Number):void
 		{
 			if (facing == RIGHT)
 			{	
 				facing = LEFT;
-				velocity.x = - xVelocity;
-				
+				velocity.x = -xVelocity;
 			}
 			else
 			{
 				facing = RIGHT;
-				velocity.x =  xVelocity;
-			}
-			
+				velocity.x = xVelocity;
+			}	
 		}
+	
 		
-		//detect player based on the sight /noise range (based on pixel numbers)) and returns boolean value
 		
-		public function detectPlayer(sightRange:Number, noiseRange:Number):Boolean
+	
+		public function followPlayer(sightrange:sightRange, player:Player):void
 		{
-			if ((Registry.player.x > x - 50))
+			if (FlxCollision.pixelPerfectCheck(sightrange, player))	
 			{
-				return true;
-			}
-			else
-			{
-				return false;
+				if (facing == RIGHT)
+				{
+					velocity.x = 200;
+				}
+				else if (facing == LEFT)
+				{
+				
+					velocity.x = -200;
+				}						
 			}
 		}
-		
-		public function stopIfCollides(stopTime:Number):void
-		{
-			
-		}
-		
-		
 
 		/////////////////////////////////////////////////////////
 		// GETTERS/SETTERS
 		/////////////////////////////////////////////////////////
-		
 		public function getAlertLevel():Number
 		{
 			return alertLevel;
@@ -86,8 +81,6 @@ package actors.enemy
 		{
 			alertLevel = alert;
 		}
-		
-		
 	}
 
 }
