@@ -97,6 +97,9 @@ package levels
 						case Marker.LADDER_TOP:
 							new Marker(tx, ty, Marker.LADDER_TOP);
 							break;
+						case Marker.HOOKSHOTABLE:
+							new Marker(tx, ty, Marker.HOOKSHOTABLE);
+							break;
 						default:
 							trace("Parsing error: invalid marker: " + map.getTile(tx, ty));
 							break;

@@ -29,7 +29,6 @@ package actors
 			alpha = 0.2;
 			Registry.noiseRadii.add(this);
 			exists = doesExist;
-			callback = null;
 		}
 		
 		/**

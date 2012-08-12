@@ -70,6 +70,7 @@ package actors
 			maxVelocity.x = MAX_RUNNING_VELOCITY_X;
 			maxVelocity.y = MAX_VELOCITY_Y;
 			mode = NORMAL;
+			weapon = HOOKSHOT;
 			
 			/* instantiate timers */
 			reloadTimer = new FlxDelay(RELOAD_TIME);
@@ -346,6 +347,7 @@ package actors
 					
 					break;
 				case HOOKSHOT:
+					Registry.hookshot.fire(x, y, FlxVelocity.angleBetweenMouse(this, false));
 					break;
 			}
 		}

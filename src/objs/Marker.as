@@ -10,6 +10,7 @@ package objs
 		/* these represent the different types of markers */
 		public static const LADDER_BOTTOM:int = 1;
 		public static const LADDER_TOP:int = 2;
+		public static const HOOKSHOTABLE:int = 3;
 		
 		public var type:int;
 		
@@ -35,6 +36,9 @@ package objs
 					offset.y = 128;
 					y -= 64;
 					Registry.markers_ladderTop.add(this);
+					break;
+				case HOOKSHOTABLE:
+					Registry.markers_hookshotable.add(this);
 					break;
 				default:
 					trace("ERR: invalid marker");

@@ -11,6 +11,7 @@ package
 	import util.Registry;
 	import objs.*;
 	import util.TranqBulletHandler;
+	import weapons.Hookshot;
 	
 	public class PlayState extends FlxState
 	{
@@ -25,6 +26,10 @@ package
 			add(Registry.goalItem);
 			add(Registry.exit);
 			
+			Registry.hookshot = new Hookshot();
+			add(Registry.hookshot);
+			add(Registry.hookshot.rope); //yup, have to add the hookshot and the rope as well
+			
 			Registry.player = new Player(20, 20);
 			add(Registry.player);
 			add(Registry.noiseRadii);
@@ -32,6 +37,7 @@ package
 			/* add markers */
 			add(Registry.markers_ladderBottom);
 			add(Registry.markers_ladderTop);
+			add(Registry.markers_hookshotable);
 	
 			
 			/* FOR TESTING */
@@ -72,6 +78,7 @@ package
 			FlxG.overlap(Registry.player, Registry.exit, completeLevel);
 			FlxG.overlap(Registry.player, Registry.markers_ladderBottom, Registry.player.handleLadderBottom);
 			FlxG.overlap(Registry.player, Registry.markers_ladderTop, Registry.player.handleLadderTop);
+			FlxG.overlap(Registry.hookshot, Registry.markers_hookshotable, Registry.hookshot.stopHookshot);
 
 			FlxG.overlap(Registry.sightrange, Registry.player, Registry.guard.followPlayer);
 			
@@ -121,6 +128,12 @@ package
 			
 			Registry.markers_enemyStop.clear();
 			remove(Registry.markers_enemyStop);
+			
+			Registry.noiseRadii.clear();
+			remove(Registry.noiseRadii);
+			
+			Registry.markers_hookshotable.clear();
+			remove(Registry.markers_hookshotable);
 		}
 	}
 
