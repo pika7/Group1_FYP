@@ -2,6 +2,7 @@ package actors
 {
 	import org.flixel.*;
 	import objs.Marker;
+	import org.flixel.plugin.photonstorm.FlxDelay;
 	import org.flixel.plugin.photonstorm.FlxVelocity;
 	import util.Registry;
 	
@@ -18,10 +19,14 @@ package actors
 		private const SNEAKING_ACCELERATION:int = 400;
 		private const LADDER_VELOCITY:int = 100;
 		private const PREPARE_LADDER_VELOCITY:int = 100;
+		private const RELOAD_TIME:int = 750;
 		
 		/* temp variables for storage */
 		private var tempPoint:FlxPoint;
 		private var tempMarker:Marker;
+		
+		/* timers */
+		private var reloadTimer:FlxDelay;
 		
 		/* private booleans */
 		
@@ -36,6 +41,8 @@ package actors
 		private const PREPARE_LADDER:int = 4; // the player moves to the center of the ladder to prepare for ascent/descent
 		private const INITIAL_LADDER_ASCENT:int = 5; // the player climbs a little bit intially
 		private const INITIAL_LADDER_DESCENT:int = 6;
+		private const RELOADING_NORMAL:int = 7; // the player reloads for a in normal mode and can't move
+		private const RELOADING_SNEAKING:int = 8; // the player reloads for a while in sneaking mode and can't move
 		
 		/* what weapon the player currently has equipped */
 		private var weapon:int;
@@ -60,6 +67,9 @@ package actors
 			maxVelocity.x = MAX_RUNNING_VELOCITY_X;
 			maxVelocity.y = MAX_VELOCITY_Y;
 			mode = NORMAL;
+			
+			/* instantiate timers */
+			reloadTimer = new FlxDelay(RELOAD_TIME);
 		}
 		
 		override public function update():void
@@ -130,6 +140,25 @@ package actors
 					
 					/* TEMPORARY: frame change */
 					frame = 0;
+				}
+			}
+			/* reloading */
+			else if (mode == RELOADING_NORMAL)
+			{
+				/* if reloading, stand there and do nothing for a while */
+				if (!reloadTimer.isRunning)
+				{
+					setMode(NORMAL);
+				}
+				
+			}
+			/* reloading in sneaking mode */
+			else if (mode == RELOADING_SNEAKING)
+			{
+				/* if reloading, stand there and do nothing for a while */
+				if (!reloadTimer.isRunning)
+				{
+					setMode(SNEAKING);
 				}
 			}
 			/* ladder */
@@ -239,6 +268,20 @@ package actors
 					acceleration.y = GRAVITY;
 					break;
 				
+				case RELOADING_NORMAL:
+					velocity.x = 0;
+					acceleration.x = 0;
+					mode = RELOADING_NORMAL;
+					reloadTimer.start();
+					break;
+					
+				case RELOADING_SNEAKING:
+					velocity.x = 0;
+					acceleration.x = 0;
+					mode = RELOADING_SNEAKING;
+					reloadTimer.start();
+					break;
+					
 				case LADDER:
 					mode = LADDER;
 					velocity.x = 0;
@@ -280,6 +323,16 @@ package actors
 				case TRANQ:
 					/* fire a tranq bullet aimed at the mouse */
 					Registry.tranqBulletHandler.fire(x, y, FlxVelocity.angleBetweenMouse(this, false));
+					
+					if (mode == NORMAL)
+					{
+						setMode(RELOADING_NORMAL);
+					}
+					else if (mode == SNEAKING)
+					{
+						setMode(RELOADING_SNEAKING);
+					}
+					
 					break;
 				case HOOKSHOT:
 					break;
@@ -346,7 +399,7 @@ package actors
 		 */
 		public function isSneaking():Boolean
 		{
-			if (mode == SNEAKING)
+			if (mode == SNEAKING || mode == RELOADING_SNEAKING)
 			{
 				return true;
 			}
