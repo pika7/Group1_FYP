@@ -26,11 +26,14 @@ package
 			Registry.level = new TestLevel();
 			add(Registry.level);
 			
+			add(Registry.tranqBulletHandler);
+			add(Registry.goalItem);
+			add(Registry.exit);
+			
 			Registry.player = new Player(20, 20);
 			add(Registry.player);
 			
-			add(Registry.tranqBulletHandler);
-			add(Registry.goalItem);
+			/* add markers */
 			add(Registry.markers_ladderBottom);
 			add(Registry.markers_ladderTop);
 	

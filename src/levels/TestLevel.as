@@ -18,8 +18,8 @@ package levels
 		[Embed(source = "../../assets/img/tilemaps/marker_map.png")] public var markerTilesPNG:Class;
 		
 		/* parsing */
-		[Embed(source = "../../assets/csv/test_level/mapCSV_test_level_items.csv", mimeType = "application/octet-stream")] public var itemsCSV:Class;
-		[Embed(source = "../../assets/img/tilemaps/item_map.png")] public var itemTilesPNG:Class;
+		[Embed(source = "../../assets/csv/test_level/mapCSV_test_level_checkpoints.csv", mimeType = "application/octet-stream")] public var itemsCSV:Class;
+		[Embed(source = "../../assets/img/tilemaps/checkpoint_map.png")] public var itemTilesPNG:Class;
 		
 		public function TestLevel() 
 		{
@@ -34,8 +34,8 @@ package levels
 			over = new FlxTilemap();
 			over.loadMap(new overCSV, overTilesPNG, 32, 32, 0, 0, 0, 2);
 			
-			items = new FlxTilemap();
-			items.loadMap(new itemsCSV, itemTilesPNG, 32, 32, 0, 0, 1, 2);
+			checkpoints = new FlxTilemap();
+			checkpoints.loadMap(new itemsCSV, itemTilesPNG, 32, 32, 0, 0, 1, 2);
 			
 			markers = new FlxTilemap();
 			markers.loadMap(new markersCSV, markerTilesPNG, 32, 32, 0, 0, 1, 3);
@@ -48,7 +48,7 @@ package levels
 			add(over);
 			
 			/* parse things */
-			parseGoalItem(items);
+			parseCheckpoints(checkpoints);
 			parseMarkers(markers);
 		}
 		

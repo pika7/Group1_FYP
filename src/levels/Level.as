@@ -9,17 +9,22 @@ package levels
 	import objs.GoalItem;
 	import org.flixel.*;
 	import objs.Marker;
+	import objs.Exit;
 	
 	public class Level extends FlxGroup
 	{
 		protected var map:FlxTilemap;
 		protected var background:FlxTilemap;
-		protected var items:FlxTilemap;
+		protected var checkpoints:FlxTilemap;
 		protected var markers:FlxTilemap;
 		protected var over:FlxTilemap;
 		
 		public var width:int;
 		public var height:int;
+		
+		/* enumerate the checkpoints */
+		protected const GOAL_ITEM = 1;
+		protected const EXIT = 2;
 		
 		public function Level() 
 		{
@@ -30,16 +35,44 @@ package levels
 		// PARSING FUNCTIONS
 		/////////////////////////////////////////
 		
-		public function parseGoalItem(map:FlxTilemap):void
+		public function parseCheckpoints(map:FlxTilemap):void
 		{
 			for (var ty:int = 0; ty < map.heightInTiles; ty++)
 			{
 				for (var tx:int = 0; tx < map.widthInTiles; tx++)
 				{
 					/* Change this according to the tile number in DAME */
-					if (map.getTile(tx, ty) == 1)
+					switch (map.getTile(tx, ty))
 					{
-						new GoalItem(tx, ty);
+						case 0:
+							break;
+						
+						case GOAL_ITEM:
+							new GoalItem(tx, ty);
+							break;
+						
+						case EXIT:
+							new Exit(tx, ty);
+							break;
+							
+						default:
+							trace("Invalid checkpoint.");
+							break;
+					}
+				}
+			}
+		}
+		
+		public function parseExit(map:FlxTilemap):void
+		{
+			for (var ty:int = 0; ty < map.heightInTiles; ty++)
+			{
+				for (var tx:int = 0; tx < map.widthInTiles; tx++)
+				{
+					/* Change this according to the tile number in DAME */
+					if (map.getTile(tx, ty) == 2)
+					{
+						new Exit(tx, ty);
 					}
 				}
 			}
