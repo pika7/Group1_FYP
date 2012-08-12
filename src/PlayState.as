@@ -27,6 +27,7 @@ package
 			
 			Registry.player = new Player(20, 20);
 			add(Registry.player);
+			add(Registry.noiseRadii);
 			
 			/* add markers */
 			add(Registry.markers_ladderBottom);

@@ -21,6 +21,9 @@ package actors
 		private const PREPARE_LADDER_VELOCITY:int = 100;
 		private const RELOAD_TIME:int = 750;
 		
+		/* noise raadius for player footsteps */
+		private var noiseRadius:NoiseRadius;
+		
 		/* temp variables for storage */
 		private var tempPoint:FlxPoint;
 		private var tempMarker:Marker;
@@ -70,6 +73,9 @@ package actors
 			
 			/* instantiate timers */
 			reloadTimer = new FlxDelay(RELOAD_TIME);
+			
+			/* instantiate other things */
+			noiseRadius = new NoiseRadius(x, y);
 		}
 		
 		override public function update():void
@@ -244,6 +250,9 @@ package actors
 				}
 			}
 			
+			/* make the noise radius follow the player */
+			noiseRadius.follow(this);
+			
 			super.update();
 		}
 		
@@ -260,12 +269,14 @@ package actors
 					mode = NORMAL;
 					maxVelocity.x = MAX_RUNNING_VELOCITY_X;
 					acceleration.y = GRAVITY;
+					noiseRadius.on();
 					break;
 					
 				case SNEAKING:
 					mode = SNEAKING;
 					maxVelocity.x = MAX_SNEAKING_VELOCITY_X;
 					acceleration.y = GRAVITY;
+					noiseRadius.off();
 					break;
 				
 				case RELOADING_NORMAL:

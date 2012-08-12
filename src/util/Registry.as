@@ -20,6 +20,7 @@ package util
 		public static var tranqBulletHandler:TranqBulletHandler = new TranqBulletHandler();		
 		public static var enemyGroup:FlxGroup = new FlxGroup; //enemies will be added here later
 		public static var bulletGroup:FlxGroup = new FlxGroup;
+		public static var noiseRadii = new FlxGroup();
 		
 		/* enemy stuff */
 		public static var guard:Guard;
