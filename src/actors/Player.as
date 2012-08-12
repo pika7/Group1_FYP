@@ -20,6 +20,8 @@ package actors
 		private const LADDER_VELOCITY:int = 100;
 		private const PREPARE_LADDER_VELOCITY:int = 100;
 		private const RELOAD_TIME:int = 750;
+		private const HOOKSHOT_PULL_SPEED:int = 400;
+		private const HOOKSHOT_DANGLE_DISTANCE:int = 100;
 		
 		/* noise raadius for player footsteps */
 		private var noiseRadius:NoiseRadius;
@@ -37,15 +39,17 @@ package actors
 		private var mode:int;
 		
 		/* constants enumerating the mode */
-		private const NORMAL:int = 0;
-		private const SNEAKING:int = 1;
-		private const LADDER:int = 2;
-		private const REACHING_LADDER_TOP:int = 3;
-		private const PREPARE_LADDER:int = 4; // the player moves to the center of the ladder to prepare for ascent/descent
-		private const INITIAL_LADDER_ASCENT:int = 5; // the player climbs a little bit intially
-		private const INITIAL_LADDER_DESCENT:int = 6;
-		private const RELOADING_NORMAL:int = 7; // the player reloads for a in normal mode and can't move
-		private const RELOADING_SNEAKING:int = 8; // the player reloads for a while in sneaking mode and can't move
+		public static const NORMAL:int = 0;
+		public static const SNEAKING:int = 1;
+		public static const LADDER:int = 2;
+		public static const REACHING_LADDER_TOP:int = 3;
+		public static const PREPARE_LADDER:int = 4; // the player moves to the center of the ladder to prepare for ascent/descent
+		public static const INITIAL_LADDER_ASCENT:int = 5; // the player climbs a little bit intially
+		public static const INITIAL_LADDER_DESCENT:int = 6;
+		public static const RELOADING_NORMAL:int = 7; // the player reloads for a in normal mode and can't move
+		public static const RELOADING_SNEAKING:int = 8; // the player reloads for a while in sneaking mode and can't move
+		public static const HOOKSHOT_PULLING:int = 9; // the player is being dragged to the hookshot location
+		public static const HOOKSHOT_DANGLING:int = 10; // the player is dangling from the hookshot
 		
 		/* what weapon the player currently has equipped */
 		private var weapon:int;
@@ -76,7 +80,8 @@ package actors
 			reloadTimer = new FlxDelay(RELOAD_TIME);
 			
 			/* instantiate other things */
-			noiseRadius = new NoiseRadius(x, y);
+			noiseRadius = new NoiseRadius(x, y, false);
+			tempPoint = new FlxPoint(0, 0);
 		}
 		
 		override public function update():void
@@ -89,15 +94,18 @@ package actors
 				{
 					facing = FlxObject.LEFT;
 					acceleration.x = -RUNNING_ACCELERATION;
+					noiseRadius.on();
 				}
 				else if (FlxG.keys.pressed("D"))
 				{
 					facing = FlxObject.RIGHT;
 					acceleration.x = RUNNING_ACCELERATION;
+					noiseRadius.on();
 				}
 				else
 				{
 					acceleration.x = 0;
+					noiseRadius.off();
 				}
 				
 				/* use equipped weapon */
@@ -250,6 +258,35 @@ package actors
 					setMode(LADDER);
 				}
 			}
+			/* get pulled to the hookshot */
+			else if (mode == HOOKSHOT_PULLING)
+			{
+				/* pull the player to the hookshot's location until a certain distance */
+				tempPoint.x = Registry.hookshot.x + Registry.player.width/2; // this needs to be fixed
+				tempPoint.y = Registry.hookshot.y + HOOKSHOT_DANGLE_DISTANCE;
+				FlxVelocity.moveTowardsPoint(this, tempPoint, HOOKSHOT_PULL_SPEED);
+				
+				if (FlxVelocity.distanceBetween(this, Registry.hookshot) <= HOOKSHOT_DANGLE_DISTANCE)
+				{
+					setMode(HOOKSHOT_DANGLING);
+				}
+			}
+			else if (mode == HOOKSHOT_DANGLING)
+			{
+				/* make a dangling effect from the rope */
+				if (FlxVelocity.distanceBetween(this, Registry.hookshot) > HOOKSHOT_DANGLE_DISTANCE)
+				{
+					
+				}
+				
+				/* if press the mouse, then drop back to the ground */
+				if (FlxG.mouse.pressed())
+				{
+					Registry.hookshot.remove();
+					setMode(NORMAL);
+					/* TODO: make another mode for dropping down from the hookshot so the player can't spiderman on the ceiling */
+				}
+			}
 			
 			/* make the noise radius follow the player */
 			noiseRadius.follow(this);
@@ -258,7 +295,7 @@ package actors
 		}
 		
 		////////////////////////////////////////////////////////////
-		// PRIVATE HELPER FUNCTIONS
+		// HELPER FUNCTIONS
 		////////////////////////////////////////////////////////////
 		
 		/* set the mode of the player */
@@ -270,27 +307,25 @@ package actors
 					mode = NORMAL;
 					maxVelocity.x = MAX_RUNNING_VELOCITY_X;
 					acceleration.y = GRAVITY;
-					noiseRadius.on();
 					break;
 					
 				case SNEAKING:
 					mode = SNEAKING;
 					maxVelocity.x = MAX_SNEAKING_VELOCITY_X;
 					acceleration.y = GRAVITY;
-					noiseRadius.off();
 					break;
 				
 				case RELOADING_NORMAL:
+					mode = RELOADING_NORMAL;
 					velocity.x = 0;
 					acceleration.x = 0;
-					mode = RELOADING_NORMAL;
 					reloadTimer.start();
 					break;
 					
 				case RELOADING_SNEAKING:
+					mode = RELOADING_SNEAKING;
 					velocity.x = 0;
 					acceleration.x = 0;
-					mode = RELOADING_SNEAKING;
 					reloadTimer.start();
 					break;
 					
@@ -304,25 +339,37 @@ package actors
 					
 				case REACHING_LADDER_TOP:
 					mode = REACHING_LADDER_TOP;
-					tempPoint = new FlxPoint(x, y - 60);
+					tempPoint.x = x;
+					tempPoint.y = y - 60;
 					break;
 					
 				case PREPARE_LADDER:
+					mode = PREPARE_LADDER;
 					velocity.x = 0;
 					velocity.y = 0;
 					acceleration.x = 0;
 					acceleration.y = 0;
-					mode = PREPARE_LADDER;
 					break;
 					
 				case INITIAL_LADDER_ASCENT:
 					mode = INITIAL_LADDER_ASCENT;
-					tempPoint = new FlxPoint(x, y - 10);
+					tempPoint.x = x;
+					tempPoint.y = y - 10;
 					break;
 					
 				case INITIAL_LADDER_DESCENT:
 					mode = INITIAL_LADDER_DESCENT;
-					tempPoint = new FlxPoint(x, y + 70);
+					tempPoint.x = x;
+					tempPoint.y = y + 70;
+					break;
+					
+				case HOOKSHOT_PULLING:
+					mode = HOOKSHOT_PULLING;
+					break;
+					
+				case HOOKSHOT_DANGLING:
+					mode = HOOKSHOT_DANGLING;
+					acceleration.y = GRAVITY;
 					break;
 			}
 		}
@@ -419,6 +466,17 @@ package actors
 			else
 			{
 				return false;
+			}
+		}
+		
+		/**
+		 * For use with hookshot.  Pulls the player towards it.
+		 */
+		public function pullToHookshot():void
+		{
+			if (mode != HOOKSHOT_DANGLING)
+			{
+				setMode(HOOKSHOT_PULLING);
 			}
 		}
 		

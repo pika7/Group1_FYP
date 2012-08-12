@@ -5,10 +5,13 @@ package weapons
 	import util.Registry;
 	import levels.Level;
 	import objs.Marker;
+	import actors.Player;
 	
 	public class Hookshot extends FireableWeapon
 	{
 		[Embed(source = '../../assets/img/player/weapons/hookshot.png')] private var hookshotPNG:Class;
+		
+		private const ROPE_LENGTH:int = 400;
 		
 		/* this sprite is used to draw the rope between the hook and the player */
 		public var rope:FlxSprite;
@@ -31,7 +34,13 @@ package weapons
 			if (exists)
 			{
 				rope.fill(0x00000000);
-				rope.drawLine(Registry.player.x, Registry.player.y, x + width/2, y + height/2, 0xffbb00, 3);
+				rope.drawLine(Registry.player.x + Registry.player.width/2, Registry.player.y, x + width/2, y + height/2, 0xffbb00, 3);
+			}
+			
+			/* if the hookshot gets too far away from the player, it just disappears */
+			if (FlxVelocity.distanceBetween(this, Registry.player) > ROPE_LENGTH)
+			{
+				remove();
 			}
 		}
 		
@@ -39,7 +48,7 @@ package weapons
 		{
 			/* make the hookshot point in the right direction */
 			this.angle = angle * (180/Math.PI) + 90;
-			super.fire(X, Y, angle);
+			super.fire(X + Registry.player.width/2, Y, angle);
 		}
 		
 		/////////////////////////////////////////////////////
@@ -50,6 +59,22 @@ package weapons
 		{
 			velocity.x = 0;
 			velocity.y = 0;
+			
+			/* pull the player to the hookshot */
+			Registry.player.pullToHookshot();
+		}
+		
+		/////////////////////////////////////////////////////
+		// OTHER PUBLIC FUNCTIONS
+		/////////////////////////////////////////////////////
+		
+		/**
+		 * Removes (puts away) the hookshot.
+		 */
+		public function remove():void
+		{
+			rope.fill(0x00000000);
+			exists = false;
 		}
 	}
 
