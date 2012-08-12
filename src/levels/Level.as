@@ -23,8 +23,8 @@ package levels
 		public var height:int;
 		
 		/* enumerate the checkpoints */
-		protected const GOAL_ITEM = 1;
-		protected const EXIT = 2;
+		protected const GOAL_ITEM:int = 1;
+		protected const EXIT:int = 2;
 		
 		public function Level() 
 		{

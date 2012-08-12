@@ -77,7 +77,7 @@ package actors.enemy
 			return alertLevel;
 		}
 		
-		public function setAlertLevel(alert:Number)
+		public function setAlertLevel(alert:Number):void
 		{
 			alertLevel = alert;
 		}

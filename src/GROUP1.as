@@ -7,7 +7,7 @@ package
 	{
 		public function GROUP1() 
 		{
-			super(800, 600, PlayState, 1);
+			super(800, 600, TitleState, 1);
 			
 			forceDebugger = true;
 		}

@@ -18,7 +18,7 @@ package objs
 			super(X, Y, 150, 150);
 			loadGraphic(exitPNG, true, true, 150, 150, true);
 			
-			width = 150;
+			width = 75;
 			height = 150;
 			centerOffsets(true);
 			

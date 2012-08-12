@@ -14,11 +14,6 @@ package
 	
 	public class PlayState extends FlxState
 	{
-		public function PlayState() 
-		{	
-			
-		}
-		
 		override public function create():void
 		{
 			/* initialise registry objects */
@@ -73,6 +68,7 @@ package
 			FlxG.collide(Registry.level, Registry.sightrange);
 			
 			FlxG.overlap(Registry.player, Registry.goalItem, getGoalItem);
+			FlxG.overlap(Registry.player, Registry.exit, completeLevel);
 			FlxG.overlap(Registry.player, Registry.markers_ladderBottom, Registry.player.handleLadderBottom);
 			FlxG.overlap(Registry.player, Registry.markers_ladderTop, Registry.player.handleLadderTop);
 
@@ -84,13 +80,47 @@ package
 		/////////////////////////////////////////
 		// OVERLAP CALLBACKS
 		/////////////////////////////////////////
+		/* the player picks up the goal item */
 		private function getGoalItem(player:Player, goalItem:GoalItem):void
 		{
 			player.gotGoalItem = true;
 			goalItem.kill();
 		}
 		
-		// TODO: make a clear registry function
+		/* the player completes the level, if she has the goal item */
+		private function completeLevel(player:Player, exit:Exit):void
+		{
+			if (player.gotGoalItem)
+			{
+				clearRegistry();
+				FlxG.switchState(new WinState());
+			}
+		}
+		
+		/////////////////////////////////////////
+		// PRIVATE HELPER FUNCTIONS
+		/////////////////////////////////////////
+		/* clear the registry in preparation of state change */
+		private function clearRegistry():void
+		{
+			Registry.tranqBulletHandler.clear();
+			remove(Registry.tranqBulletHandler);
+			
+			Registry.enemyGroup.clear();
+			remove(Registry.enemyGroup);
+			
+			Registry.bulletGroup.clear();
+			remove(Registry.bulletGroup);
+			
+			Registry.markers_ladderBottom.clear();
+			remove(Registry.markers_ladderBottom);
+			
+			Registry.markers_ladderTop.clear();
+			remove(Registry.markers_ladderTop);
+			
+			Registry.markers_enemyStop.clear();
+			remove(Registry.markers_enemyStop);
+		}
 	}
 
 }
