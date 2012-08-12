@@ -311,6 +311,7 @@ package actors
 					
 				case SNEAKING:
 					mode = SNEAKING;
+					noiseRadius.off();
 					maxVelocity.x = MAX_SNEAKING_VELOCITY_X;
 					acceleration.y = GRAVITY;
 					break;
