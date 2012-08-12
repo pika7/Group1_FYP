@@ -11,7 +11,6 @@ package actors
 	public class NoiseRadius extends FlxSprite
 	{
 		[Embed(source = '../../assets/img/player/footstep_noise_radius.png')] private var circlePNG:Class;
-		public var callback:Function;
 		
 		/**
 		 * Create a noiseRadius centered at the specified location.
@@ -61,15 +60,6 @@ package actors
 			y = target.y - height/2 + target.height/2;
 		}
 		
-		public function overlap():Boolean
-		{
-			
-		}
-		
-		public function overlapGroup:Boolean
-		{
-			
-		}
 		
 		/* TODO: make a noise radius handler */
 		/* TODO: make a variety of different noise radii.  Maybe three: quiet, medium, and loud. */
