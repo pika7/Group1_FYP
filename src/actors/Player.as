@@ -364,6 +364,10 @@ package actors
 					break;
 					
 				case HOOKSHOT_PULLING:
+					velocity.x = 0;
+					velocity.y = 0;
+					acceleration.x = 0;
+					acceleration.y = 0;
 					mode = HOOKSHOT_PULLING;
 					break;
 					
