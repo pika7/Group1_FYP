@@ -77,7 +77,7 @@ package actors.enemy
 				
 		private function backToPatrol():void
 		{
-			velocity.x = -200;
+			
 			play("walk");
 			shootingNow = false;
 			
@@ -88,10 +88,11 @@ package actors.enemy
 			if ((detected == true) && (getAlertLevel()==0) && (shootingNow == false))
 			{
 				shootPlayer();
+		
 			}
 			else if (shootingNow == true)
 			{
-				
+			
 			}			
 		}
 		
@@ -102,7 +103,6 @@ package actors.enemy
 			if (shootingNow == false)
 			{
 				tempVelocity = velocity.x;
-				
 				currentBullet = Registry.bulletGroup.getFirstAvailable() as FlxSprite;	
 				play("shoot");			
 				currentBullet.x = x + 100;
@@ -110,7 +110,6 @@ package actors.enemy
 				currentBullet.exists = true;
 				FlxVelocity.moveTowardsObject(currentBullet, Registry.player, 200);	
 				shootingNow = true;
-				
 				bulletDelay.start();
 				bulletDelay.callback = backToPatrol;
 			}   
