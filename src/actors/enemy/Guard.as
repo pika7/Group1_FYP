@@ -21,12 +21,11 @@ package actors.enemy
 		private var currentBullet:FlxSprite;
 		private var bulletDelay:FlxDelay;
 		private var stopDelay:FlxDelay;
-		//private var tempVelocity:Number = 0;
-		private var detected:Boolean = false;
 		private var shootingNow:Boolean = false;
 		private var lastLocation:FlxPoint = new FlxPoint(0, 0);
 		private var stoppingNow:Boolean = false;
 		private var sightRangeGraphic:FlxSprite;
+		
 
 
 		private var touchedMarker:Boolean = false;
@@ -54,12 +53,13 @@ package actors.enemy
 		override public function update():void
 		{
 				boundaryCheck(xVelocity);		
+				checkIsDetected();
 				super.update();
 		}
 		
 		private function initializeBullets():void
 		{
-			for (var i:int = 0; i < 10; i++)
+			for (var i:int = 0; i < 1000; i++)
 			{
 				bullet = new guardBullet;
 				bullet.exists = false;	
@@ -77,26 +77,46 @@ package actors.enemy
 				
 		private function backToPatrol():void
 		{
-			velocity.x = tempVelocity;
+			velocity.x = -200;
 			play("walk");
 			shootingNow = false;
+			
 		}
-
+		
+		public function checkIsDetected():void
+		{
+			if ((detected == true) && (getAlertLevel()==0) && (shootingNow == false))
+			{
+				shootPlayer();
+			}
+			else if (shootingNow == true)
+			{
+				
+			}			
+		}
+		
 		//shoot the player if detected
 		public function shootPlayer():void
-		{
-			if (getAlertLevel() == 2)
+		{				
+			//start shooting
+			if (shootingNow == false)
 			{
-				currentBullet = Registry.bulletGroup.recycle() as FlxSprite;	
-				play("shoot");
 				tempVelocity = velocity.x;
-				currentBullet.x = x+100;
-				currentBullet.y = y+50;
+				
+				currentBullet = Registry.bulletGroup.getFirstAvailable() as FlxSprite;	
+				play("shoot");			
+				currentBullet.x = x + 100;
+				currentBullet.y = y + 50;
 				currentBullet.exists = true;
-				lastLocation.x = Registry.player.x;
-				lastLocation.y = Registry.player.y;
-				FlxVelocity.moveTowardsObject(currentBullet, Registry.player, 200);
+				FlxVelocity.moveTowardsObject(currentBullet, Registry.player, 200);	
 				shootingNow = true;
+				
+				bulletDelay.start();
+				bulletDelay.callback = backToPatrol;
+			}   
+			else //shootingNow == true
+			{
+				
 			}
 		}
 

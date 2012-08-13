@@ -8,18 +8,17 @@ package actors.enemy
 	import util.Registry;
 	
 
-	public class sightRange extends FlxSprite
+	public class sightRange1 extends FlxSprite
 	{
-		[Embed(source = '../../../assets/img/enemies/sightRange.png')] private var sightRangePNG:Class;
+		[Embed(source = '../../../assets/img/enemies/sightRange1.png')] private var sightRange1PNG:Class;
 		
-		public function sightRange(X:int, Y:int) 
+		
+		public function sightRange1(X:int, Y:int) 
 		{
 			super(X, Y);
 			acceleration.y = 600;
-			x = Registry.guard.x+30;
-			y = Registry.guard.y;
-			loadGraphic(sightRangePNG, false, true, 128, 128);
-			width = 128;
+			loadGraphic(sightRange1PNG, false, true, 256, 128);
+			width = 256;
 			height = 128;
 			facing = RIGHT;
 			visible = true;
@@ -28,22 +27,22 @@ package actors.enemy
 		override public function update():void
 		{
 			velocity.x = Registry.guard.velocity.x;
-			checkFacing();
 			checkAlertLevel();
+			checkFacing();
 		}
 		
 		public function checkAlertLevel():void
 		{
-			if (Registry.guard.getAlertLevel() == 0)
+			if (Registry.guard.getAlertLevel() == 1)
 			{
 				exists = true;
+				visible = true;
 			}
 			else
 			{
 				exists = false;
-			}			
+			}
 		}
-		
 		
 		private function checkFacing():void
 		{
@@ -55,7 +54,7 @@ package actors.enemy
 			}
 			else
 			{
-				x = Registry.guard.x - 100;
+				x = Registry.guard.x - 200;
 				y = Registry.guard.y;
 			}
 		}

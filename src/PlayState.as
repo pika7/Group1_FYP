@@ -5,6 +5,8 @@ package
 {
 	import actors.enemy.Guard;
 	import actors.enemy.sightRange;
+	import actors.enemy.sightRange1;
+	import actors.enemy.sightRange2;
 	import actors.Player;
 	import levels.TestLevel;
 	import org.flixel.*;
@@ -44,7 +46,12 @@ package
 			Registry.guard = new Guard(150, 20);
 			
 			Registry.sightrange = new sightRange(160, 20);
+			Registry.sightrange1 = new sightRange1(160, 20);
+			Registry.sightrange2 = new sightRange2(160, 20);
+			
 			add(Registry.sightrange);
+			add(Registry.sightrange1);
+			add(Registry.sightrange2);
 			
 			add(Registry.guard);
 			add(Registry.bulletGroup);
@@ -73,6 +80,8 @@ package
 			
 			FlxG.collide(Registry.level, Registry.guard);
 			FlxG.collide(Registry.level, Registry.sightrange);
+			FlxG.collide(Registry.level, Registry.sightrange1);
+			FlxG.collide(Registry.level, Registry.sightrange2);
 			
 			FlxG.overlap(Registry.player, Registry.goalItem, getGoalItem);
 			FlxG.overlap(Registry.player, Registry.exit, completeLevel);
@@ -81,6 +90,9 @@ package
 			FlxG.overlap(Registry.hookshot, Registry.markers_hookshotable, Registry.hookshot.stopHookshot);
 
 			FlxG.overlap(Registry.sightrange, Registry.player, Registry.guard.followPlayer);
+			FlxG.overlap(Registry.sightrange1, Registry.player, Registry.guard.followPlayer1);
+			FlxG.overlap(Registry.sightrange2, Registry.player, Registry.guard.followPlayer2);
+
 			
 			super.update();
 		}

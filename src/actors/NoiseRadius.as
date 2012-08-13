@@ -8,6 +8,7 @@ package actors
 	import org.flixel.*;
 	import util.Registry;
 	
+	
 	public class NoiseRadius extends FlxSprite
 	{
 		[Embed(source = '../../assets/img/player/footstep_noise_radius.png')] private var circlePNG:Class;

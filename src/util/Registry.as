@@ -27,6 +27,10 @@ package util
 		/* enemy stuff */
 		public static var guard:Guard;
 		public static var sightrange:sightRange;
+		public static var sightrange1:sightRange1;
+		public static var sightrange2:sightRange2;
+		
+		
 		
 		/* marker groups */
 		public static var markers_ladderBottom:FlxGroup = new FlxGroup();

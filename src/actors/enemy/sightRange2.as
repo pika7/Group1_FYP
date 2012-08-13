@@ -1,25 +1,20 @@
-/*
- *  Represents the sight range of guards. Will change according to their alert level.
- */
-
 package actors.enemy 
 {
 	import org.flixel.FlxSprite;
 	import util.Registry;
 	
 
-	public class sightRange extends FlxSprite
+	public class sightRange2 extends FlxSprite
 	{
-		[Embed(source = '../../../assets/img/enemies/sightRange.png')] private var sightRangePNG:Class;
+		[Embed(source = '../../../assets/img/enemies/sightRange2.png')] private var sightRange2PNG:Class;
 		
-		public function sightRange(X:int, Y:int) 
+		
+		public function sightRange2(X:int, Y:int) 
 		{
 			super(X, Y);
 			acceleration.y = 600;
-			x = Registry.guard.x+30;
-			y = Registry.guard.y;
-			loadGraphic(sightRangePNG, false, true, 128, 128);
-			width = 128;
+			loadGraphic(sightRange2PNG, false, true, 384, 128);
+			width = 384;
 			height = 128;
 			facing = RIGHT;
 			visible = true;
@@ -28,22 +23,22 @@ package actors.enemy
 		override public function update():void
 		{
 			velocity.x = Registry.guard.velocity.x;
-			checkFacing();
 			checkAlertLevel();
+			checkFacing();
 		}
 		
 		public function checkAlertLevel():void
 		{
-			if (Registry.guard.getAlertLevel() == 0)
+			if (Registry.guard.getAlertLevel() == 2)
 			{
 				exists = true;
+				visible = true;
 			}
 			else
 			{
 				exists = false;
-			}			
+			}
 		}
-		
 		
 		private function checkFacing():void
 		{
@@ -55,11 +50,10 @@ package actors.enemy
 			}
 			else
 			{
-				x = Registry.guard.x - 100;
+				x = Registry.guard.x - 340;
 				y = Registry.guard.y;
 			}
 		}
 		
 		}
 	}
-
