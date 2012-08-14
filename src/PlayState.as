@@ -146,6 +146,9 @@ package
 			
 			Registry.markers_hookshotable.clear();
 			remove(Registry.markers_hookshotable);
+			
+			/* TEMPORARY */
+			remove(Registry.guard);
 		}
 	}
 
