@@ -37,6 +37,7 @@ package actors.enemy
 			else
 			{
 				exists = false;
+				visible = false;
 			}
 		}
 		
@@ -45,7 +46,7 @@ package actors.enemy
 			facing = Registry.guard.facing;
 			if (facing == RIGHT)
 			{
-				x = Registry.guard.x +100;
+				x = Registry.guard.x + 100;
 				y = Registry.guard.y;
 			}
 			else

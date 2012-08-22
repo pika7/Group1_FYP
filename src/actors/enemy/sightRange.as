@@ -23,6 +23,7 @@ package actors.enemy
 			height = 128;
 			facing = RIGHT;
 			visible = true;
+			
 		}
 		
 		override public function update():void
@@ -37,10 +38,12 @@ package actors.enemy
 			if (Registry.guard.getAlertLevel() == 0)
 			{
 				exists = true;
+				visible = true;
 			}
 			else
 			{
 				exists = false;
+				visible = false;
 			}			
 		}
 		

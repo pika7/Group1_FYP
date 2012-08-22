@@ -100,6 +100,9 @@ package levels
 						case Marker.HOOKSHOTABLE:
 							new Marker(tx, ty, Marker.HOOKSHOTABLE);
 							break;
+						case Marker.ENEMYSTOP:
+							new Marker(tx, ty, Marker.ENEMYSTOP);
+							break;
 						default:
 							trace("Parsing error: invalid marker: " + map.getTile(tx, ty));
 							break;

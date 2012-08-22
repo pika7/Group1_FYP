@@ -88,11 +88,12 @@ package
 			FlxG.overlap(Registry.player, Registry.markers_ladderBottom, Registry.player.handleLadderBottom);
 			FlxG.overlap(Registry.player, Registry.markers_ladderTop, Registry.player.handleLadderTop);
 			FlxG.overlap(Registry.hookshot, Registry.markers_hookshotable, Registry.hookshot.stopHookshot);
+			FlxG.overlap(Registry.guard, Registry.markers_enemyStop, Registry.guard.handleEnemyStop);
 
+			FlxG.overlap(Registry.guard, Registry.noiseRadii, Registry.guard.noiseAlert);
 			FlxG.overlap(Registry.sightrange, Registry.player, Registry.guard.followPlayer);
 			FlxG.overlap(Registry.sightrange1, Registry.player, Registry.guard.followPlayer1);
 			FlxG.overlap(Registry.sightrange2, Registry.player, Registry.guard.followPlayer2);
-
 			
 			super.update();
 		}

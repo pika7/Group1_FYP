@@ -11,6 +11,7 @@ package objs
 		public static const LADDER_BOTTOM:int = 1;
 		public static const LADDER_TOP:int = 2;
 		public static const HOOKSHOTABLE:int = 3;
+		public static const ENEMYSTOP:int = 4;
 		
 		public var type:int;
 		
@@ -39,6 +40,9 @@ package objs
 					break;
 				case HOOKSHOTABLE:
 					Registry.markers_hookshotable.add(this);
+					break;
+				case ENEMYSTOP:
+					Registry.markers_enemyStop.add(this);
 					break;
 				default:
 					trace("ERR: invalid marker");

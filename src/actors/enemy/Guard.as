@@ -1,6 +1,7 @@
 package actors.enemy 
 {
 
+	import actors.NoiseRadius;
 	import actors.Player;
 	import flash.display.Shape;
 	import objs.Marker;
@@ -12,11 +13,9 @@ package actors.enemy
 	public class Guard extends Enemy
 	{
 		[Embed(source = '../../../assets/img/enemies/guard.png')] private var guardPNG:Class;
-	
 		
 		private const GRAVITY:int = 600;
 		private const xVelocity:Number = 100;
-	
 		private var bullet:FlxSprite;
 		private var currentBullet:FlxSprite;
 		private var bulletDelay:FlxDelay;
@@ -25,20 +24,14 @@ package actors.enemy
 		private var lastLocation:FlxPoint = new FlxPoint(0, 0);
 		private var stoppingNow:Boolean = false;
 		private var sightRangeGraphic:FlxSprite;
-		
-
-
 		private var touchedMarker:Boolean = false;
-		private var alreadyTouchedmarker:Boolean = false;
 		
 		public function Guard(X:int, Y:int) 
 		{
 			super(X, Y);
 			loadGraphic(guardPNG, true, true, 128, 128, true);
-	
 			width = 128;
 			height = 128;
-			
 			addAnimation("walk", [0], 0, false);
 			addAnimation("shoot", [1], 0, false);
 			acceleration.y = GRAVITY;
@@ -49,14 +42,26 @@ package actors.enemy
 			alertLevel = 0;
 			initializeBullets();
  		}
-
+		
 		override public function update():void
 		{
-				boundaryCheck(xVelocity);		
-				checkIsDetected();
-				super.update();
+			boundaryCheck(xVelocity);		
+			checkIsDetected();
+			checkTouchedMarker();
+			
+			if (bulletDelay.hasExpired == true)
+			{
+				velocity.x = 200;
+				facing = RIGHT;
+				shootingNow = false;
+				detected = false;
+			}
+			
+			super.update();
 		}
 		
+		/* creates bullets for guards to use 
+		 */
 		private function initializeBullets():void
 		{
 			for (var i:int = 0; i < 1000; i++)
@@ -67,33 +72,37 @@ package actors.enemy
 			}
 		}
 		
-		
 		public function handleEnemyStop(guard:Guard, marker:Marker):void
 		{	
-			stopDelay.start();
-			tempVelocity = velocity.x;
-			stopDelay.callback = backToPatrol;
+			if (touchedMarker == false)
+			{
+				velocity.x = 0;
+				touchedMarker = true;
+				stopDelay.start();
+			}
 		}
-				
+		
+		public function checkTouchedMarker():void
+		{
+			if (stopDelay.hasExpired)
+			{
+				backToPatrol();
+			}
+		}
+		
 		private function backToPatrol():void
 		{
-			
-			play("walk");
-			shootingNow = false;
-			
+			velocity.x = -200;
+			facing = LEFT;	
 		}
 		
 		public function checkIsDetected():void
 		{
-			if ((detected == true) && (getAlertLevel()==0) && (shootingNow == false))
+			if ((detected == true) && (shootingNow==false))
 			{
 				shootPlayer();
-		
-			}
-			else if (shootingNow == true)
-			{
-			
-			}			
+				
+			}		
 		}
 		
 		//shoot the player if detected
@@ -110,28 +119,19 @@ package actors.enemy
 				currentBullet.exists = true;
 				FlxVelocity.moveTowardsObject(currentBullet, Registry.player, 200);	
 				shootingNow = true;
+				velocity.x = 0;
 				bulletDelay.start();
-				bulletDelay.callback = backToPatrol;
 			}   
-			else //shootingNow == true
-			{
-				
-			}
-		}
-
-		public function moveToLastLocation():void
+		}		
+		
+		/*
+		 * guard responds to the noise
+		*/
+		public function noiseAlert(guard:Guard, noise:NoiseRadius):void
 		{
-
-
+			//velocity.x = 0;
+			//go to the source of noise
 		}
-
-
-
-
-
-
-
-
 	}
 
 }
