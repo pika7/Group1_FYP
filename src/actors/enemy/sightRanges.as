@@ -30,7 +30,7 @@ package actors.enemy
 			velocity.x = Registry.guard.velocity.x;
 			checkAlertLevel();
 			checkFacing();
-			play("alert2");
+			play("alert0");
 		
 		}
 		
