@@ -10,7 +10,7 @@ package actors.enemy
 		public function sightRanges(X:int, Y:int) 
 		{	
 			super(X, Y);
-			acceleration.y = 600;
+			//acceleration.y = 600; <-- dont need this
 			x = Registry.guard.x+100;
 			y = Registry.guard.y;
 			width = 341;

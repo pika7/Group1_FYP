@@ -72,7 +72,7 @@ package
 			}
 			
 			FlxG.collide(Registry.level, Registry.guard);
-			FlxG.collide(Registry.level, Registry.sightranges);
+			//FlxG.collide(Registry.level, Registry.sightranges); <-- dont need this
 			
 			FlxG.overlap(Registry.player, Registry.goalItem, getGoalItem);
 			FlxG.overlap(Registry.player, Registry.exit, completeLevel);
