@@ -5,18 +5,18 @@
 package util 
 {
 	import org.flixel.*;
-	import weapons.TranqBullet;
+	import weapons.SmokeBomb;
 	
-	public class TranqBulletHandler extends FlxGroup
+	public class SmokeBombHandler extends FlxGroup
 	{
-		public function TranqBulletHandler() 
+		public function SmokeBombHandler() 
 		{
 			super();
 			
-			/* create 10 bullets */
-			for (var i:int = 0; i <= 10; i++)
+			/* create 5 bullets */
+			for (var i:int = 0; i <= 5; i++)
 			{
-				add(new TranqBullet());
+				add(new SmokeBomb());
 			}
 		}
 		/**
@@ -30,7 +30,7 @@ package util
 		{
 			if (getFirstAvailable())
 			{
-				TranqBullet(getFirstAvailable()).fire(bx, by, angle);
+				SmokeBomb(getFirstAvailable()).fire(bx, by, angle);
 			}
 		}
 	}

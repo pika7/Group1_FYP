@@ -10,6 +10,7 @@ package actors
 	{	
 		[Embed(source = '../../assets/img/player/test_player.png')] private var playerPNG:Class;
 		
+		/* general constants */
 		private const FRICTION:int = 900;
 		private const GRAVITY:int = 600;
 		private const MAX_RUNNING_VELOCITY_X:int = 200;
@@ -17,9 +18,15 @@ package actors
 		private const MAX_VELOCITY_Y:int = 700;
 		private const RUNNING_ACCELERATION:int = 800;
 		private const SNEAKING_ACCELERATION:int = 400;
+		
+		/* ladders */
 		private const LADDER_VELOCITY:int = 100;
 		private const PREPARE_LADDER_VELOCITY:int = 100;
+		
+		/* tranq */
 		private const RELOAD_TIME:int = 750;
+		
+		/* hookshot */
 		private const HOOKSHOT_PULL_SPEED:int = 400;
 		private const HOOKSHOT_DANGLE_DISTANCE:int = 100;
 		private const BASE_ANGULAR_ACCELERATION:Number = -5;
@@ -33,15 +40,20 @@ package actors
 		private const HOOKSHOT_FLY_ACCELERATION:int = 100; // how well the player can control themselves in the air after flying off a hookshot
 		private const START_SWING_THRESHOLD:int = 5; // the smaller the value the closer to 0 the swinging speed must be to start a swing extend
 		
+		/* bombs */
+		private const PREPARE_BOMB_TIME:int = 500;
+		
 		/* noise raadius for player footsteps */
 		private var noiseRadius:NoiseRadius;
 		
 		/* temp variables for storage */
 		private var tempPoint:FlxPoint;
 		private var tempMarker:Marker;
+		private var tempAngle:Number;
 		
 		/* timers */
 		private var reloadTimer:FlxDelay;
+		private var prepareBombTimer:FlxDelay;
 		
 		/* private booleans */
 		
@@ -62,6 +74,8 @@ package actors
 		public static const HOOKSHOT_DANGLING:int = 10; // the player is dangling from the hookshot
 		public static const HOOKSHOT_FLY:int = 11; // the player is in the air after having dropped from a hookshot
 		public static const IN_AIR:int = 12; // just in air after stepping off a platform etc.
+		public static const PREPARE_BOMB_NORMAL:int = 13; // preparing to throw a bomb or grenade in normal mode
+		public static const PREPARE_BOMB_SNEAKING:int = 14; // preparing to throw a bomb or grenade in sneaking mode
 		
 		/* what weapon the player currently has equipped */
 		private var weapon:int;
@@ -76,6 +90,7 @@ package actors
 		/* constants enumerating the currently equipped weapon */
 		private const TRANQ:int = 0;
 		private const HOOKSHOT:int = 1;
+		private const SMOKEBOMB:int = 2;
 		
 		/* public booleans, because I'm lazy */
 		public var gotGoalItem:Boolean = false;
@@ -93,10 +108,11 @@ package actors
 			maxVelocity.x = MAX_RUNNING_VELOCITY_X;
 			maxVelocity.y = MAX_VELOCITY_Y;
 			mode = IN_AIR;
-			weapon = HOOKSHOT;
+			weapon = TRANQ;
 			
 			/* instantiate timers */
 			reloadTimer = new FlxDelay(RELOAD_TIME);
+			prepareBombTimer = new FlxDelay(PREPARE_BOMB_TIME);
 			
 			/* instantiate other things */
 			noiseRadius = new NoiseRadius(x, y, false);
@@ -411,9 +427,41 @@ package actors
 					setMode(NORMAL);
 				}
 			}
+			/* preparing to throw a bomb in normal mode */
+			else if (mode == PREPARE_BOMB_NORMAL)
+			{
+				if (!prepareBombTimer.isRunning)
+				{
+					Registry.smokeBombHandler.fire(x, y, tempAngle);
+					setMode(NORMAL);
+				}
+			}
+			/*preparing to throw a bomb in sneaking mode */
+			else if (mode == PREPARE_BOMB_SNEAKING)
+			{
+				if (!prepareBombTimer.isRunning)
+				{
+					Registry.smokeBombHandler.fire(x, y, tempAngle);
+					setMode(SNEAKING);
+				}
+			}
 			
 			/* make the noise radius follow the player */
 			noiseRadius.follow(this);
+			
+			/* TEMP: switching weapons, maybe need a delay later? */
+			if (FlxG.keys.pressed("ONE"))
+			{
+				weapon = TRANQ;
+			}
+			else if (FlxG.keys.pressed("TWO"))
+			{
+				weapon = HOOKSHOT;
+			}
+			else if (FlxG.keys.pressed("THREE"))
+			{
+				weapon = SMOKEBOMB;
+			}
 			
 			super.update();
 		}
@@ -524,6 +572,18 @@ package actors
 					acceleration.y = GRAVITY;
 					noiseRadius.off();
 					break;
+					
+				case PREPARE_BOMB_NORMAL:
+					mode  = PREPARE_BOMB_NORMAL;
+					stopAllMovement();
+					noiseRadius.off();
+					break;
+					
+				case PREPARE_BOMB_SNEAKING:
+					mode = PREPARE_BOMB_NORMAL;
+					stopAllMovement();
+					noiseRadius.off();
+					break;
 			}
 		}
 		
@@ -555,9 +615,26 @@ package actors
 					}
 					
 					break;
+				
 				case HOOKSHOT:
 					Registry.hookshot.fire(x, y, FlxVelocity.angleBetweenMouse(this, false));
 					break;
+					
+				case SMOKEBOMB:
+					prepareBombTimer.start();
+					if (mode == NORMAL)
+					{
+						setMode(PREPARE_BOMB_NORMAL);
+					}
+					else if (mode == SNEAKING)
+					{
+						setMode(PREPARE_BOMB_SNEAKING);
+					}
+					
+					tempAngle = FlxVelocity.angleBetweenMouse(this, false);
+					
+					break;
+					
 			}
 		}
 		

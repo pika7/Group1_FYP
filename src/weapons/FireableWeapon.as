@@ -7,10 +7,12 @@ package weapons
 	public class FireableWeapon extends FlxSprite
 	{
 		protected var shotVelocity:int = 500;
+		protected var gravity:int = 0;
 		
 		public function FireableWeapon()
 		{
 			super(0, 0);
+			acceleration.y = gravity;
 			exists = false;
 		}
 		
@@ -30,6 +32,11 @@ package weapons
 			velocity.y = shotVelocity * Math.sin(angle);
 			
 			exists = true;
+		}
+		
+		override public function kill():void
+		{
+			exists = false;
 		}
 		
 	}

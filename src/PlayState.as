@@ -11,7 +11,7 @@ package
 	import util.Registry;
 	import objs.*;
 	import util.TranqBulletHandler;
-	import weapons.Hookshot;
+	import weapons.*;
 	
 	public class PlayState extends FlxState
 	{
@@ -22,9 +22,10 @@ package
 			Registry.level = new TestLevel();
 			add(Registry.level);
 			
-			add(Registry.tranqBulletHandler);
 			add(Registry.goalItem);
 			add(Registry.exit);
+			add(Registry.tranqBulletHandler);
+			add(Registry.smokeBombHandler);
 			
 			Registry.hookshot = new Hookshot();
 			add(Registry.hookshot);
@@ -73,6 +74,7 @@ package
 			
 			FlxG.collide(Registry.level, Registry.guard);
 			//FlxG.collide(Registry.level, Registry.sightranges); <-- dont need this
+			FlxG.collide(Registry.level, Registry.smokeBombHandler, SmokeBomb.bounce);
 			
 			
 			FlxG.overlap(Registry.player, Registry.goalItem, getGoalItem);
@@ -122,6 +124,9 @@ package
 		{
 			Registry.tranqBulletHandler.clear();
 			remove(Registry.tranqBulletHandler);
+			
+			Registry.smokeBombHandler.clear();
+			remove(Registry.smokeBombHandler);
 			
 			Registry.enemyGroup.clear();
 			remove(Registry.enemyGroup);

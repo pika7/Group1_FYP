@@ -7,6 +7,7 @@ package util
 	import objs.GoalItem;
 	import org.flixel.FlxGroup;
 	import weapons.Hookshot;
+	import weapons.SmokeBomb;
 	
 	public class Registry 
 	{
@@ -19,7 +20,8 @@ package util
 		public static var exit:Exit;
 		public static var hookshot:Hookshot;
 		
-		public static var tranqBulletHandler:TranqBulletHandler = new TranqBulletHandler();		
+		public static var tranqBulletHandler:TranqBulletHandler = new TranqBulletHandler();
+		public static var smokeBombHandler:SmokeBombHandler = new SmokeBombHandler();
 		public static var enemyGroup:FlxGroup = new FlxGroup; //enemies will be added here later
 		public static var bulletGroup:FlxGroup = new FlxGroup;
 		public static var noiseRadii:FlxGroup = new FlxGroup();

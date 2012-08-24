@@ -12,11 +12,13 @@ package weapons
 		 * call this.
 		 */
 		public function TranqBullet() 
-		{
+		{		
+			/* these have to go first */
+			gravity = 0;
+			shotVelocity = 1200;
+			
 			super();
 			loadGraphic(bulletPNG, true, true, 4, 4, true);
-			
-			shotVelocity = 1200;
 		}
 		
 		override public function update():void
@@ -24,7 +26,7 @@ package weapons
 			/* If the bullet goes offscreen, remove it. (Place it back into the pool of available bullets) */
 			if (exists && !onScreen())
 			{
-				exists = false;
+				kill();
 			}
 		}
 	}
