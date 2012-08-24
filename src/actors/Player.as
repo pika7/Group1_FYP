@@ -24,6 +24,7 @@ package actors
 		private const HOOKSHOT_DANGLE_DISTANCE:int = 100;
 		private const BASE_ANGULAR_ACCELERATION:Number = -5;
 		private const DAMPING:Number = 0.985;
+		private const SWING_CONVERSION:Number = 0.2; // this is just to transition the normal movement to swing movement smoothly
 		
 		/* noise raadius for player footsteps */
 		private var noiseRadius:NoiseRadius;
@@ -296,13 +297,6 @@ package actors
 			else if (mode == HOOKSHOT_DANGLING)
 			{	
 				/* make a dangling effect from the rope */				
-				/* first, stop all movement */
-				velocity.x = 0;
-				velocity.y = 0;
-				acceleration.x = 0;
-				acceleration.y = 0;
-				
-				/* now calculate the swinging stuff */
 				/* set the length of the rope, can change this later... */
 				ropeLength = FlxVelocity.distanceBetween(this, Registry.hookshot);
 				tempPoint.x = Registry.player.x + Registry.player.width / 2;
@@ -383,10 +377,7 @@ package actors
 				case LADDER:
 					mode = LADDER;
 					noiseRadius.off();
-					velocity.x = 0;
-					velocity.y = 0;
-					acceleration.x = 0;
-					acceleration.y = 0;
+					stopAllMovement();
 					break;
 					
 				case REACHING_LADDER_TOP:
@@ -399,10 +390,7 @@ package actors
 				case PREPARE_LADDER:
 					mode = PREPARE_LADDER;
 					noiseRadius.off();
-					velocity.x = 0;
-					velocity.y = 0;
-					acceleration.x = 0;
-					acceleration.y = 0;
+					stopAllMovement();
 					break;
 					
 				case INITIAL_LADDER_ASCENT:
@@ -420,20 +408,29 @@ package actors
 					break;
 					
 				case HOOKSHOT_PULLING:
-					velocity.x = 0;
-					velocity.y = 0;
-					acceleration.x = 0;
-					acceleration.y = 0;
+					stopAllMovement();
 					mode = HOOKSHOT_PULLING;
 					noiseRadius.off();
 					break;
 					
 				case HOOKSHOT_DANGLING:
 					mode = HOOKSHOT_DANGLING;
+					
+					/* smoothly convert the existing velocity to the swing velocity */
+					swingAngularVelocity = velocity.x * SWING_CONVERSION;
+					stopAllMovement();
 					noiseRadius.off();
-					acceleration.y = GRAVITY;
 					break;
 			}
+		}
+		
+		/* simply zeroes out all the acceleration and velocity values */
+		private function stopAllMovement():void
+		{
+			velocity.x = 0;
+			velocity.y = 0;
+			acceleration.x = 0;
+			acceleration.y = 0;
 		}
 		
 		/* use the currently equipped weapon */
