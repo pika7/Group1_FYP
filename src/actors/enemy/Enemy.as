@@ -98,7 +98,6 @@ package actors.enemy
 		{
 			if (FlxCollision.pixelPerfectCheck(sightrange, player))	
 			{
-				trace("detected");
 				detected = true;
 			}
 		}
