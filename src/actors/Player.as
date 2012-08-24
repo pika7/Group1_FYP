@@ -25,6 +25,13 @@ package actors
 		private const BASE_ANGULAR_ACCELERATION:Number = -5;
 		private const DAMPING:Number = 0.985;
 		private const SWING_CONVERSION:Number = 0.2; // this is just to transition the normal movement to swing movement smoothly
+		private const ROPE_SHORTEN_SPEED:int = 60;
+		private const SWING_EXTEND_STRENGTH:int = 3;
+		private const MAXIMUM_SWING_VELOCITY:int = 180;
+		private const HOOKSHOT_FLY_VELOCITY_MULTIPLIER:int = 2; // how much the amplify the velocity after coming off a hookshot
+		private const HOOKSHOT_FLY_GRAVITY:int = 400; // the gravity after coming off a hookshot
+		private const HOOKSHOT_FLY_ACCELERATION:int = 100; // how well the player can control themselves in the air after flying off a hookshot
+		private const START_SWING_THRESHOLD:int = 5; // the smaller the value the closer to 0 the swinging speed must be to start a swing extend
 		
 		/* noise raadius for player footsteps */
 		private var noiseRadius:NoiseRadius;
@@ -53,6 +60,8 @@ package actors
 		public static const RELOADING_SNEAKING:int = 8; // the player reloads for a while in sneaking mode and can't move
 		public static const HOOKSHOT_PULLING:int = 9; // the player is being dragged to the hookshot location
 		public static const HOOKSHOT_DANGLING:int = 10; // the player is dangling from the hookshot
+		public static const HOOKSHOT_FLY:int = 11; // the player is in the air after having dropped from a hookshot
+		public static const IN_AIR:int = 12; // just in air after stepping off a platform etc.
 		
 		/* what weapon the player currently has equipped */
 		private var weapon:int;
@@ -83,7 +92,7 @@ package actors
 			acceleration.y = GRAVITY;
 			maxVelocity.x = MAX_RUNNING_VELOCITY_X;
 			maxVelocity.y = MAX_VELOCITY_Y;
-			mode = NORMAL;
+			mode = IN_AIR;
 			weapon = HOOKSHOT;
 			
 			/* instantiate timers */
@@ -104,21 +113,15 @@ package actors
 				{
 					facing = FlxObject.LEFT;
 					acceleration.x = -RUNNING_ACCELERATION;
-					
-					if (isTouching(FlxObject.FLOOR))
-					{
-						noiseRadius.on();
-					}
+
+					noiseRadius.on();
 				}
 				else if (FlxG.keys.pressed("D"))
 				{
 					facing = FlxObject.RIGHT;
 					acceleration.x = RUNNING_ACCELERATION;
 					
-					if (isTouching(FlxObject.FLOOR))
-					{
-						noiseRadius.on();
-					}
+					noiseRadius.on();
 				}
 				else
 				{
@@ -294,11 +297,12 @@ package actors
 					setMode(HOOKSHOT_DANGLING);
 				}
 			}
+			/* dangling from the hookshot, can swing */
 			else if (mode == HOOKSHOT_DANGLING)
 			{	
 				/* make a dangling effect from the rope */				
 				/* set the length of the rope, can change this later... */
-				ropeLength = FlxVelocity.distanceBetween(this, Registry.hookshot);
+				ropeLength = FlxVelocity.distanceBetween(this, Registry.hookshot); // do i even need this?
 				tempPoint.x = Registry.player.x + Registry.player.width / 2;
 				tempPoint.y = Registry.player.y;
 				
@@ -321,12 +325,67 @@ package actors
 				/* apply damping ... swings get gradually smaller */
 				swingAngularVelocity = swingAngularVelocity * DAMPING;
 				
-				/* if press the mouse, then drop back to the ground */
-				if (FlxG.mouse.pressed())
+				/* if press W or S, change the length of the rope */
+				if (FlxG.keys.pressed("W"))
+				{
+					velocity.y -= ROPE_SHORTEN_SPEED;
+				}
+				else if (FlxG.keys.pressed("S"))
+				{
+					velocity.y += ROPE_SHORTEN_SPEED;
+				}
+				
+				/* if press A or D, swing more */
+				if (FlxG.keys.pressed("A"))
+				{
+					if ((swingAngularVelocity > -MAXIMUM_SWING_VELOCITY && swingAngularVelocity < 0) || (swingAngularVelocity < START_SWING_THRESHOLD && swingAngularVelocity > -START_SWING_THRESHOLD))
+					{
+						swingAngularVelocity -= SWING_EXTEND_STRENGTH;
+					}
+				}
+				else if (FlxG.keys.pressed("D"))
+				{
+					if ((swingAngularVelocity < MAXIMUM_SWING_VELOCITY && swingAngularVelocity > 0) || (swingAngularVelocity < START_SWING_THRESHOLD && swingAngularVelocity > -START_SWING_THRESHOLD))
+					{
+						swingAngularVelocity += SWING_EXTEND_STRENGTH;
+					}
+				}
+				
+				/* if relase the mouse, then drop back to the ground */
+				if (!FlxG.mouse.pressed())
 				{
 					Registry.hookshot.remove();
+					setMode(HOOKSHOT_FLY);
+				}
+			}
+			/* released the hookshot, amplify the horizontal and vertical motion so that it feels better */
+			else if (mode == HOOKSHOT_FLY)
+			{	
+				/* allow very limited air control */
+				if (FlxG.keys.pressed("A"))
+				{
+					acceleration.x = -HOOKSHOT_FLY_ACCELERATION;
+				}
+				else if (FlxG.keys.pressed("D"))
+				{
+					acceleration.x = HOOKSHOT_FLY_ACCELERATION;
+				}
+				
+				/* go back to normal mode on ground */
+				if (this.isTouching(FlxObject.FLOOR))
+				{
 					setMode(NORMAL);
-					/* TODO: make another mode for dropping down from the hookshot so the player can't spiderman on the ceiling */
+				}
+			}
+			/* just in air after stepping off a platform or something */
+			else if (mode == IN_AIR)
+			{
+				/* TODO: allow some control of air movement */
+				
+				/* go back to normal mode on ground */
+				if (this.isTouching(FlxObject.FLOOR))
+				{
+					setMode(NORMAL);
 				}
 			}
 			
@@ -349,6 +408,7 @@ package actors
 					mode = NORMAL;
 					maxVelocity.x = MAX_RUNNING_VELOCITY_X;
 					acceleration.y = GRAVITY;
+					drag.x = FRICTION;
 					break;
 					
 				case SNEAKING:
@@ -421,6 +481,24 @@ package actors
 					stopAllMovement();
 					noiseRadius.off();
 					break;
+					
+				case HOOKSHOT_FLY:
+					mode = HOOKSHOT_FLY;
+					drag.x = 0;
+					
+					/* amplify the velocity off the swing so it feels better */
+					velocity.x = velocity.x * HOOKSHOT_FLY_VELOCITY_MULTIPLIER;
+					velocity.y = velocity.y * HOOKSHOT_FLY_VELOCITY_MULTIPLIER; 
+					acceleration.y = HOOKSHOT_FLY_GRAVITY;
+					noiseRadius.off();
+					break;
+					
+				case IN_AIR:
+					mode = IN_AIR;
+					drag.x = 0;
+					acceleration.y = GRAVITY;
+					noiseRadius.off();
+					break;
 			}
 		}
 		
@@ -466,13 +544,13 @@ package actors
 		public function handleLadderBottom(player:Player, marker:Marker):void
 		{
 			/* if W pressed start ladder mode */
-			if (FlxG.keys.justPressed("W"))
+			if (mode == NORMAL && FlxG.keys.justPressed("W"))
 			{
 				setMode(PREPARE_LADDER);
 				tempMarker = marker;
 			}
 			/* if S pressed end ladder mode */
-			else if (FlxG.keys.pressed("S"))
+			else if (mode == LADDER && FlxG.keys.pressed("S"))
 			{
 				setMode(NORMAL);
 			}			
@@ -482,13 +560,13 @@ package actors
 		public function handleLadderTop(player:Player, marker:Marker):void
 		{
 			/* if S pressed start ladder mode */
-			if (FlxG.keys.justPressed("S"))
+			if (mode == NORMAL && FlxG.keys.justPressed("S"))
 			{
 				setMode(PREPARE_LADDER);
 				tempMarker = marker;
 			}
 			/* if W pressed end ladder mode */
-			else if (FlxG.keys.pressed("W") && mode == LADDER)
+			else if (mode == LADDER && FlxG.keys.pressed("W") && mode == LADDER)
 			{
 				setMode(REACHING_LADDER_TOP);
 			}

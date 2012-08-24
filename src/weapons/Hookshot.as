@@ -31,6 +31,7 @@ package weapons
 		override public function update():void
 		{	
 			/* draw a line between the hook and the player */
+			/* TODO: find a better alternative, this is VERY processor intensive */
 			if (exists)
 			{
 				rope.fill(0x00000000);
