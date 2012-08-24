@@ -21,7 +21,7 @@ package actors.enemy
 		override public function update():void
 		{
 			super.update();
-			if (exists && (x < 0))
+			if (exists && (x < 0) && justTouched(FLOOR))
 			{
 				exists = false;
 			}
