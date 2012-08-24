@@ -11,7 +11,8 @@ package weapons
 	{
 		[Embed(source = '../../assets/img/player/weapons/hookshot.png')] private var hookshotPNG:Class;
 		
-		private const ROPE_LENGTH:int = 400;
+		public const MAX_ROPE_LENGTH:int = 400;
+		public const MIN_ROPE_LENGTH:int = 100;
 		
 		/* this sprite is used to draw the rope between the hook and the player */
 		public var rope:FlxSprite;
@@ -39,7 +40,7 @@ package weapons
 			}
 			
 			/* if the hookshot gets too far away from the player, it just disappears */
-			if (FlxVelocity.distanceBetween(this, Registry.player) > ROPE_LENGTH)
+			if (FlxVelocity.distanceBetween(this, Registry.player) > MAX_ROPE_LENGTH)
 			{
 				remove();
 			}

@@ -20,7 +20,6 @@ package actors
 		private const LADDER_VELOCITY:int = 100;
 		private const PREPARE_LADDER_VELOCITY:int = 100;
 		private const RELOAD_TIME:int = 750;
-		private const MINIMUM_ROPE_LENGTH:int = 100;
 		private const HOOKSHOT_PULL_SPEED:int = 400;
 		private const HOOKSHOT_DANGLE_DISTANCE:int = 100;
 		private const BASE_ANGULAR_ACCELERATION:Number = -5;
@@ -28,8 +27,8 @@ package actors
 		private const SWING_CONVERSION:Number = 0.2; // this is just to transition the normal movement to swing movement smoothly
 		private const ROPE_SHORTEN_SPEED:int = 60;
 		private const SWING_EXTEND_STRENGTH:Number = 0.02;
-		private const MAXIMUM_SWING_VELOCITY:int = 180;
-		private const HOOKSHOT_FLY_VELOCITY_MULTIPLIER:int = 2; // how much the amplify the velocity after coming off a hookshot
+		private const MAXIMUM_SWING_VELOCITY:Number = 0.9;
+		private const HOOKSHOT_FLY_VELOCITY_MULTIPLIER:Number = 1.5; // how much the amplify the velocity after coming off a hookshot
 		private const HOOKSHOT_FLY_GRAVITY:int = 400; // the gravity after coming off a hookshot
 		private const HOOKSHOT_FLY_ACCELERATION:int = 100; // how well the player can control themselves in the air after flying off a hookshot
 		private const START_SWING_THRESHOLD:int = 5; // the smaller the value the closer to 0 the swinging speed must be to start a swing extend
@@ -144,6 +143,12 @@ package actors
 					/* TEMPORARY: frame change */
 					frame = 1;
 				}
+				
+				/* step off a platform */
+				if (!isTouching(FlxObject.FLOOR))
+				{
+					setMode(IN_AIR);
+				}
 			}
 			/* sneaking mode */
 			else if (mode == SNEAKING)
@@ -177,6 +182,12 @@ package actors
 					
 					/* TEMPORARY: frame change */
 					frame = 0;
+				}
+				
+				/* step off a platform */
+				if (!isTouching(FlxObject.FLOOR))
+				{
+					setMode(IN_AIR);
 				}
 			}
 			/* reloading */
@@ -327,30 +338,30 @@ package actors
 				swingAngularVelocity = swingAngularVelocity * DAMPING;
 				
 				/* if press W or S, change the length of the rope... move towards or away from hookshot */
-				if (FlxG.keys.pressed("W") && ropeLength >= MINIMUM_ROPE_LENGTH)
+				if (FlxG.keys.pressed("W") && ropeLength > Registry.hookshot.MIN_ROPE_LENGTH)
 				{
 					velocity.x -= Math.sin(ropeAngle) * ROPE_SHORTEN_SPEED;
 					velocity.y -= Math.cos(ropeAngle) * ROPE_SHORTEN_SPEED;
 					
 				}
-				else if (FlxG.keys.pressed("S")) // TODO: implement maximum rope length
+				else if (FlxG.keys.pressed("S") && ropeLength < Registry.hookshot.MAX_ROPE_LENGTH - 10) // just to make sure it doesnt actually hit it
 				{
 					velocity.x += Math.sin(ropeAngle) * ROPE_SHORTEN_SPEED;
 					velocity.y += Math.cos(ropeAngle) * ROPE_SHORTEN_SPEED;
 				}
 				
 				/* if press A or D, swing more */
-				/* the speed at which you swing isproportional to the length of the rope */
+				/* the speed at which you swing is proportional to the length of the rope */
 				if (FlxG.keys.pressed("A"))
 				{
-					if ((swingAngularVelocity > -MAXIMUM_SWING_VELOCITY && swingAngularVelocity < 0) || (swingAngularVelocity < START_SWING_THRESHOLD && swingAngularVelocity > -START_SWING_THRESHOLD))
+					if ((swingAngularVelocity > -(MAXIMUM_SWING_VELOCITY * ropeLength) && swingAngularVelocity < 0) || (swingAngularVelocity < START_SWING_THRESHOLD && swingAngularVelocity > -START_SWING_THRESHOLD))
 					{
 						swingAngularVelocity -= SWING_EXTEND_STRENGTH * ropeLength;
 					}
 				}
 				else if (FlxG.keys.pressed("D"))
 				{
-					if ((swingAngularVelocity < MAXIMUM_SWING_VELOCITY && swingAngularVelocity > 0) || (swingAngularVelocity < START_SWING_THRESHOLD && swingAngularVelocity > -START_SWING_THRESHOLD))
+					if ((swingAngularVelocity < (MAXIMUM_SWING_VELOCITY * ropeLength) && swingAngularVelocity > 0) || (swingAngularVelocity < START_SWING_THRESHOLD && swingAngularVelocity > -START_SWING_THRESHOLD))
 					{
 						swingAngularVelocity += SWING_EXTEND_STRENGTH * ropeLength;
 					}
@@ -361,6 +372,13 @@ package actors
 				{
 					Registry.hookshot.remove();
 					setMode(HOOKSHOT_FLY);
+				}
+				
+				/* if you hit the floor or a wall, stop hookshotting and just drop to the ground */
+				if (isTouching(FlxObject.FLOOR) || isTouching(FlxObject.LEFT) || isTouching(FlxObject.RIGHT))
+				{
+					Registry.hookshot.remove();
+					setMode(IN_AIR);
 				}
 			}
 			/* released the hookshot, amplify the horizontal and vertical motion so that it feels better */
@@ -377,7 +395,7 @@ package actors
 				}
 				
 				/* go back to normal mode on ground */
-				if (this.isTouching(FlxObject.FLOOR))
+				if (isTouching(FlxObject.FLOOR))
 				{
 					setMode(NORMAL);
 				}
@@ -385,10 +403,10 @@ package actors
 			/* just in air after stepping off a platform or something */
 			else if (mode == IN_AIR)
 			{
-				/* TODO: allow some control of air movement */
+				/* TODO: allow some control of air movement, maybe? */
 				
 				/* go back to normal mode on ground */
-				if (this.isTouching(FlxObject.FLOOR))
+				if (isTouching(FlxObject.FLOOR))
 				{
 					setMode(NORMAL);
 				}
@@ -501,6 +519,8 @@ package actors
 				case IN_AIR:
 					mode = IN_AIR;
 					drag.x = 0;
+					acceleration.x = 0;
+					velocity.x = 0;
 					acceleration.y = GRAVITY;
 					noiseRadius.off();
 					break;
