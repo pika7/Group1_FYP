@@ -22,6 +22,8 @@ package actors
 		private const RELOAD_TIME:int = 750;
 		private const HOOKSHOT_PULL_SPEED:int = 400;
 		private const HOOKSHOT_DANGLE_DISTANCE:int = 100;
+		private const BASE_ANGULAR_ACCELERATION:Number = -5;
+		private const DAMPING:Number = 0.985;
 		
 		/* noise raadius for player footsteps */
 		private var noiseRadius:NoiseRadius;
@@ -53,6 +55,13 @@ package actors
 		
 		/* what weapon the player currently has equipped */
 		private var weapon:int;
+		
+		/* used to calculate swinging from a rope */
+		private var swingAngularVelocity:Number;
+		private var swingAngularAcceleration:Number;
+		private var ropeLength:Number = 0;
+		private var ropeAngle:Number; // how far it is from the 6 o'clock position
+		private var moveAngle:Number; // at what angle the player should anctually move
 		
 		/* constants enumerating the currently equipped weapon */
 		private const TRANQ:int = 0;
@@ -94,13 +103,21 @@ package actors
 				{
 					facing = FlxObject.LEFT;
 					acceleration.x = -RUNNING_ACCELERATION;
-					noiseRadius.on();
+					
+					if (isTouching(FlxObject.FLOOR))
+					{
+						noiseRadius.on();
+					}
 				}
 				else if (FlxG.keys.pressed("D"))
 				{
 					facing = FlxObject.RIGHT;
 					acceleration.x = RUNNING_ACCELERATION;
-					noiseRadius.on();
+					
+					if (isTouching(FlxObject.FLOOR))
+					{
+						noiseRadius.on();
+					}
 				}
 				else
 				{
@@ -261,23 +278,54 @@ package actors
 			/* get pulled to the hookshot */
 			else if (mode == HOOKSHOT_PULLING)
 			{
+				/* reset the angular velocities */
+				swingAngularAcceleration = 0;
+				swingAngularVelocity = 0;
+				
 				/* pull the player to the hookshot's location until a certain distance */
 				tempPoint.x = Registry.hookshot.x + Registry.player.width/2; // this needs to be fixed
 				tempPoint.y = Registry.hookshot.y + HOOKSHOT_DANGLE_DISTANCE;
 				FlxVelocity.moveTowardsPoint(this, tempPoint, HOOKSHOT_PULL_SPEED);
 				
+				/* change to dangling mode if within a certain length */
 				if (FlxVelocity.distanceBetween(this, Registry.hookshot) <= HOOKSHOT_DANGLE_DISTANCE)
 				{
 					setMode(HOOKSHOT_DANGLING);
 				}
 			}
 			else if (mode == HOOKSHOT_DANGLING)
-			{
-				/* make a dangling effect from the rope */
-				if (FlxVelocity.distanceBetween(this, Registry.hookshot) > HOOKSHOT_DANGLE_DISTANCE)
-				{
-					
-				}
+			{	
+				/* make a dangling effect from the rope */				
+				/* first, stop all movement */
+				velocity.x = 0;
+				velocity.y = 0;
+				acceleration.x = 0;
+				acceleration.y = 0;
+				
+				/* now calculate the swinging stuff */
+				/* set the length of the rope, can change this later... */
+				ropeLength = FlxVelocity.distanceBetween(this, Registry.hookshot);
+				tempPoint.x = Registry.player.x + Registry.player.width / 2;
+				tempPoint.y = Registry.player.y;
+				
+				/* at the moment this is in degrees... maybe change to radians later? */
+				ropeAngle = (0.5 * Math.PI) - FlxVelocity.angleBetweenPoint(Registry.hookshot, tempPoint);
+				
+				/* the angular acceleration is directly proportional to how far the player is from the centerpoint (6oclock) */
+				swingAngularAcceleration = ropeAngle * BASE_ANGULAR_ACCELERATION;
+				
+				/* now change the angularVelocity depending on what the angular acceleration is */
+				swingAngularVelocity += swingAngularAcceleration;
+							
+				/* first, find the angle to move the player at... this depends on the rope angle */
+				moveAngle = (0.5 * Math.PI) - ropeAngle;
+				
+				/* now actually move the player */
+				velocity.x = swingAngularVelocity * Math.sin(moveAngle);
+				velocity.y = swingAngularVelocity * -Math.cos(moveAngle);				
+				
+				/* apply damping ... swings get gradually smaller */
+				swingAngularVelocity = swingAngularVelocity * DAMPING;
 				
 				/* if press the mouse, then drop back to the ground */
 				if (FlxG.mouse.pressed())
@@ -318,6 +366,7 @@ package actors
 				
 				case RELOADING_NORMAL:
 					mode = RELOADING_NORMAL;
+					noiseRadius.off();
 					velocity.x = 0;
 					acceleration.x = 0;
 					reloadTimer.start();
@@ -325,6 +374,7 @@ package actors
 					
 				case RELOADING_SNEAKING:
 					mode = RELOADING_SNEAKING;
+					noiseRadius.off();
 					velocity.x = 0;
 					acceleration.x = 0;
 					reloadTimer.start();
@@ -332,6 +382,7 @@ package actors
 					
 				case LADDER:
 					mode = LADDER;
+					noiseRadius.off();
 					velocity.x = 0;
 					velocity.y = 0;
 					acceleration.x = 0;
@@ -340,12 +391,14 @@ package actors
 					
 				case REACHING_LADDER_TOP:
 					mode = REACHING_LADDER_TOP;
+					noiseRadius.off();
 					tempPoint.x = x;
 					tempPoint.y = y - 60;
 					break;
 					
 				case PREPARE_LADDER:
 					mode = PREPARE_LADDER;
+					noiseRadius.off();
 					velocity.x = 0;
 					velocity.y = 0;
 					acceleration.x = 0;
@@ -354,12 +407,14 @@ package actors
 					
 				case INITIAL_LADDER_ASCENT:
 					mode = INITIAL_LADDER_ASCENT;
+					noiseRadius.off();
 					tempPoint.x = x;
 					tempPoint.y = y - 10;
 					break;
 					
 				case INITIAL_LADDER_DESCENT:
 					mode = INITIAL_LADDER_DESCENT;
+					noiseRadius.off();
 					tempPoint.x = x;
 					tempPoint.y = y + 70;
 					break;
@@ -370,10 +425,12 @@ package actors
 					acceleration.x = 0;
 					acceleration.y = 0;
 					mode = HOOKSHOT_PULLING;
+					noiseRadius.off();
 					break;
 					
 				case HOOKSHOT_DANGLING:
 					mode = HOOKSHOT_DANGLING;
+					noiseRadius.off();
 					acceleration.y = GRAVITY;
 					break;
 			}
