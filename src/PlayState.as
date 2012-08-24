@@ -85,7 +85,11 @@ package
 			
 			/* these two must be in this order */
 			FlxG.overlap(Registry.hookshot, Registry.markers_hookshotable, Registry.hookshot.stopHookshot);
-			FlxG.collide(Registry.level, Registry.hookshot);
+			
+			if (!Registry.hookshot.isHooking)
+			{
+				FlxG.collide(Registry.level, Registry.hookshot);
+			}
 			
 			super.update();
 		}

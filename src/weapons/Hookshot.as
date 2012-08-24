@@ -13,6 +13,7 @@ package weapons
 		
 		public const MAX_ROPE_LENGTH:int = 400;
 		public const MIN_ROPE_LENGTH:int = 100;
+		public var isHooking:Boolean = false;
 		
 		/* this sprite is used to draw the rope between the hook and the player */
 		public var rope:FlxSprite;
@@ -65,6 +66,7 @@ package weapons
 		
 		public function stopHookshot(hookshot:Hookshot, hookshotable:Marker):void
 		{
+			isHooking = true;
 			velocity.x = 0;
 			velocity.y = 0;
 			
@@ -81,6 +83,7 @@ package weapons
 		 */
 		public function remove():void
 		{
+			isHooking = false;
 			rope.fill(0x00000000);
 			exists = false;
 		}
