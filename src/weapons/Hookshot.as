@@ -43,6 +43,12 @@ package weapons
 			{
 				remove();
 			}
+			
+			/* remove the hookshot if it comes into contact with a wall or a floor */
+			if (this.isTouching(FlxObject.FLOOR) || this.isTouching(FlxObject.LEFT) || this.isTouching(FlxObject.RIGHT))
+			{
+				remove();
+			}
 		}
 		
 		override public function fire(X:int, Y:int, angle:Number):void

@@ -20,13 +20,14 @@ package actors
 		private const LADDER_VELOCITY:int = 100;
 		private const PREPARE_LADDER_VELOCITY:int = 100;
 		private const RELOAD_TIME:int = 750;
+		private const MINIMUM_ROPE_LENGTH:int = 100;
 		private const HOOKSHOT_PULL_SPEED:int = 400;
 		private const HOOKSHOT_DANGLE_DISTANCE:int = 100;
 		private const BASE_ANGULAR_ACCELERATION:Number = -5;
 		private const DAMPING:Number = 0.985;
 		private const SWING_CONVERSION:Number = 0.2; // this is just to transition the normal movement to swing movement smoothly
 		private const ROPE_SHORTEN_SPEED:int = 60;
-		private const SWING_EXTEND_STRENGTH:int = 3;
+		private const SWING_EXTEND_STRENGTH:Number = 0.02;
 		private const MAXIMUM_SWING_VELOCITY:int = 180;
 		private const HOOKSHOT_FLY_VELOCITY_MULTIPLIER:int = 2; // how much the amplify the velocity after coming off a hookshot
 		private const HOOKSHOT_FLY_GRAVITY:int = 400; // the gravity after coming off a hookshot
@@ -302,7 +303,7 @@ package actors
 			{	
 				/* make a dangling effect from the rope */				
 				/* set the length of the rope, can change this later... */
-				ropeLength = FlxVelocity.distanceBetween(this, Registry.hookshot); // do i even need this?
+				ropeLength = FlxVelocity.distanceBetween(this, Registry.hookshot);
 				tempPoint.x = Registry.player.x + Registry.player.width / 2;
 				tempPoint.y = Registry.player.y;
 				
@@ -325,29 +326,33 @@ package actors
 				/* apply damping ... swings get gradually smaller */
 				swingAngularVelocity = swingAngularVelocity * DAMPING;
 				
-				/* if press W or S, change the length of the rope */
-				if (FlxG.keys.pressed("W"))
+				/* if press W or S, change the length of the rope... move towards or away from hookshot */
+				if (FlxG.keys.pressed("W") && ropeLength >= MINIMUM_ROPE_LENGTH)
 				{
-					velocity.y -= ROPE_SHORTEN_SPEED;
+					velocity.x -= Math.sin(ropeAngle) * ROPE_SHORTEN_SPEED;
+					velocity.y -= Math.cos(ropeAngle) * ROPE_SHORTEN_SPEED;
+					
 				}
-				else if (FlxG.keys.pressed("S"))
+				else if (FlxG.keys.pressed("S")) // TODO: implement maximum rope length
 				{
-					velocity.y += ROPE_SHORTEN_SPEED;
+					velocity.x += Math.sin(ropeAngle) * ROPE_SHORTEN_SPEED;
+					velocity.y += Math.cos(ropeAngle) * ROPE_SHORTEN_SPEED;
 				}
 				
 				/* if press A or D, swing more */
+				/* the speed at which you swing isproportional to the length of the rope */
 				if (FlxG.keys.pressed("A"))
 				{
 					if ((swingAngularVelocity > -MAXIMUM_SWING_VELOCITY && swingAngularVelocity < 0) || (swingAngularVelocity < START_SWING_THRESHOLD && swingAngularVelocity > -START_SWING_THRESHOLD))
 					{
-						swingAngularVelocity -= SWING_EXTEND_STRENGTH;
+						swingAngularVelocity -= SWING_EXTEND_STRENGTH * ropeLength;
 					}
 				}
 				else if (FlxG.keys.pressed("D"))
 				{
 					if ((swingAngularVelocity < MAXIMUM_SWING_VELOCITY && swingAngularVelocity > 0) || (swingAngularVelocity < START_SWING_THRESHOLD && swingAngularVelocity > -START_SWING_THRESHOLD))
 					{
-						swingAngularVelocity += SWING_EXTEND_STRENGTH;
+						swingAngularVelocity += SWING_EXTEND_STRENGTH * ropeLength;
 					}
 				}
 				
