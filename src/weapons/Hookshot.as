@@ -11,7 +11,7 @@ package weapons
 	{
 		[Embed(source = '../../assets/img/player/weapons/hookshot.png')] private var hookshotPNG:Class;
 		
-		public const MAX_ROPE_LENGTH:int = 400;
+		public const MAX_ROPE_LENGTH:int = 350;
 		public const MIN_ROPE_LENGTH:int = 100;
 		public var isHooking:Boolean = false;
 		
@@ -37,7 +37,7 @@ package weapons
 			if (exists)
 			{
 				rope.fill(0x00000000);
-				rope.drawLine(Registry.player.x + Registry.player.width/2, Registry.player.y, x + width/2, y + height/2, 0xffbb00, 3);
+				rope.drawLine(Registry.player.firePoint.x, Registry.player.firePoint.y, x + width/2, y + height/2, 0xffbb00, 3);
 			}
 			
 			/* if the hookshot gets too far away from the player, it just disappears */
@@ -57,7 +57,7 @@ package weapons
 		{
 			/* make the hookshot point in the right direction */
 			this.angle = angle * (180/Math.PI) + 90;
-			super.fire(X + Registry.player.width/2, Y, angle);
+			super.fire(X, Y, angle);
 		}
 		
 		/////////////////////////////////////////////////////

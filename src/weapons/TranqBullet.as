@@ -14,7 +14,6 @@ package weapons
 		public function TranqBullet() 
 		{		
 			/* these have to go first */
-			gravity = 0;
 			shotVelocity = 1200;
 			
 			super();

@@ -24,8 +24,6 @@ package
 			
 			add(Registry.goalItem);
 			add(Registry.exit);
-			add(Registry.tranqBulletHandler);
-			add(Registry.smokeBombHandler);
 			
 			Registry.hookshot = new Hookshot();
 			add(Registry.hookshot);
@@ -39,6 +37,14 @@ package
 			add(Registry.markers_ladderBottom);
 			add(Registry.markers_ladderTop);
 			add(Registry.markers_hookshotable);
+			
+			/* add projectiles and explosions */
+			add(Registry.tranqBulletHandler);
+			add(Registry.smokeBombHandler);
+			add(Registry.smokeBombHandler.smokeCloudGroup);
+			
+			/* add UI elements */
+			add(Registry.uiHandler);
 	
 			
 			/* FOR TESTING */
@@ -121,12 +127,14 @@ package
 		/////////////////////////////////////////
 		/* clear the registry in preparation of state change */
 		private function clearRegistry():void
-		{
-			Registry.tranqBulletHandler.clear();
+		{	
+			/* you want to remove the handlers but not clear them or else restarting the state wont work */
 			remove(Registry.tranqBulletHandler);
-			
-			Registry.smokeBombHandler.clear();
 			remove(Registry.smokeBombHandler);
+			remove(Registry.smokeBombHandler.smokeCloudGroup);
+			
+			Registry.uiHandler.clear();
+			remove(Registry.uiHandler);
 			
 			Registry.enemyGroup.clear();
 			remove(Registry.enemyGroup);

@@ -3,6 +3,7 @@ package weapons
 	import org.flixel.*;
 	import org.flixel.plugin.photonstorm.FlxDelay;
 	import util.SmokeBombHandler;
+	import util.Registry;
 	
 	public class SmokeBomb extends FireableWeapon
 	{
@@ -10,14 +11,17 @@ package weapons
 		
 		public const REDUCE_VELOCITY_X_MULTIPLIER:Number = 0.7;
 		private const EMIT_SMOKE_DELAY:int = 2000;
+		private const GRAVITY_DELAY:int = 150;
 		private const SPIN_SPEED:int = 900;
+		private const GRAVITY:int = 800;
 		
 		private var emitSmokeTimer:FlxDelay; // the amount of the time that elapses before smoke is emitted
+		private var gravityTimer:FlxDelay; // gravity kicks in later so that aiming feels better
+		private var smokeCloud:SmokeCloud; // each smoke bomb has an associated smoke cloud
 		
 		/* called by SmokeBombHandler */
 		public function SmokeBomb() 
 		{
-			gravity = 600;
 			shotVelocity = 100;
 			
 			super();
@@ -29,6 +33,14 @@ package weapons
 			/* initialise timers */
 			emitSmokeTimer = new FlxDelay(EMIT_SMOKE_DELAY);
 			emitSmokeTimer.callback = emitSmoke;
+			
+			gravityTimer = new FlxDelay(GRAVITY_DELAY);
+			gravityTimer.callback = startGravity;
+			
+			/* initialise the smoke cloud */
+			smokeCloud = new SmokeCloud();
+
+			exists = false;
 		}
 		
 		////////////////////////////////////////////////////////////
@@ -39,6 +51,10 @@ package weapons
 			super.fire(X, Y, angle);
 			angularVelocity = SPIN_SPEED;
 			emitSmokeTimer.start();
+			gravityTimer.start();
+			acceleration.y = 0;
+			
+			exists = true;
 		}
 		
 		////////////////////////////////////////////////////////////
@@ -47,8 +63,14 @@ package weapons
 		/* begin to emit smoke to blind the enemies */
 		private function emitSmoke():void
 		{
-			trace("smoke bomb activate");
+			Registry.smokeBombHandler.emitSmoke(x, y); // this is bad practice imo
 			kill();
+		}
+		
+		/* gravity kicks in */
+		private function startGravity():void
+		{
+			acceleration.y = GRAVITY;
 		}
 		
 		////////////////////////////////////////////////////////////
@@ -59,7 +81,7 @@ package weapons
 		{
 			smokebomb.velocity.x = smokebomb.REDUCE_VELOCITY_X_MULTIPLIER * smokebomb.velocity.x;
 			
-			if (smokebomb.velocity.x <= 2)
+			if (smokebomb.velocity.x <= 2 && smokebomb.velocity.x >= -2)
 			{
 				smokebomb.velocity.x = 0;
 				smokebomb.angularVelocity = 0;

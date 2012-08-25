@@ -6,6 +6,7 @@ package util
 	import objs.Exit;
 	import objs.GoalItem;
 	import org.flixel.FlxGroup;
+	import ui.UIHandler;
 	import weapons.Hookshot;
 	import weapons.SmokeBomb;
 	
@@ -22,6 +23,8 @@ package util
 		
 		public static var tranqBulletHandler:TranqBulletHandler = new TranqBulletHandler();
 		public static var smokeBombHandler:SmokeBombHandler = new SmokeBombHandler();
+		public static var uiHandler:UIHandler = new UIHandler();
+		
 		public static var enemyGroup:FlxGroup = new FlxGroup; //enemies will be added here later
 		public static var bulletGroup:FlxGroup = new FlxGroup;
 		public static var noiseRadii:FlxGroup = new FlxGroup();

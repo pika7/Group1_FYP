@@ -10,6 +10,9 @@ package actors
 	{	
 		[Embed(source = '../../assets/img/player/test_player.png')] private var playerPNG:Class;
 		
+		/* dummy sprite located at the firing location of the sprite used for FlxVelocity */
+		public var firePoint:FlxSprite;
+		
 		/* general constants */
 		private const FRICTION:int = 900;
 		private const GRAVITY:int = 600;
@@ -31,14 +34,15 @@ package actors
 		private const HOOKSHOT_DANGLE_DISTANCE:int = 100;
 		private const BASE_ANGULAR_ACCELERATION:Number = -5;
 		private const DAMPING:Number = 0.985;
-		private const SWING_CONVERSION:Number = 0.2; // this is just to transition the normal movement to swing movement smoothly
+		private const SWING_CONVERSION:Number = 0.6; // this is just to transition the normal movement to swing movement smoothly
 		private const ROPE_SHORTEN_SPEED:int = 60;
 		private const SWING_EXTEND_STRENGTH:Number = 0.02;
-		private const MAXIMUM_SWING_VELOCITY:Number = 0.9;
+		private const MAXIMUM_SWING_VELOCITY:Number = 0.98;
 		private const HOOKSHOT_FLY_VELOCITY_MULTIPLIER:Number = 1.5; // how much the amplify the velocity after coming off a hookshot
 		private const HOOKSHOT_FLY_GRAVITY:int = 400; // the gravity after coming off a hookshot
 		private const HOOKSHOT_FLY_ACCELERATION:int = 100; // how well the player can control themselves in the air after flying off a hookshot
 		private const START_SWING_THRESHOLD:int = 5; // the smaller the value the closer to 0 the swinging speed must be to start a swing extend
+		private const SWING_BOUNCEBACK_VELOCITY:int = 50; // the speed at which the rope "bounces back" after hitting horizontal
 		
 		/* bombs */
 		private const PREPARE_BOMB_TIME:int = 500;
@@ -76,6 +80,8 @@ package actors
 		public static const IN_AIR:int = 12; // just in air after stepping off a platform etc.
 		public static const PREPARE_BOMB_NORMAL:int = 13; // preparing to throw a bomb or grenade in normal mode
 		public static const PREPARE_BOMB_SNEAKING:int = 14; // preparing to throw a bomb or grenade in sneaking mode
+		public static const AIMING_NORMAL:int = 15; // aiming the tranq gun in normal mode
+		public static const AIMING_SNEAKING:int = 16; // aiming the tranq gun in sneaking mode
 		
 		/* what weapon the player currently has equipped */
 		private var weapon:int;
@@ -117,6 +123,7 @@ package actors
 			/* instantiate other things */
 			noiseRadius = new NoiseRadius(x, y, false);
 			tempPoint = new FlxPoint(0, 0);
+			firePoint = new FlxSprite(x + width / 2, y + height / 2);
 		}
 		
 		override public function update():void
@@ -148,16 +155,20 @@ package actors
 				/* use equipped weapon */
 				if (FlxG.mouse.justPressed())
 				{
-					useWeapon(weapon);
+					if (weapon == TRANQ || weapon == HOOKSHOT)
+					{
+						setMode(AIMING_NORMAL);
+					}
+					else
+					{
+						useWeapon();
+					}
 				}
 				
 				/* enter sneaking mode */
 				if (FlxG.keys.justPressed("SPACE"))
 				{
 					setMode(SNEAKING);
-					
-					/* TEMPORARY: frame change */
-					frame = 1;
 				}
 				
 				/* step off a platform */
@@ -188,16 +199,13 @@ package actors
 				/* use weapon */
 				if (FlxG.mouse.justPressed())
 				{
-					useWeapon(weapon);
+					useWeapon();
 				}
 				
 				/* return to normal mode */
 				if (FlxG.keys.justPressed("SPACE"))
 				{
 					setMode(NORMAL);
-					
-					/* TEMPORARY: frame change */
-					frame = 0;
 				}
 				
 				/* step off a platform */
@@ -342,6 +350,17 @@ package actors
 				
 				/* now change the angularVelocity depending on what the angular acceleration is */
 				swingAngularVelocity += swingAngularAcceleration;
+				
+				/* however, do not allow the player to swing above horizontal or weird things happen (shouldnt really get here ever) */
+				if (ropeAngle <= -(0.5 * Math.PI))
+				{
+					swingAngularVelocity = -SWING_BOUNCEBACK_VELOCITY;
+				}
+				
+				if (ropeAngle >= (0.5 * Math.PI))
+				{
+					swingAngularVelocity = SWING_BOUNCEBACK_VELOCITY;
+				}
 							
 				/* first, find the angle to move the player at... this depends on the rope angle */
 				moveAngle = (0.5 * Math.PI) - ropeAngle;
@@ -360,7 +379,7 @@ package actors
 					velocity.y -= Math.cos(ropeAngle) * ROPE_SHORTEN_SPEED;
 					
 				}
-				else if (FlxG.keys.pressed("S") && ropeLength < Registry.hookshot.MAX_ROPE_LENGTH - 10) // just to make sure it doesnt actually hit it
+				else if (FlxG.keys.pressed("S") && ropeLength < Registry.hookshot.MAX_ROPE_LENGTH - 50) // just to make sure it doesnt actually hit it
 				{
 					velocity.x += Math.sin(ropeAngle) * ROPE_SHORTEN_SPEED;
 					velocity.y += Math.cos(ropeAngle) * ROPE_SHORTEN_SPEED;
@@ -445,9 +464,32 @@ package actors
 					setMode(SNEAKING);
 				}
 			}
+			/* aiming the tranq gun in normal mode */
+			else if (mode == AIMING_NORMAL)
+			{
+				/* make a red line follow the mouse around */
+				Registry.uiHandler.showAimline(firePoint.x, firePoint.y);
+				
+				/* on mouse release, actually fire the bullet and return to normal mode */
+				if (!FlxG.mouse.pressed())
+				{
+					useWeapon();
+					Registry.uiHandler.hideAimline();
+					setMode(RELOADING_NORMAL);
+				}
+			}
+			/* aiming the tranq gun in sneaking mode */
+			else if (mode == AIMING_SNEAKING)
+			{
+				
+			}
 			
 			/* make the noise radius follow the player */
 			noiseRadius.follow(this);
+			
+			/* move the firepoint to the right place */
+			firePoint.x = x + width / 2;
+			firePoint.y = y + height / 2;
 			
 			/* TEMP: switching weapons, maybe need a delay later? */
 			if (FlxG.keys.pressed("ONE"))
@@ -477,6 +519,7 @@ package actors
 			{
 				case NORMAL:
 					mode = NORMAL;
+					frame = 0; // TEMPORARY
 					maxVelocity.x = MAX_RUNNING_VELOCITY_X;
 					acceleration.y = GRAVITY;
 					drag.x = FRICTION;
@@ -484,6 +527,7 @@ package actors
 					
 				case SNEAKING:
 					mode = SNEAKING;
+					frame = 1; // TEMPORARY
 					noiseRadius.off();
 					maxVelocity.x = MAX_SNEAKING_VELOCITY_X;
 					acceleration.y = GRAVITY;
@@ -557,9 +601,12 @@ package actors
 					mode = HOOKSHOT_FLY;
 					drag.x = 0;
 					
-					/* amplify the velocity off the swing so it feels better */
+					/* amplify the velocity off the swing so it feels better, but don't amplify the downwards velocity */
 					velocity.x = velocity.x * HOOKSHOT_FLY_VELOCITY_MULTIPLIER;
-					velocity.y = velocity.y * HOOKSHOT_FLY_VELOCITY_MULTIPLIER; 
+					if (velocity.y < 0)
+					{
+						velocity.y = velocity.y * HOOKSHOT_FLY_VELOCITY_MULTIPLIER; 
+					}
 					acceleration.y = HOOKSHOT_FLY_GRAVITY;
 					noiseRadius.off();
 					break;
@@ -584,6 +631,15 @@ package actors
 					stopAllMovement();
 					noiseRadius.off();
 					break;
+					
+				case AIMING_NORMAL:
+					mode = AIMING_NORMAL;
+					stopAllMovement();
+					noiseRadius.off();
+					break;
+					
+				case AIMING_SNEAKING:
+					break;
 			}
 		}
 		
@@ -597,13 +653,13 @@ package actors
 		}
 		
 		/* use the currently equipped weapon */
-		private function useWeapon(weapon:int):void
+		private function useWeapon():void
 		{
 			switch (weapon)
 			{
 				case TRANQ:
 					/* fire a tranq bullet aimed at the mouse */
-					Registry.tranqBulletHandler.fire(x, y, FlxVelocity.angleBetweenMouse(this, false));
+					Registry.tranqBulletHandler.fire(firePoint.x, firePoint.y, FlxVelocity.angleBetweenMouse(firePoint, false));
 					
 					if (mode == NORMAL)
 					{
@@ -617,7 +673,7 @@ package actors
 					break;
 				
 				case HOOKSHOT:
-					Registry.hookshot.fire(x, y, FlxVelocity.angleBetweenMouse(this, false));
+					Registry.hookshot.fire(firePoint.x, firePoint.y, FlxVelocity.angleBetweenMouse(firePoint, false));
 					break;
 					
 				case SMOKEBOMB:
@@ -646,7 +702,7 @@ package actors
 		public function handleLadderBottom(player:Player, marker:Marker):void
 		{
 			/* if W pressed start ladder mode */
-			if (mode == NORMAL && FlxG.keys.justPressed("W"))
+			if ((mode == NORMAL || mode == SNEAKING) && FlxG.keys.justPressed("W"))
 			{
 				setMode(PREPARE_LADDER);
 				tempMarker = marker;
@@ -662,7 +718,7 @@ package actors
 		public function handleLadderTop(player:Player, marker:Marker):void
 		{
 			/* if S pressed start ladder mode */
-			if (mode == NORMAL && FlxG.keys.justPressed("S"))
+			if ((mode == NORMAL || mode == SNEAKING) && FlxG.keys.justPressed("S"))
 			{
 				setMode(PREPARE_LADDER);
 				tempMarker = marker;
