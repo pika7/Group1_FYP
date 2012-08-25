@@ -78,8 +78,11 @@ package
 				FlxG.collide(Registry.level, Registry.player);
 			}
 			
-			FlxG.collide(Registry.level, Registry.guard);
-			//FlxG.collide(Registry.level, Registry.sightranges); <-- dont need this
+			if (!Registry.guard.onLadder())
+			{
+				FlxG.collide(Registry.level, Registry.guard);
+			}
+		
 			FlxG.collide(Registry.level, Registry.smokeBombHandler, SmokeBomb.bounce);
 			
 			
@@ -89,7 +92,9 @@ package
 			FlxG.overlap(Registry.player, Registry.markers_ladderTop, Registry.player.handleLadderTop);
 			FlxG.overlap(Registry.guard, Registry.markers_enemyStop, Registry.guard.handleEnemyStop);
 			FlxG.overlap(Registry.guard, Registry.noiseRadii, Registry.guard.noiseAlert);
-			FlxG.overlap(Registry.sightranges, Registry.player, Registry.guard.followPlayer);
+			FlxG.overlap(Registry.guard, Registry.markers_ladderBottom, Registry.guard.handleLadderBottom);
+			FlxG.overlap(Registry.guard, Registry.markers_ladderTop, Registry.guard.handleLadderTop);
+			FlxG.overlap(Registry.sightranges, Registry.player, Registry.guard.seePlayer);
 			
 			/* these two must be in this order */
 			FlxG.overlap(Registry.hookshot, Registry.markers_hookshotable, Registry.hookshot.stopHookshot);
