@@ -27,7 +27,7 @@ package actors
 		private const PREPARE_LADDER_VELOCITY:int = 100;
 		
 		/* tranq */
-		private const RELOAD_TIME:int = 750;
+		private const RELOAD_TIME:int = 600;
 		
 		/* hookshot */
 		private const HOOKSHOT_PULL_SPEED:int = 400;
@@ -43,6 +43,7 @@ package actors
 		private const HOOKSHOT_FLY_ACCELERATION:int = 100; // how well the player can control themselves in the air after flying off a hookshot
 		private const START_SWING_THRESHOLD:int = 5; // the smaller the value the closer to 0 the swinging speed must be to start a swing extend
 		private const SWING_BOUNCEBACK_VELOCITY:int = 50; // the speed at which the rope "bounces back" after hitting horizontal
+		private const HOOKSHOT_RELOAD_TIME:int = 500;
 		
 		/* bombs */
 		private const PREPARE_BOMB_TIME:int = 500;
@@ -58,6 +59,7 @@ package actors
 		/* timers */
 		private var reloadTimer:FlxDelay;
 		private var prepareBombTimer:FlxDelay;
+		private var hookshotReloadTimer:FlxDelay;
 		
 		/* private booleans */
 		
@@ -80,8 +82,10 @@ package actors
 		public static const IN_AIR:int = 12; // just in air after stepping off a platform etc.
 		public static const PREPARE_BOMB_NORMAL:int = 13; // preparing to throw a bomb or grenade in normal mode
 		public static const PREPARE_BOMB_SNEAKING:int = 14; // preparing to throw a bomb or grenade in sneaking mode
-		public static const AIMING_NORMAL:int = 15; // aiming the tranq gun in normal mode
-		public static const AIMING_SNEAKING:int = 16; // aiming the tranq gun in sneaking mode
+		public static const AIMING_NORMAL:int = 15; // aiming in normal mode
+		public static const AIMING_SNEAKING:int = 16; // aiming in sneaking mode
+		public static const HOOKSHOT_RELOADING_NORMAL:int = 17;
+		public static const HOOKSHOT_RELOADING_SNEAKING:int = 18;
 		
 		/* what weapon the player currently has equipped */
 		private var weapon:int;
@@ -119,6 +123,7 @@ package actors
 			/* instantiate timers */
 			reloadTimer = new FlxDelay(RELOAD_TIME);
 			prepareBombTimer = new FlxDelay(PREPARE_BOMB_TIME);
+			hookshotReloadTimer = new FlxDelay(HOOKSHOT_RELOAD_TIME);
 			
 			/* instantiate other things */
 			noiseRadius = new NoiseRadius(x, y, false);
@@ -196,10 +201,17 @@ package actors
 					acceleration.x = 0;
 				}
 				
-				/* use weapon */
+				/* use equipped weapon */
 				if (FlxG.mouse.justPressed())
 				{
-					useWeapon();
+					if (weapon == TRANQ || weapon == HOOKSHOT)
+					{
+						setMode(AIMING_SNEAKING);
+					}
+					else
+					{
+						useWeapon();
+					}
 				}
 				
 				/* return to normal mode */
@@ -402,8 +414,8 @@ package actors
 					}
 				}
 				
-				/* if relase the mouse, then drop back to the ground */
-				if (!FlxG.mouse.pressed())
+				/* if click the mouse, then drop back to the ground */
+				if (FlxG.mouse.pressed())
 				{
 					Registry.hookshot.remove();
 					setMode(HOOKSHOT_FLY);
@@ -464,7 +476,7 @@ package actors
 					setMode(SNEAKING);
 				}
 			}
-			/* aiming the tranq gun in normal mode */
+			/* aiming in normal mode */
 			else if (mode == AIMING_NORMAL)
 			{
 				/* make a red line follow the mouse around */
@@ -475,13 +487,57 @@ package actors
 				{
 					useWeapon();
 					Registry.uiHandler.hideAimline();
-					setMode(RELOADING_NORMAL);
+					
+					if (weapon == TRANQ)
+					{
+						setMode(RELOADING_NORMAL);
+					}
+					else if (weapon == HOOKSHOT)
+					{
+						setMode(HOOKSHOT_RELOADING_NORMAL);
+					}
 				}
 			}
-			/* aiming the tranq gun in sneaking mode */
+			/* aiming in sneaking mode */
 			else if (mode == AIMING_SNEAKING)
 			{
+				/* make a red line follow the mouse around */
+				Registry.uiHandler.showAimline(firePoint.x, firePoint.y);
 				
+				/* on mouse release, actually fire the bullet and return to sneaking mode */
+				if (!FlxG.mouse.pressed())
+				{
+					useWeapon();
+					Registry.uiHandler.hideAimline();
+					
+					if (weapon == TRANQ)
+					{
+						setMode(RELOADING_SNEAKING);
+					}
+					else if (weapon == HOOKSHOT)
+					{
+						setMode(HOOKSHOT_RELOADING_SNEAKING);
+					}
+				}
+				
+			}
+			/* reloading the hookshot in normal mode after missing */
+			else if (mode == HOOKSHOT_RELOADING_NORMAL)
+			{
+				/* go back to normal mode after finished reloading */
+				if (!hookshotReloadTimer.isRunning)
+				{
+					setMode(NORMAL);
+				}
+			}
+			/* reloading the hookshot in sneaking mode after missing */
+			else if (mode == HOOKSHOT_RELOADING_SNEAKING)
+			{
+				/* go back to normal mode after finished reloading */
+				if (!hookshotReloadTimer.isRunning)
+				{
+					setMode(SNEAKING);
+				}
 			}
 			
 			/* make the noise radius follow the player */
@@ -639,6 +695,29 @@ package actors
 					break;
 					
 				case AIMING_SNEAKING:
+					mode = AIMING_SNEAKING;
+					stopAllMovement();
+					noiseRadius.off();
+					break;
+					
+				case HOOKSHOT_RELOADING_NORMAL:
+					mode = HOOKSHOT_RELOADING_NORMAL;
+					velocity.x = 0;
+					acceleration.x = 0;
+					noiseRadius.off();
+					hookshotReloadTimer.start();
+					break;
+					
+				case HOOKSHOT_RELOADING_SNEAKING:
+					mode = HOOKSHOT_RELOADING_SNEAKING;
+					velocity.x = 0;
+					acceleration.x = 0;
+					noiseRadius.off();
+					hookshotReloadTimer.start();
+					break;
+					
+				default:
+					trace("ERROR: invalid mode");
 					break;
 			}
 		}
