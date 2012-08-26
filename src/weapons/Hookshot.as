@@ -36,16 +36,11 @@ package weapons
 			/* TODO: find a better alternative, this is VERY processor intensive */
 			if (exists)
 			{
-				/*
-				rope.fill(0x00000000);
-				rope.drawLine(Registry.player.firePoint.x, Registry.player.firePoint.y, x + width/2, y + height/2, 0xffbb00, 3);
-				*/
-				
 				Registry.hookshotChain.drawChain(Registry.player.firePoint.x, Registry.player.firePoint.y, x + width / 2, y + height / 2);
 			}
 			
 			/* if the hookshot gets too far away from the player, it just disappears */
-			if (FlxVelocity.distanceBetween(this, Registry.player) > MAX_ROPE_LENGTH)
+			if (FlxVelocity.distanceBetween(this, Registry.player) > MAX_ROPE_LENGTH && !isHooking)
 			{
 				remove();
 			}
