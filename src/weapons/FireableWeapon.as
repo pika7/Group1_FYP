@@ -32,7 +32,7 @@ package weapons
 			exists = true;
 		}
 		
-		override public function kill():void
+		public function recycleKill():void
 		{
 			exists = false;
 		}

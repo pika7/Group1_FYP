@@ -25,8 +25,9 @@ package
 			add(Registry.goalItem);
 			add(Registry.exit);
 			
-			Registry.hookshot = new Hookshot();
-			add(Registry.hookshot);
+			add(Registry.hookshot = new Hookshot());
+			add(Registry.hookshotChain = new HookshotChain());
+			
 			add(Registry.hookshot.rope); //yup, have to add the hookshot and the rope as well
 			
 			Registry.player = new Player(20, 20);
@@ -133,12 +134,14 @@ package
 		/* clear the registry in preparation of state change */
 		private function clearRegistry():void
 		{	
-			/* you want to remove the handlers but not clear them or else restarting the state wont work */
+			Registry.tranqBulletHandler.clear();
 			remove(Registry.tranqBulletHandler);
+			
+			Registry.smokeBombHandler.clear();
 			remove(Registry.smokeBombHandler);
 			remove(Registry.smokeBombHandler.smokeCloudGroup);
 			
-			Registry.uiHandler.clear();
+			/* don't need to clear groups that you don't dynamically add things to */
 			remove(Registry.uiHandler);
 			
 			Registry.enemyGroup.clear();

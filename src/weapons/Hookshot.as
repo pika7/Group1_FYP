@@ -36,8 +36,12 @@ package weapons
 			/* TODO: find a better alternative, this is VERY processor intensive */
 			if (exists)
 			{
+				/*
 				rope.fill(0x00000000);
 				rope.drawLine(Registry.player.firePoint.x, Registry.player.firePoint.y, x + width/2, y + height/2, 0xffbb00, 3);
+				*/
+				
+				Registry.hookshotChain.drawChain(Registry.player.firePoint.x, Registry.player.firePoint.y, x + width / 2, y + height / 2);
 			}
 			
 			/* if the hookshot gets too far away from the player, it just disappears */
@@ -58,6 +62,9 @@ package weapons
 			/* make the hookshot point in the right direction */
 			this.angle = angle * (180/Math.PI) + 90;
 			super.fire(X, Y, angle);
+			
+			/* make the hookshot chain show */
+			Registry.hookshotChain.show();
 		}
 		
 		/////////////////////////////////////////////////////
@@ -86,6 +93,9 @@ package weapons
 			isHooking = false;
 			rope.fill(0x00000000);
 			exists = false;
+			
+			/* hide the chain */
+			Registry.hookshotChain.hide();
 		}
 	}
 

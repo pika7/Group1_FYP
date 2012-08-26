@@ -62,5 +62,20 @@ package util
 				SmokeCloud(tempSmokeCloud.emit(bx - tempSmokeCloud.width/2, by - tempSmokeCloud.height/2));
 			}
 		}
+		
+		/**
+		 * Kill everything inside the handler.
+		 */
+		override public function clear():void
+		{
+			for (var i:int = 0; i <= SMOKEBOMB_NUMBER; i++)
+			{
+				callAll("recycleKill");
+				smokeCloudGroup.callAll("recycleKill");
+				
+				/* abort all the timers */
+				callAll("abortTimers");
+			}
+		}
 	}
 }

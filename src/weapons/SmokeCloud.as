@@ -22,7 +22,7 @@ package weapons
 			loadGraphic(cloudPNG, false, false, 256, 256, false);
 			alpha = 0.7;
 			emitTimer = new FlxDelay(EMIT_TIME);
-			emitTimer.callback = kill;
+			emitTimer.callback = recycleKill;
 			
 			// TODO: later on this will be represented using particles
 			// maybe it will be a little bigger too
@@ -45,7 +45,7 @@ package weapons
 		/**
 		 * Make the smoke cloud disappear.
 		 */
-		override public function kill():void
+		public function recycleKill():void
 		{
 			exists = false;
 		}

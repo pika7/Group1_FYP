@@ -8,6 +8,7 @@ package util
 	import org.flixel.FlxGroup;
 	import ui.UIHandler;
 	import weapons.Hookshot;
+	import weapons.HookshotChain;
 	import weapons.SmokeBomb;
 	
 	public class Registry 
@@ -20,6 +21,7 @@ package util
 		public static var goalItem:GoalItem;
 		public static var exit:Exit;
 		public static var hookshot:Hookshot;
+		public static var hookshotChain:HookshotChain;
 		
 		public static var tranqBulletHandler:TranqBulletHandler = new TranqBulletHandler();
 		public static var smokeBombHandler:SmokeBombHandler = new SmokeBombHandler();

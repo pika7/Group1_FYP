@@ -25,7 +25,7 @@ package weapons
 			/* If the bullet goes offscreen, remove it. (Place it back into the pool of available bullets) */
 			if (exists && !onScreen())
 			{
-				kill();
+				recycleKill();
 			}
 		}
 	}

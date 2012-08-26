@@ -64,7 +64,7 @@ package weapons
 		private function emitSmoke():void
 		{
 			Registry.smokeBombHandler.emitSmoke(x, y); // this is bad practice imo
-			kill();
+			recycleKill();
 		}
 		
 		/* gravity kicks in */
@@ -86,6 +86,13 @@ package weapons
 				smokebomb.velocity.x = 0;
 				smokebomb.angularVelocity = 0;
 			}
+		}
+		
+		/* used to stop all the timers */
+		public function abortTimers():void
+		{
+			emitSmokeTimer.abort();
+			gravityTimer.abort();
 		}
 	}
 
