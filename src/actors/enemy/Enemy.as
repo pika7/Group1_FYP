@@ -11,16 +11,18 @@ package actors.enemy
 	{
 		[Embed(source = '../../../assets/img/bullets/scentBomb.png')] private var bulletPNG:Class;
 		
-		private var group:FlxGroup;
 		protected var alertLevel:Number = 0; //alertLevel of each enemy (dog/guard etc)
-		private var stopDelay:FlxDelay = new FlxDelay(4000);
+		protected var stopDelay:FlxDelay = new FlxDelay(2000);
 		protected var tempVelocity:Number = 0;
 		protected var detected:Boolean = false;
 		protected var touched:Boolean = false;
 		protected var canSee:Boolean = false;
 		protected var tempMarker:Marker;
+		protected var Mode:String = "Normal";
 		private var touchedMarker:Boolean = false;
-		
+		private var group:FlxGroup;
+		private var counter:Number = 0;
+
 		public function Enemy(X:int, Y:int) 
 		{
 			super(X, Y);
@@ -40,24 +42,27 @@ package actors.enemy
 			{	
 				velocity.x = 0;
 				facing = FlxObject.LEFT;
-				stopDelay.start();
-				touchedMarker = false;
-				
+				stopDelay.start();				
 			}
 			if (facing == FlxObject.LEFT && justTouched(LEFT))
 			{				
 				velocity.x = 0;
 				facing = FlxObject.RIGHT;	
-				stopDelay.start();
-				touchedMarker = false;
+				stopDelay.start();				
 			}
 		}
 		
 		/*go back to patrol after stopping for a while*/
 		public function backToPatrol():void
 		{
-			if (stopDelay.hasExpired==true)
+			if (stopDelay.hasExpired == true && Mode=="Normal")
 			{
+				counter += FlxG.elapsed;
+				if (counter > 3)
+				{
+					touchedMarker = false;
+					counter = 0;
+				}
 				if (facing == LEFT)
 				{
 					velocity.x = -tempVelocity;
@@ -66,7 +71,6 @@ package actors.enemy
 				{
 					velocity.x = tempVelocity;
 				}
-				
 			}
 		}
 		
@@ -79,15 +83,16 @@ package actors.enemy
 				touchedMarker = true;
 				stopDelay.start();
 			}
+			
 		}
-		
+						
 		/* guard sees player if in sight range */
 		public function seePlayer(sightrange:sightRanges, player:Player):void
 		{
 			if (FlxCollision.pixelPerfectCheck(sightrange, player))	
 			{
 				detected = true;
-				canSee = true;
+				
 			}
 		}
 		
@@ -99,6 +104,9 @@ package actors.enemy
 				followPlayer();
 			}
 		}
+		
+		
+		
 		
 		/* follows the player as long as she is in sight range */
 		protected function followPlayer():void
@@ -142,6 +150,7 @@ package actors.enemy
 		{	
 			backToPatrol();
 			canSeeCheck();						
+		
 		}
 		
 		/////////////////////////////////////////////////////////

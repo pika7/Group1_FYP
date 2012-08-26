@@ -29,6 +29,7 @@ package actors.enemy
 		private var sightRangeGraphic:FlxSprite;
 		private var climbing:Boolean = false;
 		private var finishedClimbing:Boolean = false;
+		private var bulletCounter:Number = 0;
 		
 		
 		/* constructor */
@@ -76,8 +77,6 @@ package actors.enemy
 		
 				
 			}
-			
-			
 		}
 		
 		
@@ -95,15 +94,17 @@ package actors.enemy
 		/* check if the player is in sight range */
 		public function checkIsDetected():void
 		{
-			if ((detected == true) && (shootingNow==false))
+			//if ((detected == true) && (shootingNow==false))
 			{
+				/*
 				if (climbing == false)
 				{
 					followPlayer();
-				}				
-				if (getAlertLevel() == 2)
+				}*/				
+				if (detected==true)
 				{
 					shootPlayer();
+					Mode = "shooting";
 				}
 			}		
 		}		
@@ -134,13 +135,6 @@ package actors.enemy
 				acceleration.y = GRAVITY;
 				finishedClimbing = true; //reached the top
 			}
-			if ((detected == true) && (Registry.player.y > y)) 
-			{
-				climbing = true;	
-				velocity.y = 50;
-				velocity.x = 0;
-				acceleration.y = 0;
-			}
 		}
 		
 		/* override canSeeCheck since guard shouldn't follow when climbing */
@@ -158,33 +152,45 @@ package actors.enemy
 		/*shooting function */
 		private function shootPlayer():void
 		{				
-			if (shootingNow == false)
+			if (Mode=="shooting" && shootingNow==false)
 			{
 				velocity.x = 0;
 				tempVelocity = velocity.x;
 				currentBullet = Registry.bulletGroup.getFirstAvailable() as FlxSprite;	
 				play("shoot");			
+				shootingNow = true;
 				currentBullet.x = x + 100;
 				currentBullet.y = y + 50;
 				currentBullet.exists = true;
 				FlxVelocity.moveTowardsObject(currentBullet, Registry.player, 200);	
-				shootingNow = true;	
-				bulletDelay.start();
+				
 			}   
 		}		
+		
+		/*check bullet counter */
+		public function bulletCounterCheck():void
+		{
+			if (shootingNow == true)
+			{
+				bulletCounter += FlxG.elapsed;
+			
+				if (bulletCounter > 3)
+				{
+					shootingNow = false;
+					Mode = "Normal";
+					bulletCounter = 0;
+					detected = false;
+				}
+			}
+		}
 		
 		/* update function */
 		override public function update():void
 		{					
 			checkIsDetected(); //check for detection
 			changeAlertLevel(); //change alertlevel depending on the condition
-			turnAround(xVelocity); //turn around when you hit the wall	
-			
-			if (bulletDelay.hasExpired == true)
-			{
-				shootingNow = false;
-			}
-			
+			turnAround(xVelocity); //turn around when you hit the wall		
+			bulletCounterCheck();
 			super.update();
 		}
 		
