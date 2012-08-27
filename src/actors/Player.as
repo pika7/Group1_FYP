@@ -32,16 +32,17 @@ package actors
 		/* hookshot */
 		private const HOOKSHOT_PULL_SPEED:int = 400;
 		private const HOOKSHOT_DANGLE_DISTANCE:int = 100;
-		private const BASE_ANGULAR_ACCELERATION:Number = -5;
-		private const DAMPING:Number = 0.985;
+		private const BASE_ANGULAR_ACCELERATION:Number = -10;
+		private const DAMPING:Number = 0.99;
 		private const SWING_CONVERSION:Number = 0.6; // this is just to transition the normal movement to swing movement smoothly
 		private const ROPE_SHORTEN_SPEED:int = 60;
-		private const SWING_EXTEND_STRENGTH:Number = 0.02;
-		private const MAXIMUM_SWING_VELOCITY:Number = 0.98;
+		private const SWING_EXTEND_STRENGTH:Number = 1.02;
+		private const MAXIMUM_SWING_VELOCITY:Number = 1;
 		private const HOOKSHOT_FLY_VELOCITY_MULTIPLIER:Number = 1.5; // how much the amplify the velocity after coming off a hookshot
 		private const HOOKSHOT_FLY_GRAVITY:int = 400; // the gravity after coming off a hookshot
 		private const HOOKSHOT_FLY_ACCELERATION:int = 100; // how well the player can control themselves in the air after flying off a hookshot
-		private const START_SWING_THRESHOLD:int = 5; // the smaller the value the closer to 0 the swinging speed must be to start a swing extend
+		private const START_SWING_THRESHOLD:int = 10; // the smaller the value the closer to 0 the swinging speed must be to start a swing extend
+		private const START_SWING_STRENGTH:int = 30;
 		private const SWING_BOUNCEBACK_VELOCITY:int = 50; // the speed at which the rope "bounces back" after hitting horizontal
 		private const HOOKSHOT_RELOAD_TIME:int = 500;
 		
@@ -348,14 +349,10 @@ package actors
 			/* dangling from the hookshot, can swing */
 			else if (mode == HOOKSHOT_DANGLING)
 			{	
-				/* make a dangling effect from the rope */				
-				/* set the length of the rope, can change this later... */
+				ropeAngle = (0.5 * Math.PI) - FlxVelocity.angleBetweenPoint(Registry.hookshot, tempPoint);
 				ropeLength = FlxVelocity.distanceBetween(this, Registry.hookshot);
 				tempPoint.x = Registry.player.x + Registry.player.width / 2;
 				tempPoint.y = Registry.player.y;
-				
-				/* at the moment this is in degrees... maybe change to radians later? */
-				ropeAngle = (0.5 * Math.PI) - FlxVelocity.angleBetweenPoint(Registry.hookshot, tempPoint);
 				
 				/* the angular acceleration is directly proportional to how far the player is from the centerpoint (6oclock) */
 				swingAngularAcceleration = ropeAngle * BASE_ANGULAR_ACCELERATION;
@@ -375,14 +372,39 @@ package actors
 				}
 							
 				/* first, find the angle to move the player at... this depends on the rope angle */
-				moveAngle = (0.5 * Math.PI) - ropeAngle;
-				
-				/* now actually move the player */
-				velocity.x = swingAngularVelocity * Math.sin(moveAngle);
-				velocity.y = swingAngularVelocity * -Math.cos(moveAngle);				
+				moveAngle = (0.5 * Math.PI) - ropeAngle;			
 				
 				/* apply damping ... swings get gradually smaller */
 				swingAngularVelocity = swingAngularVelocity * DAMPING;
+				
+				/* if press A or D, swing more */
+				/* the speed at which you swing is proportional to the length of the rope */
+				if (FlxG.keys.pressed("A"))
+				{
+					if (swingAngularVelocity > -(MAXIMUM_SWING_VELOCITY * ropeLength) && swingAngularVelocity < 0)
+					{
+						swingAngularVelocity = swingAngularVelocity * SWING_EXTEND_STRENGTH;
+					}
+					else if (swingAngularVelocity <= START_SWING_THRESHOLD && swingAngularVelocity >= -START_SWING_THRESHOLD && ropeAngle <= Math.PI/8 && ropeAngle >= -Math.PI/20)
+					{
+						swingAngularVelocity -= START_SWING_STRENGTH;
+					}
+				}
+				else if (FlxG.keys.pressed("D"))
+				{
+					if (swingAngularVelocity < (MAXIMUM_SWING_VELOCITY * ropeLength) && swingAngularVelocity > 0)
+					{
+						swingAngularVelocity = swingAngularVelocity * SWING_EXTEND_STRENGTH;
+					}
+					else if (swingAngularVelocity <= START_SWING_THRESHOLD && swingAngularVelocity >= -START_SWING_THRESHOLD && ropeAngle <= Math.PI/8 && ropeAngle >= -Math.PI/20)
+					{
+						swingAngularVelocity += START_SWING_STRENGTH;
+					}
+				}
+				
+				/* now actually move the player */
+				velocity.x = swingAngularVelocity * Math.sin(moveAngle);
+				velocity.y = swingAngularVelocity * -Math.cos(moveAngle);	
 				
 				/* if press W or S, change the length of the rope... move towards or away from hookshot */
 				if (FlxG.keys.pressed("W") && ropeLength > Registry.hookshot.MIN_ROPE_LENGTH)
@@ -395,23 +417,6 @@ package actors
 				{
 					velocity.x += Math.sin(ropeAngle) * ROPE_SHORTEN_SPEED;
 					velocity.y += Math.cos(ropeAngle) * ROPE_SHORTEN_SPEED;
-				}
-				
-				/* if press A or D, swing more */
-				/* the speed at which you swing is proportional to the length of the rope */
-				if (FlxG.keys.pressed("A"))
-				{
-					if ((swingAngularVelocity > -(MAXIMUM_SWING_VELOCITY * ropeLength) && swingAngularVelocity < 0) || (swingAngularVelocity < START_SWING_THRESHOLD && swingAngularVelocity > -START_SWING_THRESHOLD))
-					{
-						swingAngularVelocity -= SWING_EXTEND_STRENGTH * ropeLength;
-					}
-				}
-				else if (FlxG.keys.pressed("D"))
-				{
-					if ((swingAngularVelocity < (MAXIMUM_SWING_VELOCITY * ropeLength) && swingAngularVelocity > 0) || (swingAngularVelocity < START_SWING_THRESHOLD && swingAngularVelocity > -START_SWING_THRESHOLD))
-					{
-						swingAngularVelocity += SWING_EXTEND_STRENGTH * ropeLength;
-					}
 				}
 				
 				/* if click the mouse, then drop back to the ground */
