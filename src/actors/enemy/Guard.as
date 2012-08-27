@@ -30,7 +30,7 @@ package actors.enemy
 		private var climbing:Boolean = false;
 		private var finishedClimbing:Boolean = false;
 		private var bulletCounter:Number = 0;
-		
+		private var climbLadderPatrol:Boolean = false; 
 		
 		/* constructor */
 		public function Guard(X:int, Y:int) 
@@ -54,6 +54,9 @@ package actors.enemy
 			alertLevel = 0;
 			initializeBullets();
 			setAlertLevel(2);
+			
+			/* set the initial mode */
+			Mode = "Normal";
  		}
 		
 		public function onLadder():Boolean
@@ -65,7 +68,6 @@ package actors.enemy
 		override public function noiseAlert(enemy:Enemy, noise:NoiseRadius):void
 		{
 			play("alert");
-			
 		}
 		
 		
@@ -94,19 +96,16 @@ package actors.enemy
 		/* check if the player is in sight range */
 		public function checkIsDetected():void
 		{
-			//if ((detected == true) && (shootingNow==false))
+			/*if ((climbing == false) && (Mode=="Normal") && (detected==true))
 			{
-				/*
-				if (climbing == false)
-				{
-					followPlayer();
-				}*/				
-				if (detected==true)
-				{
-					shootPlayer();
-					Mode = "shooting";
-				}
-			}		
+				Mode = "Following";
+			}		*/	
+			if (detected==true)
+			{
+				shootPlayer();
+				Mode = "Shooting";
+			}
+			
 		}		
 		
 		/* Allows guard to climb the ladder when reached the bottom */
@@ -137,22 +136,10 @@ package actors.enemy
 			}
 		}
 		
-		/* override canSeeCheck since guard shouldn't follow when climbing */
-		override protected function canSeeCheck():void
-		{
-			if ((canSee == true) && (climbing == false))
-			{
-				if (alertLevel == 2)
-				{
-					followPlayer();	
-				}
-			}
-		}
-		
 		/*shooting function */
 		private function shootPlayer():void
 		{				
-			if (Mode=="shooting" && shootingNow==false)
+			if (Mode=="Shooting" && shootingNow==false)
 			{
 				velocity.x = 0;
 				tempVelocity = velocity.x;
