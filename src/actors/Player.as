@@ -105,6 +105,10 @@ package actors
 		
 		/* public booleans, because I'm lazy */
 		public var gotGoalItem:Boolean = false;
+		public var isClimbingUpLadder:Boolean = false; // returns true if player started at the bottom of the ladder and is on the ladder.
+		public var isClimbingDownLadder:Boolean = false; // returns true if the player started at the top of the ladder and is on the ladder.
+		public var doneClimbingUpLadder:Boolean = false; // returns true if the player just finished climbing to the top of the ladder.
+		public var doneClimbingDownLadder:Boolean = false; // returns true if the player just finished climbing to the bottom of the ladder.
 		
 		public function Player(X:int, Y:int) 
 		{
@@ -133,7 +137,7 @@ package actors
 		}
 		
 		override public function update():void
-		{	
+		{				
 			/* normal mode */
 			if (mode == NORMAL)
 			{
@@ -315,6 +319,7 @@ package actors
 				velocity.y = -LADDER_VELOCITY;
 				if (y <= tempPoint.y)
 				{
+					isClimbingUpLadder = true;
 					setMode(LADDER);
 				}
 			}
@@ -325,6 +330,7 @@ package actors
 				velocity.y = LADDER_VELOCITY;
 				if (y >= tempPoint.y)
 				{
+					isClimbingDownLadder = true;
 					setMode(LADDER);
 				}
 			}
@@ -621,6 +627,9 @@ package actors
 					noiseRadius.off();
 					tempPoint.x = x;
 					tempPoint.y = y - 60;
+					
+					/* booleans */
+					doneClimbingUpLadder = true;
 					break;
 					
 				case PREPARE_LADDER:
@@ -634,6 +643,9 @@ package actors
 					noiseRadius.off();
 					tempPoint.x = x;
 					tempPoint.y = y - 10;
+					
+					/* booleans */
+					isClimbingUpLadder = true;
 					break;
 					
 				case INITIAL_LADDER_DESCENT:
@@ -641,6 +653,9 @@ package actors
 					noiseRadius.off();
 					tempPoint.x = x;
 					tempPoint.y = y + 70;
+					
+					/* booleans */
+					isClimbingDownLadder = true;
 					break;
 					
 				case HOOKSHOT_PULLING:
@@ -794,8 +809,11 @@ package actors
 			/* if S pressed end ladder mode */
 			else if (mode == LADDER && FlxG.keys.pressed("S"))
 			{
+				isClimbingUpLadder = false;
+				isClimbingDownLadder = false;
+				doneClimbingDownLadder = true; // wow this is messy
 				setMode(NORMAL);
-			}			
+			}	
 		}
 		
 		/* handle the event when overlapping with a ladder top */
@@ -810,6 +828,8 @@ package actors
 			/* if W pressed end ladder mode */
 			else if (mode == LADDER && FlxG.keys.pressed("W") && mode == LADDER)
 			{
+				isClimbingUpLadder = false;
+				isClimbingDownLadder = false;
 				setMode(REACHING_LADDER_TOP);
 			}
 		}
@@ -858,6 +878,5 @@ package actors
 				setMode(HOOKSHOT_PULLING);
 			}
 		}
-		
 	}
 }
