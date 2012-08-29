@@ -34,6 +34,7 @@ package util
 		public static var sightranges:sightRanges;	
 		public static var bulletGroup:FlxGroup = new FlxGroup;
 		public static var enemyGroup:FlxGroup = new FlxGroup; //enemies will be added here later
+		public static var noiseTile:invisibleNoiseTile;
 		
 		/* marker groups */
 		public static var markers_ladderBottom:FlxGroup = new FlxGroup();

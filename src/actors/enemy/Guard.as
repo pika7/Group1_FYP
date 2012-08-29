@@ -12,6 +12,7 @@ package actors.enemy
 	import org.flixel.*;
 	import org.flixel.plugin.photonstorm.*;
 	import actors.enemy.guardBullet;
+	import actors.enemy.invisibleNoiseTile;
 
 	public class Guard extends Enemy
 	{
@@ -34,7 +35,11 @@ package actors.enemy
 		private var climbing:Boolean = false;
 		private var finishedClimbing:Boolean = false;
 		private var bulletCounter:Number = 0;
+		private var noiseCounter:Number = 0;
 		private var climbLadderPatrol:Boolean = false; 
+		private var noisePoint:FlxPoint = new FlxPoint;
+		private var noiseDetected:Boolean = false;
+		private var noiseTile:FlxSprite;
 		
 		/* constructor */
 		public function Guard(X:int, Y:int) 
@@ -65,7 +70,40 @@ package actors.enemy
 		override public function noiseAlert(enemy:Enemy, noise:NoiseRadius):void
 		{
 			play("alert");
+			noisePoint.x = Registry.player.x;
+			noisePoint.y = Registry.player.y;
+			noiseDetected = true;
+			Mode = "NoiseFollowing";
+			noiseTile = new invisibleNoiseTile(noisePoint.x, noisePoint.y);
+			noiseTile.exists = true;		
+			FlxVelocity.moveTowardsPoint(this, noisePoint, xVelocity);	
+			velocity.y = 0;
+			if (noisePoint.x > x)
+			{
+				facing = RIGHT;
+			}
+			else
+			{
+				facing = LEFT;
+			}
 			
+		}
+		
+		/*check if the noise is detected*/
+		public function checkNoiseDetected(guard:Guard, noiseTile:invisibleNoiseTile):void
+		{
+			if (noiseDetected == true && Mode=="NoiseFollowing")
+			{	
+				velocity.x = 0;
+				noiseCounter += FlxG.elapsed;
+				if (noiseCounter > 3)
+				{
+					noiseTile.exists = false;
+					noiseCounter = 0;
+					Mode = "Normal";
+					play("walk");
+				}
+			}	
 		}
 		
 		
@@ -105,7 +143,7 @@ package actors.enemy
 			{
 				Mode = "Following";
 			}		*/	
-			if (detected==true)
+			if (detected==true && (alertLevel==2))
 			{
 				shootPlayer();
 				Mode = "Shooting";
@@ -123,15 +161,7 @@ package actors.enemy
 		/* Allows guard to climb the ladder when reached the bottom */
 		public function handleLadderBottom(guard:Guard, marker:Marker):void
 		{
-			tempMarker = marker;
-			if ((detected == true) && (Registry.player.y < y) && (finishedClimbing==false)) //player is above guard
-			{
-				climbing = true;
-				x = tempMarker.x - 40;
-				velocity.y = -50;
-				velocity.x = 0;
-				acceleration.y = 0;
-			}
+		
 		}
 		
 		/* Allows guard to stop climbing the ladder when reached the top */
@@ -181,7 +211,7 @@ package actors.enemy
 			setVelocity();	
 			turnAround(xVelocity);
 			checkIsDetected(); //check for detection
-			changeAlertLevel(); //change alertlevel depending on the condition		
+			changeAlertLevel(); //change alertlevel depending on the condition	
 			bulletCounterCheck();
 			super.update();
 		}

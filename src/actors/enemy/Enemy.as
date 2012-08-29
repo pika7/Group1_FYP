@@ -54,6 +54,20 @@ package actors.enemy
 					stopDelay.start();				
 				}
 			}
+			else if (Mode == "Following" || Mode=="NoiseFollowing")
+			{
+				if (facing == FlxObject.RIGHT && justTouched(RIGHT))
+				{	
+					facing = FlxObject.LEFT;
+					velocity.x = -tempVelocity;		
+				}
+				if (facing == FlxObject.LEFT && justTouched(LEFT))
+				{				
+					facing = FlxObject.RIGHT;	
+					velocity.x = tempVelocity;		
+				}
+				
+			}
 		}
 		
 		/*go back to patrol after stopping for a while*/
@@ -111,7 +125,8 @@ package actors.enemy
 		{
 			if (detected == true)
 			{
-				followPlayer();
+				//Mode = "Following";
+				//followPlayer();
 			}
 		}
 					
@@ -121,12 +136,12 @@ package actors.enemy
 			if (Registry.player.x < x)
 			{
 				facing = LEFT;
-				velocity.x = -10;
+				velocity.x = -tempVelocity;
 			}
 			else if (Registry.player.x > x)
 			{
 				facing = RIGHT;
-				velocity.x = 10;
+				velocity.x = tempVelocity;
 			}
 	
 		}
@@ -156,7 +171,7 @@ package actors.enemy
 		override public function update(): void
 		{	
 			backToPatrol();					
-		
+			canSeeCheck();
 		}
 		
 		/////////////////////////////////////////////////////////

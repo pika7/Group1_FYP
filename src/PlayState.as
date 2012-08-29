@@ -90,11 +90,13 @@ package
 			FlxG.overlap(Registry.player, Registry.goalItem, getGoalItem);
 			FlxG.overlap(Registry.player, Registry.exit, completeLevel);
 			
+			
 			FlxG.overlap(Registry.sightranges, Registry.player, Registry.guard.seePlayer);
 			FlxG.overlap(Registry.guard, Registry.markers_enemyStop, Registry.guard.handleEnemyStop);
 			FlxG.overlap(Registry.guard, Registry.noiseRadii, Registry.guard.noiseAlert);
 			FlxG.overlap(Registry.guard, Registry.markers_ladderTop, Registry.guard.handleLadderTop);
 			FlxG.overlap(Registry.guard, Registry.markers_ladderBottom, Registry.guard.handleLadderBottom);
+			FlxG.overlap(Registry.guard, Registry.noiseTile, Registry.guard.checkNoiseDetected);
 			
 			if (!(FlxG.overlap(Registry.player, Registry.markers_ladderBottom, Registry.player.handleLadderBottom) || FlxG.overlap(Registry.player, Registry.markers_ladderTop, Registry.player.handleLadderTop)))
 			{
