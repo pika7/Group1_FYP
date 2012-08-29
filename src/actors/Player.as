@@ -260,14 +260,17 @@ package actors
 				if (FlxG.keys.pressed("W"))
 				{
 					velocity.y = -LADDER_VELOCITY;
+					noiseRadius.on();
 				}
 				else if (FlxG.keys.pressed("S"))
 				{
 					velocity.y = LADDER_VELOCITY;
+					noiseRadius.on();
 				}
 				else
 				{
 					velocity.y = 0;
+					noiseRadius.off();
 				}
 			}
 			/* reaching the top of the ladder */
@@ -624,7 +627,7 @@ package actors
 					
 				case REACHING_LADDER_TOP:
 					mode = REACHING_LADDER_TOP;
-					noiseRadius.off();
+					noiseRadius.on();
 					tempPoint.x = x;
 					tempPoint.y = y - 60;
 					
@@ -634,13 +637,13 @@ package actors
 					
 				case PREPARE_LADDER:
 					mode = PREPARE_LADDER;
-					noiseRadius.off();
+					noiseRadius.on();
 					stopAllMovement();
 					break;
 					
 				case INITIAL_LADDER_ASCENT:
 					mode = INITIAL_LADDER_ASCENT;
-					noiseRadius.off();
+					noiseRadius.on();
 					tempPoint.x = x;
 					tempPoint.y = y - 10;
 					
@@ -650,7 +653,7 @@ package actors
 					
 				case INITIAL_LADDER_DESCENT:
 					mode = INITIAL_LADDER_DESCENT;
-					noiseRadius.off();
+					noiseRadius.on();
 					tempPoint.x = x;
 					tempPoint.y = y + 70;
 					
