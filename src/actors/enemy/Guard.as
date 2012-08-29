@@ -42,6 +42,8 @@ package actors.enemy
 		private var noiseDetected:Boolean = false;
 		private var noiseTile:FlxSprite;
 		private var climbingDown:Boolean = false;
+		private var ladderStopCounter:Number = 0;
+		private var ladderStopCheck:Boolean = false;
 		
 		/* constructor */
 		public function Guard(X:int, Y:int) 
@@ -112,6 +114,7 @@ package actors.enemy
 					noiseCounter = 0;
 					Mode = "Normal";
 					play("walk");
+					noiseDetected = false;
 				}
 			}	
 		}
@@ -172,13 +175,14 @@ package actors.enemy
 		public function handleLadderBottom(guard:Guard, marker:Marker):void
 		{
 			tempMarker = marker;
-			if (Registry.player.isClimbingUpLadder || Registry.player.doneClimbingUpLadder) 
+			if ((((Registry.player.isClimbingUpLadder || Registry.player.doneClimbingUpLadder))&&noiseDetected==true))
 			{
 				climbing = true;
 				x = tempMarker.x-20;
 				velocity.y = -50;
 				velocity.x = 0;
-				acceleration.y = 0;				
+				acceleration.y = 0;
+				Mode = "Climbing";
 			}
 			if ((climbingDown == true && (Registry.guard.y < marker.y - (20 * marker.height))))
 			{
@@ -186,10 +190,25 @@ package actors.enemy
 				climbing = false;
 				x = tempMarker.x;
 				acceleration.y = GRAVITY;
-				velocity.x = 0;
-				Mode = "Normal";
+				ladderStopCheck = true;
 			}
 	
+		}
+		
+		public function ladderStopCheckFunction():void
+		{
+			if (ladderStopCheck == true)
+			{
+				velocity.x = 0;
+				ladderStopCounter += FlxG.elapsed;
+				if (ladderStopCounter > 3)
+				{
+					Mode = "Normal";
+					ladderStopCounter = 0;
+					ladderStopCheck = false;
+				}
+			}
+			
 		}
 		
 		/* Allows guard to stop climbing the ladder when reached the top */
@@ -201,8 +220,7 @@ package actors.enemy
 				climbing = false;
 				x = tempMarker.x;
 				acceleration.y = GRAVITY;
-				velocity.x = 0;
-				Mode = "Normal";
+				ladderStopCheck = true;
 			}
 			if ((climbing == false) &&(Registry.player.isClimbingDownLadder || Registry.player.doneClimbingDownLadder) &&(climbingDown==false))
 			{
@@ -212,6 +230,7 @@ package actors.enemy
 				acceleration.y = 0;
 				velocity.y = 50;
 				velocity.x = 0;
+				Mode = "Climbing";
 			
 			}
 		
@@ -252,6 +271,14 @@ package actors.enemy
 			}
 		}
 		
+		public function climbingCheck():void
+		{
+			if (climbing == true)
+			{
+				 x = tempMarker.x -20;
+			}
+		}
+		
 		/* update function */
 		override public function update():void
 		{	
@@ -260,6 +287,8 @@ package actors.enemy
 			checkIsDetected(); //check for detection
 			changeAlertLevel(); //change alertlevel depending on the condition	
 			bulletCounterCheck();
+			ladderStopCheckFunction();
+			climbingCheck();
 			super.update();
 		}
 		
