@@ -116,6 +116,10 @@ package actors.enemy
 					canSee = true;
 					pixelCounter = 0;
 				}
+				else
+				{
+					
+				}
 			}	
 		}
 		
@@ -123,10 +127,10 @@ package actors.enemy
 		/*check if guard can see player */
 		protected function canSeeCheck():void
 		{
-			if (detected == true)
+			if (detected == true) //player is in the sight range
 			{
-				//Mode = "Following";
-				//followPlayer();
+				Mode = "Following";
+				followPlayer();
 			}
 		}
 					

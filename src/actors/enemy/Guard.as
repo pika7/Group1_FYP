@@ -33,6 +33,7 @@ package actors.enemy
 		private var stoppingNow:Boolean = false;
 		private var sightRangeGraphic:FlxSprite;
 		private var climbing:Boolean = false;
+		private var canClimb:Boolean = false;
 		private var finishedClimbing:Boolean = false;
 		private var bulletCounter:Number = 0;
 		private var noiseCounter:Number = 0;
@@ -75,9 +76,13 @@ package actors.enemy
 			noiseDetected = true;
 			Mode = "NoiseFollowing";
 			noiseTile = new invisibleNoiseTile(noisePoint.x, noisePoint.y);
-			noiseTile.exists = true;		
-			FlxVelocity.moveTowardsPoint(this, noisePoint, xVelocity);	
-			velocity.y = 0;
+			noiseTile.exists = true;	
+			
+			if (climbing == false) //prevents guards from floating towards player
+			{
+				FlxVelocity.moveTowardsPoint(this, noisePoint, xVelocity);	
+				velocity.y = 0;
+			}
 			if (noisePoint.x > x)
 			{
 				facing = RIGHT;
@@ -86,7 +91,10 @@ package actors.enemy
 			{
 				facing = LEFT;
 			}
-			
+			if ((noisePoint.y < y || noisePoint.y > y) && (climbing ==false)) //player is above the guard
+			{
+				canClimb = true;
+			}
 		}
 		
 		/*check if the noise is detected*/
@@ -161,13 +169,33 @@ package actors.enemy
 		/* Allows guard to climb the ladder when reached the bottom */
 		public function handleLadderBottom(guard:Guard, marker:Marker):void
 		{
-		
+			tempMarker = marker;
+			if ((Mode == "Following"||Mode=="NoiseFollowing"))
+			{	
+				if (canClimb == true && (climbing == false))
+				{
+					if ((Registry.noiseTile.y < y)||(Registry.player.doneClimbingUpLadder ==true))
+					{
+						climbing = true;
+						x = tempMarker.x-50;
+						velocity.x = 0;
+						velocity. y = - 10;		
+						acceleration.y = 0;
+					}
+				}
+			}
 		}
-		
 		/* Allows guard to stop climbing the ladder when reached the top */
 		public function handleLadderTop(guard:Guard, marker:Marker):void
 		{
-			
+			tempMarker = marker;
+			if((climbing==true && y < (tempMarker.y-(2*tempMarker.width))))
+			{
+				climbing = false;
+				velocity.x = xVelocity;
+				acceleration.y = GRAVITY;
+			}
+		
 		}
 		
 		/*shooting function */
