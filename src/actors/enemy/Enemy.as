@@ -22,6 +22,7 @@ package actors.enemy
 		private var touchedMarker:Boolean = false;
 		private var group:FlxGroup;
 		private var counter:Number = 0;
+		private var pixelCounter:Number = 0;
 
 		public function Enemy(X:int, Y:int) 
 		{
@@ -38,17 +39,20 @@ package actors.enemy
 		public function turnAround(xVelocity:Number):void
 		{	
 			tempVelocity = xVelocity;
-			if (facing == FlxObject.RIGHT && justTouched(RIGHT))
-			{	
-				velocity.x = 0;
-				facing = FlxObject.LEFT;
-				stopDelay.start();				
-			}
-			if (facing == FlxObject.LEFT && justTouched(LEFT))
-			{				
-				velocity.x = 0;
-				facing = FlxObject.RIGHT;	
-				stopDelay.start();				
+			if (Mode == "Normal")
+			{
+				if (facing == FlxObject.RIGHT && justTouched(RIGHT))
+				{	
+					velocity.x = 0;
+					facing = FlxObject.LEFT;
+					stopDelay.start();				
+				}
+				if (facing == FlxObject.LEFT && justTouched(LEFT))
+				{				
+					velocity.x = 0;
+					facing = FlxObject.RIGHT;	
+					stopDelay.start();				
+				}
 			}
 		}
 		
@@ -77,7 +81,7 @@ package actors.enemy
 		/* stops enemy if makes contact with a marker */
 		public function handleEnemyStop(enemy:Enemy, marker:Marker):void
 		{	
-			if (touchedMarker==false)
+			if (touchedMarker==false && Mode == "Normal") //only stop at the marker in Normal mode
 			{
 				velocity.x = 0;
 				touchedMarker = true;
@@ -89,25 +93,28 @@ package actors.enemy
 		/* guard sees player if in sight range */
 		public function seePlayer(sightrange:sightRanges, player:Player):void
 		{
-			if (FlxCollision.pixelPerfectCheck(sightrange, player))	
+			pixelCounter += FlxG.elapsed;
+			if (pixelCounter > 0.5) //check it every 0.5 frame
 			{
-				detected = true;
-				
-			}
+				if (FlxCollision.pixelPerfectCheck(sightrange, player))	
+				{
+					detected = true;
+					canSee = true;
+					pixelCounter = 0;
+				}
+			}	
 		}
+		
 		
 		/*check if guard can see player */
 		protected function canSeeCheck():void
 		{
-			if (canSee == true)
+			if (detected == true)
 			{
 				followPlayer();
 			}
 		}
-		
-		
-		
-		
+					
 		/* follows the player as long as she is in sight range */
 		protected function followPlayer():void
 		{
@@ -136,7 +143,7 @@ package actors.enemy
 		{
 			if (detected == true && (Registry.player.gotGoalItem==false))
 			{
-				setAlertLevel(1);
+				setAlertLevel(0);
 				
 			}
 			/*if (Registry.player.gotGoalItem == true)
@@ -148,8 +155,7 @@ package actors.enemy
 		/* update function for generic enemy class */
 		override public function update(): void
 		{	
-			backToPatrol();
-			canSeeCheck();						
+			backToPatrol();					
 		
 		}
 		

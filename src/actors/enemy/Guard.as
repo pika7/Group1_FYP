@@ -19,7 +19,11 @@ package actors.enemy
 		
 		/* initialization of variables */
 		private const GRAVITY:int = 600;
-		private var xVelocity:Number = 100;
+		private const levelZeroVelocity:Number = 100;
+		private const levelOneVelocity:Number = 200;
+		private const levelTwoVelocity:Number = 300;
+		
+		private var xVelocity:Number;
 		private var bullet:FlxSprite;
 		private var currentBullet:FlxSprite;
 		private var bulletDelay:FlxDelay = new FlxDelay(1500);
@@ -42,7 +46,7 @@ package actors.enemy
 			
 			/* sprite speed initialization*/
 			acceleration.y = GRAVITY;
-			velocity.x = xVelocity;
+			velocity.x = levelZeroVelocity;
 			
 			/* sprite animations */
 			addAnimation("walk", [0], 0, false);
@@ -51,35 +55,36 @@ package actors.enemy
 			
 			/*other sprite properties*/
 			facing = RIGHT;	
-			alertLevel = 0;
 			initializeBullets();
-			setAlertLevel(2);
 			
 			/* set the initial mode */
 			Mode = "Normal";
  		}
 		
-		public function onLadder():Boolean
-		{
-			return climbing;
-		}
-		
 		/*play alert animation if noise is detected */
 		override public function noiseAlert(enemy:Enemy, noise:NoiseRadius):void
 		{
 			play("alert");
+			
 		}
 		
 		
 		/* changes velocity according to alertLevel*/
 		private function setVelocity():void
 		{
-			switch(getAlertLevel())
+			switch(alertLevel)
 			{
-		
-				
+				case 0:
+					xVelocity = levelZeroVelocity;
+					break;
+				case 1:
+					xVelocity = levelOneVelocity;
+					break;
+				case 2:
+					xVelocity = levelTwoVelocity;
+					break;
 			}
-		}
+		}	
 		
 		
 		/* creation of bullets for use */
@@ -108,6 +113,13 @@ package actors.enemy
 			
 		}		
 		
+		
+		/* function for checking if the guard is currently climibing or not */
+		public function onLadder():Boolean
+		{
+			return climbing;
+		}
+		
 		/* Allows guard to climb the ladder when reached the bottom */
 		public function handleLadderBottom(guard:Guard, marker:Marker):void
 		{
@@ -125,15 +137,7 @@ package actors.enemy
 		/* Allows guard to stop climbing the ladder when reached the top */
 		public function handleLadderTop(guard:Guard, marker:Marker):void
 		{
-			tempMarker = marker;
-			if ((detected == true) && (Registry.player.y > y) && (finishedClimbing == false)) //when the player is below guard, stop climbing action
-			{
-				climbing = false;
-				velocity.y = 0;
-				velocity.x = 0;
-				acceleration.y = GRAVITY;
-				finishedClimbing = true; //reached the top
-			}
+			
 		}
 		
 		/*shooting function */
@@ -173,10 +177,11 @@ package actors.enemy
 		
 		/* update function */
 		override public function update():void
-		{					
+		{	
+			setVelocity();	
+			turnAround(xVelocity);
 			checkIsDetected(); //check for detection
-			changeAlertLevel(); //change alertlevel depending on the condition
-			turnAround(xVelocity); //turn around when you hit the wall		
+			changeAlertLevel(); //change alertlevel depending on the condition		
 			bulletCounterCheck();
 			super.update();
 		}
