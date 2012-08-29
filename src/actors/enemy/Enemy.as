@@ -127,11 +127,11 @@ package actors.enemy
 		/*check if guard can see player */
 		protected function canSeeCheck():void
 		{
-			if (detected == true) //player is in the sight range
+		/*	if (detected == true) //player is in the sight range
 			{
 				Mode = "Following";
 				followPlayer();
-			}
+			}*/
 		}
 					
 		/* follows the player as long as she is in sight range */

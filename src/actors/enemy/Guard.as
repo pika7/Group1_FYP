@@ -41,6 +41,7 @@ package actors.enemy
 		private var noisePoint:FlxPoint = new FlxPoint;
 		private var noiseDetected:Boolean = false;
 		private var noiseTile:FlxSprite;
+		private var climbingDown:Boolean = false;
 		
 		/* constructor */
 		public function Guard(X:int, Y:int) 
@@ -78,7 +79,8 @@ package actors.enemy
 			noiseTile = new invisibleNoiseTile(noisePoint.x, noisePoint.y);
 			noiseTile.exists = true;	
 			
-			if (climbing == false) //prevents guards from floating towards player
+			//only move towards player when touching the floor (prevents stopping in air)
+			if (climbing == false && isTouching(FLOOR)) 
 			{
 				FlxVelocity.moveTowardsPoint(this, noisePoint, xVelocity);	
 				velocity.y = 0;
@@ -170,30 +172,47 @@ package actors.enemy
 		public function handleLadderBottom(guard:Guard, marker:Marker):void
 		{
 			tempMarker = marker;
-			if ((Mode == "Following"||Mode=="NoiseFollowing"))
-			{	
-				if (canClimb == true && (climbing == false))
-				{
-					if ((Registry.noiseTile.y < y)||(Registry.player.doneClimbingUpLadder ==true))
-					{
-						climbing = true;
-						x = tempMarker.x-50;
-						velocity.x = 0;
-						velocity. y = - 10;		
-						acceleration.y = 0;
-					}
-				}
+			if (Registry.player.isClimbingUpLadder || Registry.player.doneClimbingUpLadder) 
+			{
+				climbing = true;
+				x = tempMarker.x-20;
+				velocity.y = -50;
+				velocity.x = 0;
+				acceleration.y = 0;				
 			}
+			if ((climbingDown == true && (Registry.guard.y < marker.y - (20 * marker.height))))
+			{
+				climbingDown = false;
+				climbing = false;
+				x = tempMarker.x;
+				acceleration.y = GRAVITY;
+				velocity.x = 0;
+				Mode = "Normal";
+			}
+	
 		}
+		
 		/* Allows guard to stop climbing the ladder when reached the top */
 		public function handleLadderTop(guard:Guard, marker:Marker):void
 		{
 			tempMarker = marker;
-			if((climbing==true && y < (tempMarker.y-(2*tempMarker.width))))
+			if ((climbing == true) && (Registry.guard.y < marker.y -(13 * marker.height)))
 			{
 				climbing = false;
-				velocity.x = xVelocity;
+				x = tempMarker.x;
 				acceleration.y = GRAVITY;
+				velocity.x = 0;
+				Mode = "Normal";
+			}
+			if ((climbing == false) &&(Registry.player.isClimbingDownLadder || Registry.player.doneClimbingDownLadder) &&(climbingDown==false))
+			{
+				climbing = true;
+				climbingDown = true;
+				x = tempMarker.x-20;
+				acceleration.y = 0;
+				velocity.y = 50;
+				velocity.x = 0;
+			
 			}
 		
 		}
