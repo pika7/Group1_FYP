@@ -63,16 +63,7 @@ package
 		}
 		
 		
-		override public function draw():void
-		{
-			super.draw();
-			
-			//To draw path
-			if (Registry.guard.path != null)
-			{
-				Registry.guard.path.drawDebug();
-			}
-		}
+	
 		
 		override public function update():void
 		{
