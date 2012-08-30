@@ -90,8 +90,7 @@ package actors.enemy
 			}
 			if (Registry.player.y < y)
 			{
-				var path:FlxPath = Registry.level.map.findPath(new FlxPoint(x, y), new FlxPoint(noisePoint.x, Registry.player.y));
-				followPath(path);
+			
 			}
 		}
 		
