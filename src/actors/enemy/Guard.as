@@ -80,26 +80,36 @@ package actors.enemy
 			Mode = "NoiseFollowing";
 			noiseTile = new invisibleNoiseTile(noisePoint.x, noisePoint.y);
 			noiseTile.exists = true;	
+			noiseFace();
 			
-			//only move towards player when touching the floor (prevents stopping in air)
+			//only move towards player when the guard is touching the floor (prevents stopping in air)
 			if (climbing == false && isTouching(FLOOR)) 
 			{
-				FlxVelocity.moveTowardsPoint(this, noisePoint, xVelocity);	
+				FlxVelocity.moveTowardsPoint(this, noisePoint, xVelocity);
 				velocity.y = 0;
 			}
-			if (noisePoint.x > x)
+			if (Registry.player.y < y)
 			{
-				facing = RIGHT;
-			}
-			else
-			{
-				facing = LEFT;
-			}
-			if ((noisePoint.y < y || noisePoint.y > y) && (climbing ==false)) //player is above the guard
-			{
-				canClimb = true;
+				var path:FlxPath = Registry.level.map.findPath(new FlxPoint(x, y), new FlxPoint(noisePoint.x, Registry.player.y));
+				followPath(path);
 			}
 		}
+		
+			/* different facing depending on noise coordinates */
+			private function noiseFace():void
+			{
+				if (noiseDetected == true)
+				{
+					if (noisePoint.x > x)
+					{
+						facing = RIGHT;
+					}
+					else
+					{
+						facing = LEFT;
+					}
+				}
+			}		
 		
 		/*check if the noise is detected*/
 		public function checkNoiseDetected(guard:Guard, noiseTile:invisibleNoiseTile):void

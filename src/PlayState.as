@@ -62,6 +62,18 @@ package
 
 		}
 		
+		
+		override public function draw():void
+		{
+			super.draw();
+			
+			//To draw path
+			if (Registry.guard.path != null)
+			{
+				Registry.guard.path.drawDebug();
+			}
+		}
+		
 		override public function update():void
 		{
 			/////////////////////////////////////////
@@ -86,6 +98,7 @@ package
 		
 			FlxG.collide(Registry.level, Registry.smokeBombHandler, SmokeBomb.bounce);	
 			FlxG.collide(Registry.level, Registry.bulletGroup);
+
 			
 			FlxG.overlap(Registry.player, Registry.goalItem, getGoalItem);
 			FlxG.overlap(Registry.player, Registry.exit, completeLevel);

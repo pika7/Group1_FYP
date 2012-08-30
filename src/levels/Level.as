@@ -13,7 +13,7 @@ package levels
 	
 	public class Level extends FlxGroup
 	{
-		protected var map:FlxTilemap;
+		public var map:FlxTilemap;
 		protected var background:FlxTilemap;
 		protected var checkpoints:FlxTilemap;
 		protected var markers:FlxTilemap;
