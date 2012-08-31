@@ -102,6 +102,7 @@ package actors
 		private const TRANQ:int = 0;
 		private const HOOKSHOT:int = 1;
 		private const SMOKEBOMB:int = 2;
+		private const STUNGRENADE:int = 3;
 		
 		/* public booleans, because I'm lazy */
 		public var gotGoalItem:Boolean = false;
@@ -477,7 +478,14 @@ package actors
 			{
 				if (!prepareBombTimer.isRunning)
 				{
-					Registry.smokeBombHandler.fire(x, y, tempAngle);
+					if (weapon == SMOKEBOMB)
+					{
+						Registry.smokeBombHandler.fire(firePoint.x, firePoint.y, tempAngle);
+					}
+					else if (weapon == STUNGRENADE)
+					{
+						Registry.stunGrenadeHandler.fire(firePoint.x, firePoint.y, tempAngle);
+					}
 					setMode(NORMAL);
 				}
 			}
@@ -573,6 +581,10 @@ package actors
 			else if (FlxG.keys.pressed("THREE"))
 			{
 				weapon = SMOKEBOMB;
+			}
+			else if (FlxG.keys.pressed("FOUR"))
+			{
+				weapon = STUNGRENADE;
 			}
 			
 			super.update();
@@ -791,6 +803,20 @@ package actors
 					
 					tempAngle = FlxVelocity.angleBetweenMouse(this, false);
 					
+					break;
+					
+				case STUNGRENADE:
+					prepareBombTimer.start();
+					if (mode == NORMAL)
+					{
+						setMode(PREPARE_BOMB_NORMAL);
+					}
+					else if (mode == SNEAKING)
+					{
+						setMode(PREPARE_BOMB_SNEAKING);
+					}
+					
+					tempAngle = FlxVelocity.angleBetweenMouse(this, false);
 					break;
 					
 			}

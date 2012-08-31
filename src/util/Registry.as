@@ -26,6 +26,7 @@ package util
 		
 		public static var tranqBulletHandler:TranqBulletHandler = new TranqBulletHandler();
 		public static var smokeBombHandler:SmokeBombHandler = new SmokeBombHandler();
+		public static var stunGrenadeHandler:StunGrenadeHandler = new StunGrenadeHandler();
 		public static var uiHandler:UIHandler = new UIHandler();
 		public static var noiseRadii:FlxGroup = new FlxGroup();
 		

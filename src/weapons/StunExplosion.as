@@ -9,18 +9,16 @@ package weapons
 	import org.flixel.plugin.photonstorm.FlxDelay;
 	import util.Registry;
 	
-	public class SmokeCloud extends Explosion
+	public class StunExplosion extends Explosion
 	{
-		[Embed(source = '../../assets/img/player/weapons/smoke_cloud.png')] private var cloudPNG:Class
+		[Embed(source = '../../assets/img/player/weapons/stun_explosion.png')] private var explodePNG:Class
 		
-		public function SmokeCloud() 
+		public function StunExplosion() 
 		{
-			explodeTime = 3500;
+			explodeTime = 100;
 			
 			super();
-			loadGraphic(cloudPNG, false, false, 256, 256, false);
-			
-			alpha = 0.7;
+			loadGraphic(explodePNG, false, false, 256, 256, false);
 		}
 	}
 

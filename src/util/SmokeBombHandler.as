@@ -20,20 +20,20 @@ package util
 			super();
 			smokeCloudGroup = new FlxGroup();
 			
-			/* create 5 bullets */
+			/* create bullets */
 			for (var i:int = 0; i <= SMOKEBOMB_NUMBER; i++)
 			{
 				add(new SmokeBomb());
 			}
 			
-			/* create 5 smoke clouds in the smokeCloudGroup */
+			/* create smoke clouds in the smokeCloudGroup */
 			for (var j:int = 0; j <= SMOKEBOMB_NUMBER; j++)
 			{
 				smokeCloudGroup.add(new SmokeCloud());
 			}
 		}
 		/**
-		 * Fires a <code>TranqBullet</code> from the specified location at the mouse.
+		 * Fires a <code>SmokeBomb</code> from the specified location at the mouse.
 		 * 
 		 * @param	bx		The X position that the bullet is fired from.
 		 * @param	by		The Y position that the bullet is fired from.
@@ -48,7 +48,7 @@ package util
 		}
 		
 		/**
-		 * Emit a <code>SmokeCloud</code> centered at the specified location.
+		 * Emit a <code>SmokeCloud</code> at the specified location.
 		 * 
 		 * @param	bx		The x position that the smoke cloud comes from.
 		 * @param	by		The y position that the smoke cloud comes from.
@@ -59,7 +59,7 @@ package util
 			
 			if (tempSmokeCloud)
 			{
-				SmokeCloud(tempSmokeCloud.emit(bx - tempSmokeCloud.width/2, by - tempSmokeCloud.height/2));
+				SmokeCloud(tempSmokeCloud.explode(bx - tempSmokeCloud.width/2, by - tempSmokeCloud.height/2));
 			}
 		}
 		

@@ -43,6 +43,8 @@ package
 			add(Registry.tranqBulletHandler);
 			add(Registry.smokeBombHandler);
 			add(Registry.smokeBombHandler.smokeCloudGroup);
+			add(Registry.stunGrenadeHandler);
+			add(Registry.stunGrenadeHandler.stunExplosionGroup);
 			
 			/* add UI elements */
 			add(Registry.uiHandler);
@@ -87,7 +89,8 @@ package
 				FlxG.collide(Registry.level, Registry.guard);
 			}
 		
-			FlxG.collide(Registry.level, Registry.smokeBombHandler, SmokeBomb.bounce);	
+			FlxG.collide(Registry.level, Registry.smokeBombHandler, ThrowableWeapon.bounce);	
+			FlxG.collide(Registry.level, Registry.stunGrenadeHandler, ThrowableWeapon.bounce);
 			FlxG.collide(Registry.level, Registry.bulletGroup);
 
 			
@@ -151,6 +154,10 @@ package
 			Registry.smokeBombHandler.clear();
 			remove(Registry.smokeBombHandler);
 			remove(Registry.smokeBombHandler.smokeCloudGroup);
+			
+			Registry.stunGrenadeHandler.clear();
+			remove(Registry.stunGrenadeHandler);
+			remove(Registry.stunGrenadeHandler.stunExplosionGroup);
 			
 			/* don't need to clear groups that you don't dynamically add things to */
 			remove(Registry.uiHandler);
