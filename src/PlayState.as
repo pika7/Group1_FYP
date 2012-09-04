@@ -32,7 +32,7 @@ package
 			
 			Registry.player = new Player(20, 20);
 			add(Registry.player);
-			add(Registry.noiseRadii);
+			add(Registry.noiseHandler);
 			
 			/* add markers */
 			add(Registry.markers_ladderBottom);
@@ -89,6 +89,7 @@ package
 				FlxG.collide(Registry.level, Registry.guard);
 			}
 		
+			FlxG.collide(Registry.level, Registry.tranqBulletHandler, TranqBullet.ping_callback);
 			FlxG.collide(Registry.level, Registry.smokeBombHandler, ThrowableWeapon.bounce);	
 			FlxG.collide(Registry.level, Registry.stunGrenadeHandler, ThrowableWeapon.bounce);
 			FlxG.collide(Registry.level, Registry.bulletGroup);
@@ -100,7 +101,7 @@ package
 			
 			FlxG.overlap(Registry.sightranges, Registry.player, Registry.guard.seePlayer);
 			FlxG.overlap(Registry.guard, Registry.markers_enemyStop, Registry.guard.handleEnemyStop);
-			FlxG.overlap(Registry.guard, Registry.noiseRadii, Registry.guard.noiseAlert);
+			FlxG.overlap(Registry.guard, Registry.noiseHandler, Registry.guard.noiseAlert);
 			FlxG.overlap(Registry.guard, Registry.markers_ladderTop, Registry.guard.handleLadderTop);
 			FlxG.overlap(Registry.guard, Registry.markers_ladderBottom, Registry.guard.handleLadderBottom);
 			FlxG.overlap(Registry.guard, Registry.noiseTile, Registry.guard.checkNoiseDetected);
@@ -177,8 +178,8 @@ package
 			Registry.markers_enemyStop.clear();
 			remove(Registry.markers_enemyStop);
 			
-			Registry.noiseRadii.clear();
-			remove(Registry.noiseRadii);
+			Registry.noiseHandler.clear();
+			remove(Registry.noiseHandler);
 			
 			Registry.markers_hookshotable.clear();
 			remove(Registry.markers_hookshotable);

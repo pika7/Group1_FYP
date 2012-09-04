@@ -7,11 +7,13 @@ package actors
 {
 	import org.flixel.*;
 	import util.Registry;
-	
+	import org.flixel.plugin.photonstorm.FlxDelay;
 	
 	public class NoiseRadius extends FlxSprite
 	{
 		[Embed(source = '../../assets/img/player/footstep_noise_radius.png')] private var circlePNG:Class;
+		
+		private var noiseTimer:FlxDelay;
 		
 		/**
 		 * Create a noiseRadius centered at the specified location.
@@ -28,16 +30,27 @@ package actors
 			y = y - height / 2;
 			
 			alpha = 0.2;
-			Registry.noiseRadii.add(this);
 			exists = doesExist;
+			
+			/* initialise the timer */
+			noiseTimer = new FlxDelay(0);
 		}
 		
 		/**
-		 * Turn the noise radius on.
+		 * Turn the noise radius on for a certain amount of time, default is on indefinitely.
+		 * 
+		 * @param	timeToRun		The amount of time to make noise.  Default is on forever.
 		 */
-		public function on():void
+		public function on(timeToRun:int = 0):void
 		{
 			exists = true;
+			
+			if (timeToRun > 0)
+			{
+				noiseTimer = new FlxDelay(timeToRun);
+				noiseTimer.start();
+				noiseTimer.callback = off;
+			}
 		}
 		
 		/**
@@ -46,10 +59,11 @@ package actors
 		public function off():void
 		{
 			exists = false;
+			noiseTimer.abort();
 		}
 		
 		/**
-		 * The <code>noiseRadius</code> will follow the specified target.  Should be called
+		 * The <code>NoiseRadius</code> will follow the specified target.  Should be called
 		 * in <code>update</code> function.
 		 * 
 		 * @param	target	The target for the <code>noiseRadius</code> to follow.
@@ -60,9 +74,17 @@ package actors
 			y = target.y - height/2 + target.height/2;
 		}
 		
-		
-		/* TODO: make a noise radius handler */
-		/* TODO: make a variety of different noise radii.  Maybe three: quiet, medium, and loud. */
+		/**
+		 * Set the <code>NoiseRadius</code> centered at the specified location.
+		 * 
+		 * @param	X	The x-coordinate.
+		 * @param	Y	The y-coordinate.
+		 */
+		public function setAt(X:int, Y:int):void
+		{
+			x = X - width / 2;
+			y = Y - height / 2;
+		}
 	}
 
 }
