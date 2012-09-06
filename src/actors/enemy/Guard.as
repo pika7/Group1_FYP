@@ -143,6 +143,11 @@ package actors.enemy
 			
 			checkMarkers(trackPath);	
 		
+			//store the endpoint
+			tempEndDestinationPoint.x = Registry.guardEndPoint.x *Registry.TILESIZE;
+			tempEndDestinationPoint.y = Registry.guardEndPoint.y * Registry.TILESIZE;
+			
+			
 		if (isTouching(FLOOR))  //case when noise is detected on floor
 		{	
 				var temppt:FlxPoint;
@@ -182,8 +187,7 @@ package actors.enemy
 							}
 							bottomMarkerMovePoint = bottomMarkerInPathGroup[tempMarkerIndex];
 							
-							tempEndDestinationPoint.x = Registry.guardEndPoint.x *Registry.TILESIZE;
-							tempEndDestinationPoint.y = Registry.guardEndPoint.y * Registry.TILESIZE;
+							
 							
 							FlxVelocity.moveTowardsPoint(this, bottomMarkerMovePoint, 200);
 							velocity.y = 0;
@@ -224,12 +228,7 @@ package actors.enemy
 										tempMarkerIndex = markerIndex;
 								}
 							}
-							
-							topMarkerMovePoint = topMarkerInPathGroup[tempMarkerIndex];
-							
-							tempEndDestinationPoint.x = Registry.guardEndPoint.x * Registry.TILESIZE;
-							tempEndDestinationPoint.y = Registry.guardEndPoint.y * Registry.TILESIZE;;
-							
+							topMarkerMovePoint = topMarkerInPathGroup[tempMarkerIndex];							
 							FlxVelocity.moveTowardsPoint(this, topMarkerMovePoint, 200);
 							velocity.y = 0;
 					}
@@ -248,10 +247,7 @@ package actors.enemy
 			if (Registry.guardLadderDirection == "DOWN")
 			{
 				if (touchedBottomMarker == false) //above the marker
-				{
-					tempDestinationPoint.x = Registry.guardEndPoint.x * Registry.TILESIZE;
-					tempDestinationPoint.y = Registry.guardEndPoint.y * Registry.TILESIZE;	
-							
+				{						
 					//find the closest marker in the path
 					for (var mIndex2:int = 0; mIndex2 < bottomMarkerInPathGroup.length; mIndex2++)
 					{	
@@ -272,8 +268,7 @@ package actors.enemy
 								tempMarkerIndex = mIndex2;
 							}
 					}
-					tempEndDestinationPoint.x = Registry.guardEndPoint.x *Registry.TILESIZE;
-					tempEndDestinationPoint.y = Registry.guardEndPoint.y * Registry.TILESIZE;;
+					
 					
 					bottomMarkerMovePoint = bottomMarkerInPathGroup[tempMarkerIndex];
 					climbing == true; 
@@ -283,9 +278,17 @@ package actors.enemy
 					acceleration.y = 0;
 				}								
 			}
-	
-		
+			if (Registry.guardLadderDirection == "UP")
+			{
+				climbing = true;
+				velocity.y = - xVelocity / 2;
+				x = tempBottomMarker.x -20;
+				velocity.x = 0;
+				acceleration.y = 0;
+				
 			}
+		
+		}
 		
 		}
 		/* check if there are markers in path */
@@ -330,8 +333,7 @@ package actors.enemy
 				velocity.y = 30;		
 				velocity.x = 80;
 				acceleration.y = GRAVITY / 3;
-			
-			//	FlxVelocity.moveTowardsPoint(this, tempDestinationPoint, 80);
+				FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, 50);
 			}
 			if (touchedBottomMarker == true && climbing == true && Registry.guardLadderDirection == "NONE")
 			{
@@ -340,7 +342,7 @@ package actors.enemy
 				x = tempXSetMarker.x -20;
 				acceleration.y = GRAVITY;		
 				velocity.x = 50;		
-				//FlxVelocity.moveTowardsPoint(this, tempDestinationPoint, 80);
+				FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, 80);
 				
 			}
 		}
@@ -354,7 +356,7 @@ package actors.enemy
 				y = tempXSetMarker.y - 80; 
 				acceleration.y = GRAVITY;
 				touchedTopMarker = false;	
-				//FlxVelocity.moveTowardsPoint(this, tempDestinationPoint, 1000);
+				FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, 50);
 			}
 			if (Registry.guardLadderDirection == "DOWN" && touchedTopMarker == true)
 			{
@@ -500,7 +502,6 @@ package actors.enemy
 					}
 				}
 			}
-		
 			if (touchedBottomMarker == true)
 			{
 				
@@ -537,6 +538,7 @@ package actors.enemy
 			checkTouchedTopMarker();
 			bulletCounterCheck(); 
 			super.update();				
+			trace(tempEndDestinationPoint.x, tempEndDestinationPoint.y, Registry.guardLadderDirection);
 		}
 		
 		
