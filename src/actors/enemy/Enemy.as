@@ -17,7 +17,6 @@ package actors.enemy
 		protected var detected:Boolean = false;
 		protected var touched:Boolean = false;
 		protected var canSee:Boolean = false;
-		protected var tempMarker:Marker;
 		protected var Mode:String = "Normal";
 		private var touchedMarker:Boolean = false;
 		private var group:FlxGroup;
@@ -122,17 +121,6 @@ package actors.enemy
 				}
 			}	
 		}
-		
-		
-		/*check if guard can see player */
-		protected function canSeeCheck():void
-		{
-		/*	if (detected == true) //player is in the sight range
-			{
-				Mode = "Following";
-				followPlayer();
-			}*/
-		}
 					
 		/* follows the player as long as she is in sight range */
 		protected function followPlayer():void
@@ -146,8 +134,7 @@ package actors.enemy
 			{
 				facing = RIGHT;
 				velocity.x = tempVelocity;
-			}
-	
+			}	
 		}
 		
 		/*guard responds to the noise*/
@@ -155,6 +142,7 @@ package actors.enemy
 		{
 			//velocity.x = 0;
 			//go to the source of noise
+			//has to be overriden because dogs can't climb ladder
 		}
 		
 		/*chagnes alert level of the enemy according to situation */
@@ -165,18 +153,15 @@ package actors.enemy
 				setAlertLevel(0);
 				
 			}
-			/*if (Registry.player.gotGoalItem == true)
-			{
-				setAlertLevel(2);
-			}*/
 		}
 		
 		/* update function for generic enemy class */
 		override public function update(): void
 		{	
-			backToPatrol();					
-			canSeeCheck();
+			//backToPatrol();					
+	
 		}
+		
 		
 		/////////////////////////////////////////////////////////
 		// GETTERS/SETTERS

@@ -1,7 +1,9 @@
 package weapons 
 {
+	import levels.Level;
 	import org.flixel.*;
 	import org.flixel.plugin.photonstorm.FlxVelocity;
+	import util.Registry;
 	
 	public class TranqBullet extends FireableWeapon
 	{
@@ -13,11 +15,9 @@ package weapons
 		 */
 		public function TranqBullet() 
 		{		
-			/* these have to go first */
-			shotVelocity = 1200;
-			
 			super();
 			loadGraphic(bulletPNG, true, true, 4, 4, true);
+			shotVelocity = 1200;
 		}
 		
 		override public function update():void
@@ -27,6 +27,25 @@ package weapons
 			{
 				recycleKill();
 			}
+		}
+		
+		//////////////////////////////////////////////////////
+		// PRIVATE HELPER FUNCTIONS
+		/////////////////////////////////////////////////////
+		
+		/* what happens when the bullet collides with the level */
+		private function ping():void
+		{
+			Registry.noiseHandler.makeNoise(x, y, 10);
+			recycleKill();
+		}
+		
+		///////////////////////////////////////////////////////
+		// PUBLIC CALLBACK FUNCTIONS for PlayState
+		//////////////////////////////////////////////////////
+		public static function ping_callback(level:FlxTilemap, bullet:TranqBullet):void
+		{
+			bullet.ping();
 		}
 	}
 }

@@ -133,6 +133,7 @@ package actors
 			
 			/* instantiate other things */
 			noiseRadius = new NoiseRadius(x, y, false);
+			Registry.noiseHandler.add(noiseRadius);
 			tempPoint = new FlxPoint(0, 0);
 			firePoint = new FlxSprite(x + width / 2, y + height / 2);
 		}
@@ -801,7 +802,7 @@ package actors
 						setMode(PREPARE_BOMB_SNEAKING);
 					}
 					
-					tempAngle = FlxVelocity.angleBetweenMouse(this, false);
+					tempAngle = FlxVelocity.angleBetweenMouse(firePoint, false);
 					
 					break;
 					
@@ -816,7 +817,7 @@ package actors
 						setMode(PREPARE_BOMB_SNEAKING);
 					}
 					
-					tempAngle = FlxVelocity.angleBetweenMouse(this, false);
+					tempAngle = FlxVelocity.angleBetweenMouse(firePoint, false);
 					break;
 					
 			}

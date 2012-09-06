@@ -23,12 +23,13 @@ package util
 		public static var exit:Exit;
 		public static var hookshot:Hookshot;
 		public static var hookshotChain:HookshotChain;
+		public static var levelGuardPath:LevelGuardPath; //for loading guard patrol path
 		
 		public static var tranqBulletHandler:TranqBulletHandler = new TranqBulletHandler();
 		public static var smokeBombHandler:SmokeBombHandler = new SmokeBombHandler();
 		public static var stunGrenadeHandler:StunGrenadeHandler = new StunGrenadeHandler();
 		public static var uiHandler:UIHandler = new UIHandler();
-		public static var noiseRadii:FlxGroup = new FlxGroup();
+		public static var noiseHandler:NoiseHandler = new NoiseHandler();
 		
 		/* enemy stuff */
 		public static var guard:Guard;
@@ -36,6 +37,9 @@ package util
 		public static var bulletGroup:FlxGroup = new FlxGroup;
 		public static var enemyGroup:FlxGroup = new FlxGroup; //enemies will be added here later
 		public static var noiseTile:invisibleNoiseTile;
+		public static var guardLadderDirection:String; //going up or down
+		public static var guardStartPoint:patrolPathNode;
+		public static var guardEndPoint:patrolPathNode;
 		
 		/* marker groups */
 		public static var markers_ladderBottom:FlxGroup = new FlxGroup();
