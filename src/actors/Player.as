@@ -5,6 +5,7 @@ package actors
 	import org.flixel.plugin.photonstorm.FlxDelay;
 	import org.flixel.plugin.photonstorm.FlxVelocity;
 	import util.Registry;
+	import org.flixel.plugin.photonstorm.FlxMath;
 	
 	public class Player extends FlxSprite
 	{	
@@ -37,7 +38,7 @@ package actors
 		private const SWING_CONVERSION:Number = 0.6; // this is just to transition the normal movement to swing movement smoothly
 		private const ROPE_SHORTEN_SPEED:int = 60;
 		private const SWING_EXTEND_STRENGTH:Number = 1.02;
-		private const MAXIMUM_SWING_VELOCITY:Number = 1;
+		private const MAXIMUM_SWING_VELOCITY:Number = 1.4;
 		private const HOOKSHOT_FLY_VELOCITY_MULTIPLIER:Number = 1.5; // how much the amplify the velocity after coming off a hookshot
 		private const HOOKSHOT_FLY_GRAVITY:int = 400; // the gravity after coming off a hookshot
 		private const HOOKSHOT_FLY_ACCELERATION:int = 100; // how well the player can control themselves in the air after flying off a hookshot
@@ -56,6 +57,7 @@ package actors
 		private var tempPoint:FlxPoint;
 		private var tempMarker:Marker;
 		private var tempAngle:Number;
+		private var ropeDifference:Number; // how different the length of the hookshot rope is from the previous frame
 		
 		/* timers */
 		private var reloadTimer:FlxDelay;
@@ -360,8 +362,10 @@ package actors
 			/* dangling from the hookshot, can swing */
 			else if (mode == HOOKSHOT_DANGLING)
 			{	
+				/* calculate the difference between this frame and the previous frame */
+				ropeDifference = ropeLength - distanceBetween(firePoint, Registry.hookshot);
+				
 				ropeAngle = (0.5 * Math.PI) - FlxVelocity.angleBetweenPoint(Registry.hookshot, tempPoint);
-				ropeLength = FlxVelocity.distanceBetween(this, Registry.hookshot);
 				tempPoint.x = Registry.player.x + Registry.player.width / 2;
 				tempPoint.y = Registry.player.y;
 				
@@ -417,18 +421,28 @@ package actors
 				velocity.x = swingAngularVelocity * Math.sin(moveAngle);
 				velocity.y = swingAngularVelocity * -Math.cos(moveAngle);	
 				
-				/* if press W or S, change the length of the rope... move towards or away from hookshot */
+				/* if press W or S, change the length of the rope... move towards or away from hookshot
+				 * also set the new ropeLength */
 				if (FlxG.keys.pressed("W") && ropeLength > Registry.hookshot.MIN_ROPE_LENGTH)
 				{
 					velocity.x -= Math.sin(ropeAngle) * ROPE_SHORTEN_SPEED;
 					velocity.y -= Math.cos(ropeAngle) * ROPE_SHORTEN_SPEED;
+					
+					ropeLength = distanceBetween(firePoint, Registry.hookshot);
 					
 				}
 				else if (FlxG.keys.pressed("S") && ropeLength < Registry.hookshot.MAX_ROPE_LENGTH - 50) // just to make sure it doesnt actually hit it
 				{
 					velocity.x += Math.sin(ropeAngle) * ROPE_SHORTEN_SPEED;
 					velocity.y += Math.cos(ropeAngle) * ROPE_SHORTEN_SPEED;
+					
+					ropeLength = distanceBetween(firePoint, Registry.hookshot);
 				}
+				
+				/* adjust the length of the rope based on whether it is longer or shorter than last frame */
+				velocity.x += Math.sin(ropeAngle) * ropeDifference;
+				velocity.y += Math.cos(ropeAngle) * ropeDifference;
+
 				
 				/* if click the mouse, then drop back to the ground */
 				if (FlxG.mouse.pressed())
@@ -683,6 +697,9 @@ package actors
 				case HOOKSHOT_DANGLING:
 					mode = HOOKSHOT_DANGLING;
 					
+					/* set the initial ropeLength */
+					ropeLength = distanceBetween(firePoint, Registry.hookshot);
+					
 					/* smoothly convert the existing velocity to the swing velocity */
 					swingAngularVelocity = velocity.x * SWING_CONVERSION;
 					stopAllMovement();
@@ -821,6 +838,15 @@ package actors
 					break;
 					
 			}
+		}
+		
+		/* modified version of distanceBetween in FlxVelocity that returns a Number instead of an int */
+		public static function distanceBetween(a:FlxSprite, b:FlxSprite):Number
+		{
+			var dx:Number = (a.x + a.origin.x) - (b.x + b.origin.x);
+			var dy:Number = (a.y + a.origin.y) - (b.y + b.origin.y);
+			
+			return FlxMath.vectorLength(dx, dy);
 		}
 		
 		////////////////////////////////////////////////////////////

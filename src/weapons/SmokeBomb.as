@@ -47,6 +47,7 @@ package weapons
 		/* begin to emit smoke to blind the enemies */
 		private function emitSmoke():void
 		{
+			Registry.noiseHandler.makeNoise(x, y, 100);
 			Registry.smokeBombHandler.emitSmoke(x, y); // this is bad practice imo
 			recycleKill();
 		}

@@ -538,7 +538,7 @@ package actors.enemy
 			checkTouchedTopMarker();
 			bulletCounterCheck(); 
 			super.update();				
-			trace(tempEndDestinationPoint.x, tempEndDestinationPoint.y, Registry.guardLadderDirection);
+			//trace(tempEndDestinationPoint.x, tempEndDestinationPoint.y, Registry.guardLadderDirection);
 		}
 		
 		
