@@ -30,6 +30,7 @@ package util
 		public static var stunGrenadeHandler:StunGrenadeHandler = new StunGrenadeHandler();
 		public static var uiHandler:UIHandler = new UIHandler();
 		public static var noiseHandler:NoiseHandler = new NoiseHandler();
+		public static var hidingSpots:FlxGroup = new FlxGroup();
 		
 		/* enemy stuff */
 		public static var guard:Guard;

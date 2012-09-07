@@ -7,6 +7,7 @@
 package levels 
 {
 	import objs.GoalItem;
+	import objs.Hole;
 	import org.flixel.*;
 	import objs.Marker;
 	import objs.Exit;
@@ -25,6 +26,7 @@ package levels
 		/* enumerate the checkpoints */
 		protected const GOAL_ITEM:int = 1;
 		protected const EXIT:int = 2;
+		protected const HOLE:int = 3;
 		
 		public function Level() 
 		{
@@ -53,6 +55,10 @@ package levels
 						
 						case EXIT:
 							new Exit(tx, ty);
+							break;
+							
+						case HOLE:
+							new Hole(tx, ty);
 							break;
 							
 						default:

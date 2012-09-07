@@ -89,6 +89,7 @@ package actors
 		public static const AIMING_SNEAKING:int = 16; // aiming in sneaking mode
 		public static const HOOKSHOT_RELOADING_NORMAL:int = 17;
 		public static const HOOKSHOT_RELOADING_SNEAKING:int = 18;
+		public static const HIDING:int = 19; // hiding in a hiding spot, cannot be detected
 		
 		/* what weapon the player currently has equipped */
 		private var weapon:int;
@@ -190,6 +191,12 @@ package actors
 				{
 					setMode(IN_AIR);
 				}
+				
+				/* hiding mode, if overlapping with a hiding spot */
+				if (FlxG.keys.justPressed("E") && overlaps(Registry.hidingSpots)) // no need to put this into PlayState because not called every frame
+				{
+					setMode(HIDING);
+				}
 			}
 			/* sneaking mode */
 			else if (mode == SNEAKING)
@@ -233,6 +240,12 @@ package actors
 				if (!isTouching(FlxObject.FLOOR))
 				{
 					setMode(IN_AIR);
+				}
+				
+				/* hiding mode, if overlapping with a hiding spot */
+				if (FlxG.keys.justPressed("E") && overlaps(Registry.hidingSpots)) // no need to put this into PlayState because not called every frame
+				{
+					setMode(HIDING);
 				}
 			}
 			/* reloading */
@@ -576,6 +589,15 @@ package actors
 					setMode(SNEAKING);
 				}
 			}
+			/* hiding in a hiding spot */
+			else if (mode == HIDING)
+			{
+				/* go back to normal mode after pressing E */
+				if (FlxG.keys.justPressed("E"))
+				{
+					setMode(NORMAL);
+				}
+			}
 			
 			/* make the noise radius follow the player */
 			noiseRadius.follow(this);
@@ -769,6 +791,13 @@ package actors
 					hookshotReloadTimer.start();
 					break;
 					
+				case HIDING:
+					mode = HIDING;
+					stopAllMovement();
+					noiseRadius.off();
+					frame = 1; // TEMPORARY
+					break;
+					
 				default:
 					trace("ERROR: invalid mode");
 					break;
@@ -899,14 +928,7 @@ package actors
 		 */
 		public function onLadder():Boolean
 		{
-			if (mode == LADDER || mode == INITIAL_LADDER_ASCENT || mode == INITIAL_LADDER_DESCENT)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return (mode == LADDER || mode == INITIAL_LADDER_ASCENT || mode == INITIAL_LADDER_DESCENT);
 		}
 		
 		/**
@@ -914,14 +936,7 @@ package actors
 		 */
 		public function isSneaking():Boolean
 		{
-			if (mode == SNEAKING || mode == RELOADING_SNEAKING)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return (mode == SNEAKING || mode == RELOADING_SNEAKING);
 		}
 		
 		/**
@@ -933,6 +948,14 @@ package actors
 			{
 				setMode(HOOKSHOT_PULLING);
 			}
+		}
+		
+		/**
+		 * Returns true if the player is currently hidden.
+		 */
+		public function isHiding():Boolean
+		{
+			return (mode == HIDING);
 		}
 	}
 }

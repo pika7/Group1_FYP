@@ -27,6 +27,7 @@ package
 			Registry.levelGuardPath = new TestGuardPath();
 			add(Registry.levelGuardPath);	
 			
+			add(Registry.hidingSpots);
 			add(Registry.goalItem);
 			add(Registry.exit);
 			
@@ -166,6 +167,7 @@ package
 			
 			/* don't need to clear groups that you don't dynamically add things to */
 			remove(Registry.uiHandler);
+			remove(Registry.hidingSpots);
 			
 			Registry.enemyGroup.clear();
 			remove(Registry.enemyGroup);
