@@ -8,11 +8,13 @@ package
 	import actors.Player;
 	import levels.TestLevel;
 	import org.flixel.*;
+	import ui.UIHandler;
 	import util.Registry;
 	import objs.*;
 	import util.TranqBulletHandler;
 	import weapons.*;
 	import levels.TestGuardPath; //for loading test patrol path
+	import util.NoiseHandler;
 	
 	public class PlayState extends FlxState
 	{
@@ -36,11 +38,10 @@ package
 			
 			add(Registry.hookshot.rope); //yup, have to add the hookshot and the rope as well
 			
-			add(Registry.noiseHandler);
-			Registry.player.setAt(20, 20);
-			add(Registry.player);
-			Registry.noiseHandler.add(Registry.player.noiseRadius); // TODO: fix this
 			
+			Registry.player = new Player(20, 20);
+			add(Registry.player);
+			add(Registry.noiseHandler);
 			
 			/* add markers */
 			add(Registry.markers_ladderBottom);
@@ -55,7 +56,7 @@ package
 			add(Registry.stunGrenadeHandler.stunExplosionGroup);
 			
 			/* add UI elements */
-			add(Registry.uiHandler);
+			add(Registry.uiHandler = new UIHandler());
 	
 			
 			/* FOR TESTING */
@@ -69,11 +70,7 @@ package
 			
 			/* show the mouse */
 			FlxG.mouse.show();
-
 		}
-		
-		
-	
 		
 		override public function update():void
 		{
@@ -128,6 +125,13 @@ package
 			}
 			
 			super.update();
+			
+			/* for testing purposes only, remove later */
+			if (FlxG.keys.justPressed("F"))
+			{
+				trace("lose life!");
+				Registry.gameStats.damage(10);
+			}
 		}
 		
 		/////////////////////////////////////////
@@ -146,7 +150,7 @@ package
 			if (player.gotGoalItem)
 			{
 				clearRegistry();
-				FlxG.switchState(new WinState());
+				FlxG.switchState(new EndState());
 			}
 		}
 		
