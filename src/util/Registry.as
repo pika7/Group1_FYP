@@ -18,7 +18,6 @@ package util
 		
 		/* these will be initialised in the PlayState */
 		public static var level:Level;
-		public static var player:Player;
 		public static var goalItem:GoalItem;
 		public static var exit:Exit;
 		public static var hookshot:Hookshot;
@@ -28,9 +27,10 @@ package util
 		public static var tranqBulletHandler:TranqBulletHandler = new TranqBulletHandler();
 		public static var smokeBombHandler:SmokeBombHandler = new SmokeBombHandler();
 		public static var stunGrenadeHandler:StunGrenadeHandler = new StunGrenadeHandler();
-		public static var uiHandler:UIHandler = new UIHandler();
 		public static var noiseHandler:NoiseHandler = new NoiseHandler();
 		public static var hidingSpots:FlxGroup = new FlxGroup();
+		public static var player:Player = new Player();
+		public static var uiHandler:UIHandler = new UIHandler();
 		
 		/* enemy stuff */
 		public static var guard:Guard;
@@ -47,7 +47,7 @@ package util
 		public static var markers_ladderTop:FlxGroup = new FlxGroup();
 		public static var markers_hookshotable:FlxGroup = new FlxGroup();
 		public static var markers_enemyStop:FlxGroup = new FlxGroup();
-		
+	
 		public function Registry() 
 		{
 			

@@ -36,9 +36,11 @@ package
 			
 			add(Registry.hookshot.rope); //yup, have to add the hookshot and the rope as well
 			
-			Registry.player = new Player(20, 20);
-			add(Registry.player);
 			add(Registry.noiseHandler);
+			Registry.player.setAt(20, 20);
+			add(Registry.player);
+			Registry.noiseHandler.add(Registry.player.noiseRadius); // TODO: fix this
+			
 			
 			/* add markers */
 			add(Registry.markers_ladderBottom);

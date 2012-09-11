@@ -14,6 +14,9 @@ package actors
 		/* dummy sprite located at the firing location of the sprite used for FlxVelocity */
 		public var firePoint:FlxSprite;
 		
+		/* public constants */
+		public static const STARTING_LIFE:int = 100;
+		
 		/* general constants */
 		private const FRICTION:int = 900;
 		private const GRAVITY:int = 600;
@@ -51,7 +54,7 @@ package actors
 		private const PREPARE_BOMB_TIME:int = 500;
 		
 		/* noise raadius for player footsteps */
-		private var noiseRadius:NoiseRadius;
+		public var noiseRadius:NoiseRadius;
 		
 		/* temp variables for storage */
 		private var tempPoint:FlxPoint;
@@ -114,9 +117,9 @@ package actors
 		public var doneClimbingUpLadder:Boolean = false; // returns true if the player just finished climbing to the top of the ladder.
 		public var doneClimbingDownLadder:Boolean = false; // returns true if the player just finished climbing to the bottom of the ladder.
 		
-		public function Player(X:int, Y:int) 
+		public function Player() 
 		{
-			super(X, Y);
+			super(0, 0);
 			loadGraphic(playerPNG, true, true, 128, 128, true);
 			width = 64;
 			height = 128;
@@ -136,9 +139,10 @@ package actors
 			
 			/* instantiate other things */
 			noiseRadius = new NoiseRadius(x, y, false);
-			Registry.noiseHandler.add(noiseRadius);
+			//Registry.noiseHandler.add(noiseRadius);
 			tempPoint = new FlxPoint(0, 0);
 			firePoint = new FlxSprite(x + width / 2, y + height / 2);
+			health = STARTING_LIFE;
 		}
 		
 		override public function update():void
@@ -956,6 +960,44 @@ package actors
 		public function isHiding():Boolean
 		{
 			return (mode == HIDING);
+		}
+		
+		////////////////////////////////////////////////////////////
+		// OTHER PUBLIC FUNCTIONS
+		////////////////////////////////////////////////////////////
+		
+		/**
+		 * Set the location of the player.  Useful for setting the starting point.
+		 * 
+		 * @param	X	x-coordinate of the player
+		 * @param	Y	y-coordinate of the player
+		 */
+		public function setAt(X:int, Y:int):void
+		{
+			x = X;
+			y = Y;
+		}
+		
+		/**
+		 * Damages the player.
+		 * 
+		 * @param	amount		The amount to damage the player by.
+		 */
+		public function damage(amount:int):void
+		{
+			// TODO: some other stuff with the life bar
+			health -= amount;
+		}
+		
+		/**
+		 * Heals the player.
+		 * 
+		 * @param	amount		The amount to heal the player by.
+		 */
+		public function heal(amount:int):void
+		{
+			// TODO: some other stuff with the life bar
+			health += amount;
 		}
 	}
 }

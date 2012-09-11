@@ -7,10 +7,12 @@ package ui
 	public class UIHandler extends FlxGroup
 	{
 		private var aimline:Aimline;
+		private var lifeBar:LifeBar;
 		
 		public function UIHandler() 
 		{
 			add(aimline = new Aimline());
+			add(lifeBar = new LifeBar());
 		}
 		
 		override public function update():void

@@ -23,10 +23,12 @@ package weapons
 		override public function update():void
 		{
 			/* If the bullet goes offscreen, remove it. (Place it back into the pool of available bullets) */
+			/*
 			if (exists && !onScreen())
 			{
 				recycleKill();
 			}
+			*/
 		}
 		
 		//////////////////////////////////////////////////////
