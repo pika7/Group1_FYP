@@ -33,12 +33,5 @@ package util
 				TranqBullet(getFirstAvailable()).fire(bx, by, angle);
 			}
 		}
-		/**
-		 * Kill everything inside the handler.
-		 */
-		override public function clear():void
-		{
-			callAll("recycleKill");
-		}
 	}
 }

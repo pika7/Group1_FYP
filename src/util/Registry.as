@@ -37,11 +37,11 @@ package util
 		public static var levelGuardPath:LevelGuardPath; //for loading guard patrol path
 		
 		//TODO: initialise these in playstate
-		public static var tranqBulletHandler:TranqBulletHandler = new TranqBulletHandler();
-		public static var smokeBombHandler:SmokeBombHandler = new SmokeBombHandler();
-		public static var stunGrenadeHandler:StunGrenadeHandler = new StunGrenadeHandler();
-		public static var noiseHandler:NoiseHandler = new NoiseHandler();
-		public static var hidingSpots:FlxGroup = new FlxGroup();
+		public static var tranqBulletHandler:TranqBulletHandler;
+		public static var smokeBombHandler:SmokeBombHandler;
+		public static var stunGrenadeHandler:StunGrenadeHandler;
+		public static var noiseHandler:NoiseHandler;
+		public static var hidingSpots:FlxGroup;
 		public static var uiHandler:UIHandler;
 		
 		/* enemy stuff */
@@ -55,10 +55,10 @@ package util
 		public static var guardEndPoint:patrolPathNode;
 		
 		/* marker groups */
-		public static var markers_ladderBottom:FlxGroup = new FlxGroup();
-		public static var markers_ladderTop:FlxGroup = new FlxGroup();
-		public static var markers_hookshotable:FlxGroup = new FlxGroup();
-		public static var markers_enemyStop:FlxGroup = new FlxGroup();
+		public static var markers_ladderBottom:FlxGroup;
+		public static var markers_ladderTop:FlxGroup;
+		public static var markers_hookshotable:FlxGroup;
+		public static var markers_enemyStop:FlxGroup;
 	
 		public function Registry() 
 		{

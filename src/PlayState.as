@@ -11,6 +11,8 @@ package
 	import ui.UIHandler;
 	import util.Registry;
 	import objs.*;
+	import util.SmokeBombHandler;
+	import util.StunGrenadeHandler;
 	import util.TranqBulletHandler;
 	import weapons.*;
 	import levels.TestGuardPath; //for loading test patrol path
@@ -21,6 +23,20 @@ package
 		override public function create():void
 		{
 			/* initialise registry objects */
+			/* markers */
+			Registry.markers_ladderBottom = new FlxGroup();
+			Registry.markers_ladderTop = new FlxGroup();
+			Registry.markers_hookshotable = new FlxGroup();
+			Registry.markers_enemyStop = new FlxGroup();
+			
+			/* other stuff */
+			Registry.noiseHandler = new NoiseHandler();
+			Registry.hidingSpots = new FlxGroup();
+			Registry.tranqBulletHandler = new TranqBulletHandler();
+			Registry.smokeBombHandler = new SmokeBombHandler();
+			Registry.stunGrenadeHandler = new StunGrenadeHandler();
+			Registry.player = new Player(20, 20);
+			
 			/* TODO: allow selection of different levels */
 			Registry.level = new TestLevel();
 			add(Registry.level);
@@ -29,17 +45,13 @@ package
 			Registry.levelGuardPath = new TestGuardPath();
 			add(Registry.levelGuardPath);	
 			
+			/* add registry objects */
 			add(Registry.hidingSpots);
 			add(Registry.goalItem);
 			add(Registry.exit);
-			
 			add(Registry.hookshot = new Hookshot());
 			add(Registry.hookshotChain = new HookshotChain());
-			
 			add(Registry.hookshot.rope); //yup, have to add the hookshot and the rope as well
-			
-			
-			Registry.player = new Player(20, 20);
 			add(Registry.player);
 			add(Registry.noiseHandler);
 			
@@ -51,8 +63,8 @@ package
 			/* add projectiles and explosions */
 			add(Registry.tranqBulletHandler);
 			add(Registry.smokeBombHandler);
-			add(Registry.smokeBombHandler.smokeCloudGroup);
 			add(Registry.stunGrenadeHandler);
+			add(Registry.smokeBombHandler.smokeCloudGroup);
 			add(Registry.stunGrenadeHandler.stunExplosionGroup);
 			
 			/* add UI elements */

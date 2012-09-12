@@ -62,20 +62,5 @@ package util
 				StunExplosion(tempStunExplosion.explode(bx - tempStunExplosion.width/2, by - tempStunExplosion.height/2));
 			}
 		}
-		
-		/**
-		 * Kill everything inside the handler.
-		 */
-		override public function clear():void
-		{
-			for (var i:int = 0; i <= STUN_GRENADE_NUMBER; i++)
-			{
-				callAll("recycleKill");
-				stunExplosionGroup.callAll("recycleKill");
-				
-				/* abort all the timers */
-				callAll("abortTimers");
-			}
-		}
 	}
 }
