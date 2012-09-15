@@ -66,25 +66,17 @@ package actors.enemy
 			ladderDirection = "";
 		}
 		
-		public function getPath():Array //will return flxpath later
+		public function getPath(startX:int, startY:int, endX:int, endY:int):Array //will return flxpath later
 		{
 			//for getting the start point of the patrol path (guard position)
 			visited = [];
 			notVisited = [];
 			
-			enemyTileX = ((Registry.guard.x) - pathMap.x) /32; //enemy point in tile coordinates
-			enemyTileY = ((Registry.guard.y  +100 - pathMap.y)) / 32; //enemy point in y tile coordinates
+			enemyPoint.x = startX / 32; 
+			enemyPoint.y = startY / 32;		
 			
-			enemyPoint.x = enemyTileX;
-			enemyPoint.y = enemyTileY;
-			
-			playerTileX = ((Registry.player.x) - pathMap.x) / 32;
-			playerTileY = ((Registry.player.y +100 - pathMap.y)) / 32;
-			
-			
-			playerPoint.x = playerTileX; 
-			playerPoint.y =  playerTileY;
-		
+			playerPoint.x = endX / 32;
+			playerPoint.y = endY / 32;
 			
 			startNode = getStartNode();
 			endNode =  getEndNode();
