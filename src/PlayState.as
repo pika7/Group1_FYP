@@ -11,6 +11,7 @@ package
 	import ui.UIHandler;
 	import util.Registry;
 	import objs.*;
+	import util.ScentTrailHandler;
 	import util.SmokeBombHandler;
 	import util.StunGrenadeHandler;
 	import util.TranqBulletHandler;
@@ -35,6 +36,7 @@ package
 			Registry.tranqBulletHandler = new TranqBulletHandler();
 			Registry.smokeBombHandler = new SmokeBombHandler();
 			Registry.stunGrenadeHandler = new StunGrenadeHandler();
+			Registry.scentTrailHandler = new ScentTrailHandler();
 			Registry.player = new Player(20, 20);
 			
 			/* TODO: allow selection of different levels */
@@ -52,8 +54,9 @@ package
 			add(Registry.hookshot = new Hookshot());
 			add(Registry.hookshotChain = new HookshotChain());
 			add(Registry.hookshot.rope); //yup, have to add the hookshot and the rope as well
-			add(Registry.player);
 			add(Registry.noiseHandler);
+			add(Registry.scentTrailHandler);
+			add(Registry.player);
 			
 			/* add markers */
 			add(Registry.markers_ladderBottom);
@@ -73,6 +76,7 @@ package
 			
 			/* FOR TESTING */
 			Registry.guard = new Guard(150, 20);
+			Registry.scentTrailHandler.start();
 			
 			Registry.sightranges = new sightRanges(160, 20);
 			
@@ -136,12 +140,17 @@ package
 				FlxG.collide(Registry.level, Registry.hookshot);
 			}
 			
+			/* check if dead */
+			if (Registry.gameStats.health == 0)
+			{
+				die();
+			}
+			
 			super.update();
 			
 			/* for testing purposes only, remove later */
 			if (FlxG.keys.justPressed("F"))
 			{
-				trace("lose life!");
 				Registry.gameStats.damage(10);
 			}
 		}
@@ -169,6 +178,7 @@ package
 		/////////////////////////////////////////
 		// PRIVATE HELPER FUNCTIONS
 		/////////////////////////////////////////
+		
 		/* clear the registry in preparation of state change */
 		private function clearRegistry():void
 		{	
@@ -205,12 +215,25 @@ package
 			Registry.noiseHandler.clear();
 			remove(Registry.noiseHandler);
 			
+			Registry.scentTrailHandler.clear();
+			remove(Registry.scentTrailHandler);
+			
 			Registry.markers_hookshotable.clear();
 			remove(Registry.markers_hookshotable);
 			
 			/* TEMPORARY */
 			remove(Registry.guard);
 		}
+		
+		/* the player dies if she runs out of health */
+		private function die():void
+		{
+			// TODO: do something else as well
+			Registry.gameStats.health = Registry.gameStats.STARTING_LIFE;
+			clearRegistry();
+			FlxG.switchState(new EndState());
+		}
+		
 	}
 
 }

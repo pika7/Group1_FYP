@@ -41,6 +41,7 @@ package util
 		public static var smokeBombHandler:SmokeBombHandler;
 		public static var stunGrenadeHandler:StunGrenadeHandler;
 		public static var noiseHandler:NoiseHandler;
+		public static var scentTrailHandler:ScentTrailHandler;
 		public static var hidingSpots:FlxGroup;
 		public static var uiHandler:UIHandler;
 		
