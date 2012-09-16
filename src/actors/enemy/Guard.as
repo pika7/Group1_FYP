@@ -92,6 +92,11 @@ package actors.enemy
 		private var topMarkerMovePoint:FlxPoint = new FlxPoint(0, 0);
 		private var tempEndPoint:FlxPoint = new FlxPoint(0, 0);
 		private var tempEndDestinationPoint:FlxPoint = new FlxPoint(0, 0);
+		private var startX:int;
+		private var startY:int;
+		private var endX:int;
+		private var endY:int;
+		private var inSightRange:Boolean = false;
 		
 		/* constructor */
 		public function Guard(X:int, Y:int) 
@@ -118,6 +123,8 @@ package actors.enemy
 			Mode = "Normal";
 			//will change to getter method later
 			
+			alertLevel = 2;
+			
 			/* pathfinding stuff */
 			patrolPathClass = new patrolPathList();
 			travelpt = new FlxPoint(0, 0);
@@ -125,26 +132,22 @@ package actors.enemy
 			
  		}
 		
-		/* play alert animation if noise is detected */
-		/* start following the player */
-		override public function noiseAlert(enemy:Enemy, noise:NoiseRadius):void
+		public function followThePath():void
 		{
+			
 			bottomMarkerInPathGroup = [];
 			topMarkerInPathGroup = [];
-			noiseDetected = true;
-			noiseFace();
-			play("alert");
-			//get the path coordinates in array
-			trackPath = patrolPathClass.getPath();
+			
 			
 			//reset marker booleans
 			bottomMarkerInPath = false;
 			topMarkerInPath = false;
 			
+			//check markers
 			checkMarkers(trackPath);	
 		
 			//store the endpoint
-			tempEndDestinationPoint.x = Registry.guardEndPoint.x *Registry.TILESIZE;
+			tempEndDestinationPoint.x = Registry.guardEndPoint.x * Registry.TILESIZE;
 			tempEndDestinationPoint.y = Registry.guardEndPoint.y * Registry.TILESIZE;
 			
 			
@@ -345,6 +348,30 @@ package actors.enemy
 				FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, 80);
 				
 			}
+			
+			
+			
+		}
+		
+		
+		/* play alert animation if noise is detected */
+		/* start following the player */
+		override public function noiseAlert(enemy:Enemy, noise:NoiseRadius):void
+		{
+			
+			noiseDetected = true;
+			noiseFace();
+			play("alert");
+			Mode = "followingnoise";
+			
+			//get the path coordinates in array
+			startX = Registry.guard.x;
+			startY = Registry.guard.y + 100;
+			endX = Registry.player.x;
+			endY = Registry.player.y + 100;
+			
+			trackPath = patrolPathClass.getPath(startX, startY, endX, endY);
+			followThePath();
 		}
 		
 		/*function for top marker reaction */
@@ -424,8 +451,15 @@ package actors.enemy
 		/* check if the player is in sight range */
 		public function checkIsDetected():void
 		{
-			if (detected==true && (alertLevel==2))
+			if (detected==true)
 			{
+				if (inSightRange == true)
+				{
+				
+					FlxVelocity.moveTowardsObject(this, Registry.player, 70);
+					velocity.y = 0;
+					inSightRange = false;
+				}
 				shootPlayer();
 				Mode = "Shooting";
 			}
@@ -458,6 +492,7 @@ package actors.enemy
 		/*shooting function */
 		private function shootPlayer():void
 		{				
+			
 			if (Mode=="Shooting" && shootingNow==false)
 			{
 				velocity.x = 0;
@@ -479,12 +514,13 @@ package actors.enemy
 			{
 				bulletCounter += FlxG.elapsed;
 			
-				if (bulletCounter > 3)
+				if (bulletCounter > 2)
 				{
 					shootingNow = false;
 					Mode = "Normal";
 					bulletCounter = 0;
 					detected = false;
+					inSightRange = true;
 				}
 			}
 		}
@@ -538,7 +574,6 @@ package actors.enemy
 			checkTouchedTopMarker();
 			bulletCounterCheck(); 
 			super.update();				
-			//trace(tempEndDestinationPoint.x, tempEndDestinationPoint.y, Registry.guardLadderDirection);
 		}
 		
 		
