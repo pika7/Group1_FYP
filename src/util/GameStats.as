@@ -37,19 +37,20 @@ package util
 		 */
 		public function damage(amount:int):void
 		{
-			// TODO: some other stuff with the life bar
+			FlxG.camera.shake(0.01, 0.25);
 			health -= amount;
+			Registry.uiHandler.damage(amount);
 		}
 		
 		/**
 		 * Heals the player.
 		 * 
-		 * @param	amount		The amount to heal the player by.
+		 * @param	amount		The amount to heal the player bssy.
 		 */
 		public function heal(amount:int):void
 		{
-			// TODO: some other stuff with the life bar
 			health += amount;
+			Registry.uiHandler.heal(amount);
 		}
 		
 	}

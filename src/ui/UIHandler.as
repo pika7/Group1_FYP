@@ -43,5 +43,15 @@ package ui
 			aimline.exists = false;
 		}
 		
+		public function damage(amount:int):void
+		{
+			lifeBar.damage(amount);
+		}
+		
+		public function heal(amount:int):void
+		{
+			lifeBar.heal(amount);
+		}
+		
 	}
 }
