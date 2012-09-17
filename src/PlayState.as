@@ -153,6 +153,11 @@ package
 			{
 				Registry.gameStats.damage(10);
 			}
+			
+			if (FlxG.keys.justPressed("G"))
+			{
+				Registry.gameStats.heal(10);
+			}
 		}
 		
 		/////////////////////////////////////////

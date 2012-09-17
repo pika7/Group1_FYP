@@ -38,6 +38,7 @@ package util
 		public function damage(amount:int):void
 		{
 			FlxG.camera.shake(0.01, 0.25);
+			FlxG.camera.flash(0xffff0000, 0.25);
 			health -= amount;
 			Registry.uiHandler.damage(amount);
 		}
