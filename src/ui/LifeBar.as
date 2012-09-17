@@ -38,7 +38,7 @@ package ui
 			startDegenTimer = new FlxDelay(START_DEGEN_DELAY);
 			startDegenTimer.callback = startDegenDamageBar;
 			
-			health = Registry.gameStats.STARTING_LIFE;
+			health = Registry.gameStats.health;
 			
 			bar = new FlxBar(590, 10, FlxBar.FILL_LEFT_TO_RIGHT, BAR_LENGTH, 20, this, "health", 0, 100, false);
 			bar.createFilledBar(0xff000000, 0xff11cc11);
@@ -89,6 +89,13 @@ package ui
 		public function heal(amount:int):void
 		{
 			damageValue -= amount;
+			
+			/* do not let damageValue go below 0 */
+			if (damageValue < 0)
+			{
+				damageValue = 0;
+			}
+			
 			health += amount;
 		}
 		

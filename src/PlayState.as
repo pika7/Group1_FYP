@@ -158,6 +158,12 @@ package
 			{
 				Registry.gameStats.heal(10);
 			}
+			
+			if (FlxG.keys.justPressed("C"))
+			{
+				clearRegistry();
+				FlxG.switchState(new CutsceneState());
+			}
 		}
 		
 		/////////////////////////////////////////
