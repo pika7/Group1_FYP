@@ -72,11 +72,11 @@ package actors.enemy
 			visited = [];
 			notVisited = [];
 			
-			enemyPoint.x = startX / 32; 
-			enemyPoint.y = startY / 32;		
+			enemyPoint.x = startX / Registry.TILESIZE; 
+			enemyPoint.y = startY / Registry.TILESIZE;		
 			
-			playerPoint.x = endX / 32;
-			playerPoint.y = endY / 32;
+			playerPoint.x = endX / Registry.TILESIZE;
+			playerPoint.y = endY / Registry.TILESIZE;
 			
 			startNode = getStartNode();
 			endNode =  getEndNode();

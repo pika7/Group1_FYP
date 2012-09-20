@@ -49,8 +49,7 @@ package util
 		public static var guard:Guard;
 		public static var sightranges:sightRanges;	
 		public static var bulletGroup:FlxGroup = new FlxGroup;
-		public static var enemyGroup:FlxGroup = new FlxGroup; //enemies will be added here later
-		public static var noiseTile:invisibleNoiseTile;
+		public static var enemyGroup:FlxGroup = new FlxGroup; //enemies will be added here late
 		public static var guardLadderDirection:String; //going up or down
 		public static var guardStartPoint:patrolPathNode;
 		public static var guardEndPoint:patrolPathNode;

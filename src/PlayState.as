@@ -120,8 +120,8 @@ package
 			FlxG.overlap(Registry.player, Registry.exit, completeLevel);
 			
 			
-			FlxG.overlap(Registry.sightranges, Registry.player, Registry.guard.seePlayer);
-			FlxG.overlap(Registry.guard, Registry.markers_enemyStop, Registry.guard.handleEnemyStop);
+		//	FlxG.overlap(Registry.sightranges, Registry.player, Registry.guard.seePlayer);
+		//	FlxG.overlap(Registry.guard, Registry.markers_enemyStop, Registry.guard.handleEnemyStop);
 			FlxG.overlap(Registry.guard, Registry.noiseHandler, Registry.guard.noiseAlert);
 			FlxG.overlap(Registry.guard, Registry.markers_ladderTop, Registry.guard.handleLadderTop);
 			FlxG.overlap(Registry.guard, Registry.markers_ladderBottom, Registry.guard.handleLadderBottom);

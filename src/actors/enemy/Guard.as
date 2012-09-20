@@ -13,10 +13,9 @@ package actors.enemy
 	import org.flixel.*;
 	import org.flixel.plugin.photonstorm.*;
 	import actors.enemy.guardBullet;
-	import actors.enemy.invisibleNoiseTile;
 	import levels.*;
 
-	public class Guard extends Enemy
+	public class Guard extends FlxSprite
 	{
 		[Embed(source = '../../../assets/img/enemies/guard.png')] private var guardPNG:Class;
 		
@@ -26,6 +25,8 @@ package actors.enemy
 		private const levelOneVelocity:Number = 200;
 		private const levelTwoVelocity:Number = 300;
 		
+		private var stopDelay:FlxDelay = new FlxDelay(2000);
+		private var tempVelocity:int;
 		private var xVelocity:Number;
 		private var bullet:FlxSprite;
 		private var currentBullet:FlxSprite;
@@ -48,6 +49,8 @@ package actors.enemy
 		public var trackPath:Array;
 		private var patrolPathClass:patrolPathList;
 		public var climbDown:Boolean = false;
+		private var alertLevel:int;
+		private var stopCounter:Number = 0;
 		
 		private var bottomMarker:Marker;
 		private var topMarker:Marker;
@@ -67,8 +70,10 @@ package actors.enemy
 		
 		private var bottomMarkerGroup:Array;
 		private var topMarkerGroup:Array;
+		private var stopMarkerGroup:Array;
 		private var bottomMarkerInPathGroup:Array;
 		private var topMarkerInPathGroup:Array;
+		
 		
 		private var touchedBottomMarker:Boolean = false;
 		private var touchedTopMarker:Boolean = false;
@@ -97,6 +102,20 @@ package actors.enemy
 		private var endX:int;
 		private var endY:int;
 		private var inSightRange:Boolean = false;
+		private var Mode:String = "";
+		private var detected:Boolean = false;
+		private var canSee:Boolean = false;
+		private var touchedMarker:Boolean = false;
+		private var pixelCounter:Number = 0;
+		
+		private var patrolStartPointX:int;
+		private var patrolStartPointY:int;
+		private var patrolEndPointX:int;
+		private var patrolEndPointY:int; 
+		
+		private var patrolPathCreated:Boolean = false;
+		private var startedPatrol:Boolean = false;
+		private var stopMarkerPoint:FlxPoint = new FlxPoint(0, 0);
 		
 		/* constructor */
 		public function Guard(X:int, Y:int) 
@@ -123,33 +142,37 @@ package actors.enemy
 			Mode = "Normal";
 			//will change to getter method later
 			
-			alertLevel = 2;
+			alertLevel = 0;
 			
 			/* pathfinding stuff */
 			patrolPathClass = new patrolPathList();
 			travelpt = new FlxPoint(0, 0);
 			loadMarkers();
 			
+			
+			/*patrol route coordinates */
+			patrolStartPointX = 48;
+			patrolStartPointY = 657;
+			patrolEndPointX = 974;
+			patrolEndPointY = 337;
+			
  		}
 		
 		public function followThePath():void
-		{
-			
-			bottomMarkerInPathGroup = [];
-			topMarkerInPathGroup = [];
-			
-			
-			//reset marker booleans
-			bottomMarkerInPath = false;
-			topMarkerInPath = false;
-			
-			//check markers
-			checkMarkers(trackPath);	
+		{	
+				bottomMarkerInPathGroup = [];
+				topMarkerInPathGroup = [];
 		
-			//store the endpoint
-			tempEndDestinationPoint.x = Registry.guardEndPoint.x * Registry.TILESIZE;
-			tempEndDestinationPoint.y = Registry.guardEndPoint.y * Registry.TILESIZE;
+				//reset marker booleans
+				bottomMarkerInPath = false;
+				topMarkerInPath = false;
 			
+				//check markers
+				checkMarkers(trackPath);	
+		
+				//store the endpoint
+				tempEndDestinationPoint.x = Registry.guardEndPoint.x * Registry.TILESIZE;
+				tempEndDestinationPoint.y = Registry.guardEndPoint.y * Registry.TILESIZE;
 			
 		if (isTouching(FLOOR))  //case when noise is detected on floor
 		{	
@@ -188,11 +211,8 @@ package actors.enemy
 										tempMarkerIndex = mIndex;
 								}
 							}
-							bottomMarkerMovePoint = bottomMarkerInPathGroup[tempMarkerIndex];
-							
-							
-							
-							FlxVelocity.moveTowardsPoint(this, bottomMarkerMovePoint, 200);
+							bottomMarkerMovePoint = bottomMarkerInPathGroup[tempMarkerIndex];							
+							FlxVelocity.moveTowardsPoint(this, bottomMarkerMovePoint, xVelocity);
 							velocity.y = 0;
 						}					
 					}		
@@ -232,7 +252,7 @@ package actors.enemy
 								}
 							}
 							topMarkerMovePoint = topMarkerInPathGroup[tempMarkerIndex];							
-							FlxVelocity.moveTowardsPoint(this, topMarkerMovePoint, 200);
+							FlxVelocity.moveTowardsPoint(this, topMarkerMovePoint, xVelocity);
 							velocity.y = 0;
 					}
 				}
@@ -240,7 +260,7 @@ package actors.enemy
 				{
 					tempEndDestinationPoint.x = Registry.guardEndPoint.x * Registry.TILESIZE;
 					tempEndDestinationPoint.y = Registry.guardEndPoint.y * Registry.TILESIZE;;
-					FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, 70);
+					FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, xVelocity);
 					velocity.y = 0;
 				}
 			
@@ -248,39 +268,14 @@ package actors.enemy
 		else if (climbing == true)
 		{			
 			if (Registry.guardLadderDirection == "DOWN")
-			{
-				if (touchedBottomMarker == false) //above the marker
-				{						
-					//find the closest marker in the path
-					for (var mIndex2:int = 0; mIndex2 < bottomMarkerInPathGroup.length; mIndex2++)
-					{	
-							markerTempPt = bottomMarkerInPathGroup[mIndex2];
-							if (mIndex2 == 0)
-							{
-								minimumMarkerDistance = Math.abs(Math.sqrt(((markerTempPt.x - tempDestinationPoint.x) * (markerTempPt.x - tempDestinationPoint.x)) + ((markerTempPt.y - tempDestinationPoint.y) * (markerTempPt.y - tempDestinationPoint.y)))); 
-								tempMarkerDistance = minimumMarkerDistance;
-							}
-							else
-							{
-								tempMarkerDistance = Math.abs(Math.sqrt(((markerTempPt.x - tempDestinationPoint.x) * (markerTempPt.x - tempDestinationPoint.x)) + ((markerTempPt.y - tempDestinationPoint.y) * (markerTempPt.y - tempDestinationPoint.y)))); 
-							}
-								
-							if (tempMarkerDistance < minimumMarkerDistance || tempMarkerDistance==minimumMarkerDistance)
-							{
-								minimumMarkerDistance = tempMarkerDistance;
-								tempMarkerIndex = mIndex2;
-							}
-					}
-					
-					
-					bottomMarkerMovePoint = bottomMarkerInPathGroup[tempMarkerIndex];
-					climbing == true; 
-					velocity.y = xVelocity/2;
-					x = tempBottomMarker.x -20;
-					velocity.x = 0;
-					acceleration.y = 0;
-				}								
-			}
+			{			
+				climbing == true; 
+				velocity.y = xVelocity/2;
+				x = tempBottomMarker.x -20;
+				velocity.x = 0;
+				acceleration.y = 0;
+			}								
+			
 			if (Registry.guardLadderDirection == "UP")
 			{
 				climbing = true;
@@ -336,7 +331,7 @@ package actors.enemy
 				velocity.y = 30;		
 				velocity.x = 80;
 				acceleration.y = GRAVITY / 3;
-				FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, 50);
+				FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, xVelocity);
 			}
 			if (touchedBottomMarker == true && climbing == true && Registry.guardLadderDirection == "NONE")
 			{
@@ -345,33 +340,33 @@ package actors.enemy
 				x = tempXSetMarker.x -20;
 				acceleration.y = GRAVITY;		
 				velocity.x = 50;		
-				FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, 80);
-				
+				FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, xVelocity);
+					
 			}
 			
 			
 			
 		}
 		
+		public function getAlertLevel():int
+		{
+			return alertLevel;
+		}
+		
 		
 		/* play alert animation if noise is detected */
 		/* start following the player */
-		override public function noiseAlert(enemy:Enemy, noise:NoiseRadius):void
+		public function noiseAlert(guard:Guard, noise:NoiseRadius):void
 		{
-			
-			noiseDetected = true;
+			Mode = "noiseDetected";
 			noiseFace();
 			play("alert");
-			Mode = "followingnoise";
-			
+				
 			//get the path coordinates in array
 			startX = Registry.guard.x;
 			startY = Registry.guard.y + 100;
 			endX = Registry.player.x;
 			endY = Registry.player.y + 100;
-			
-			trackPath = patrolPathClass.getPath(startX, startY, endX, endY);
-			followThePath();
 		}
 		
 		/*function for top marker reaction */
@@ -383,7 +378,7 @@ package actors.enemy
 				y = tempXSetMarker.y - 80; 
 				acceleration.y = GRAVITY;
 				touchedTopMarker = false;	
-				FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, 50);
+				FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, xVelocity);
 			}
 			if (Registry.guardLadderDirection == "DOWN" && touchedTopMarker == true)
 			{
@@ -400,7 +395,7 @@ package actors.enemy
 		/* different facing depending on noise coordinates */
 		private function noiseFace():void
 		{
-			if (noiseDetected == true)
+			if (Mode == "noiseDetected")
 			{
 				if (Registry.player.x > x)
 				{
@@ -456,7 +451,7 @@ package actors.enemy
 				if (inSightRange == true)
 				{
 				
-					FlxVelocity.moveTowardsObject(this, Registry.player, 70);
+					FlxVelocity.moveTowardsObject(this, Registry.player, xVelocity);
 					velocity.y = 0;
 					inSightRange = false;
 				}
@@ -492,7 +487,6 @@ package actors.enemy
 		/*shooting function */
 		private function shootPlayer():void
 		{				
-			
 			if (Mode=="Shooting" && shootingNow==false)
 			{
 				velocity.x = 0;
@@ -503,7 +497,7 @@ package actors.enemy
 				currentBullet.x = x + 100;
 				currentBullet.y = y + 50;
 				currentBullet.exists = true;
-				FlxVelocity.moveTowardsObject(currentBullet, Registry.player, 200);	
+				FlxVelocity.moveTowardsObject(currentBullet, Registry.player, xVelocity);	
 			}   
 		}		
 		
@@ -561,19 +555,148 @@ package actors.enemy
 			}
 		}
 		
+		
+		public function handleEnemyStop(guard:Guard, marker:Marker):void
+		{	
+			if (touchedMarker==false && Mode == "Normal") //only stop at the marker in Normal mode
+			{
+				velocity.x = 0;
+				touchedMarker = true;
+			}			
+		}
+						
+		/* guard sees player if in sight range */
+		public function seePlayer(sightrange:sightRanges, player:Player):void
+		{
+			pixelCounter += FlxG.elapsed;
+			if (pixelCounter > 0.5) //check it every 0.5 frame
+			{
+				if (FlxCollision.pixelPerfectCheck(sightrange, player))	
+				{
+					detected = true;
+					canSee = true;
+					pixelCounter = 0;
+				}
+			}	
+		}
+		
 	
 		/* update function */
 		override public function update():void
 		{	
 			setVelocity();	
-			checkIsDetected(); //check for detection
-			changeAlertLevel(); //change alertlevel depending on the condition	
 			bottomMarkerReaction();
 			topMarkerReaction();
 			checkTouchedBottomMarker();
 			checkTouchedTopMarker();
-			bulletCounterCheck(); 
-			super.update();				
+			bulletCounterCheck();
+			checkMode();
+			super.update();			
+								
+		}
+					
+		/* check the mode and make the guard act accoridngly */
+		public function checkMode():void
+		{
+		
+			var xInTiles:int = (x / 32);
+			var yInTiles:int = ((y + 100) / 32);
+			
+			
+			if (Mode == "Normal")
+			{
+				var patrolEndPointXInTiles:int = (patrolEndPointX / 32) - 1;
+				var patrolEndPointYInTiles:int = patrolEndPointY / 32;
+				var patrolStartPointXInTiles:int = patrolStartPointX / 32;
+				var patrolStartPointYInTiles:int = patrolStartPointY / 32;
+				
+				if (patrolPathCreated == false && startedPatrol == false)
+				{
+					trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY , patrolEndPointX, patrolEndPointY);
+					followThePath();
+					startedPatrol = true;
+				}			
+				//reached the end
+				if (startedPatrol == true && (patrolEndPointXInTiles == xInTiles) && (patrolEndPointYInTiles==yInTiles))
+				{
+					stopCounter += FlxG.elapsed;
+					velocity.x = 0;
+					if (stopCounter > 2)
+					{	
+						trackPath = patrolPathClass.getPath(patrolEndPointX, patrolEndPointY , patrolStartPointX, patrolStartPointY);
+						followThePath();
+						stopCounter = 0;
+					}
+				}
+				//came back to the startPoint
+				if (startedPatrol == true && (patrolStartPointXInTiles == xInTiles) && (patrolStartPointYInTiles == yInTiles))
+				{
+					stopCounter += FlxG.elapsed;
+					velocity.x = 0;
+					if (stopCounter > 2)
+					{
+						trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY , patrolEndPointX, patrolEndPointY);
+						followThePath();
+						stopCounter = 0;
+					}
+				}
+			}
+			else if (Mode == "noiseDetected")
+			{	
+				var traversePoint:Marker;
+				
+				for (var i:int = 0; i < stopMarkerGroup.length; i++)
+				{
+					traversePoint = stopMarkerGroup[i];
+					stopMarkerPoint.x = int(traversePoint.x / Registry.TILESIZE);
+					stopMarkerPoint.y = int(traversePoint.y / Registry.TILESIZE);
+					
+					//trace(xInTiles, yInTiles , traversePoint.x, traversePoint.y);
+					if ((xInTiles == stopMarkerPoint.x) && (yInTiles == stopMarkerPoint.y))
+					{
+						//stop and go back to patrol mode
+						stopCounter += FlxG.elapsed;
+						velocity.x = 0;
+						if (stopCounter > 2)
+						{
+							Mode = "Normal";
+							stopCounter = 0;
+						}
+					}
+				}
+				
+				noiseFace();
+				trackPath = patrolPathClass.getPath(startX, startY, endX, endY);
+				followThePath();
+			   
+				/*
+				*  detects the noise and try to find the source of noise
+				*	will stay at the noise source for 3 seconds and will go back to patrol mode if nothing is detected 
+				*/
+			}
+			else if (Mode == "inSightRangeFar")
+			{
+				/*- player in sight range but far
+				 * overlap sightrange - two graphics
+				 * one smaller and one larger
+					- speed increase
+					- will go back to Mode = Normal if player gets out of guard’s sight range (running away/smoke bomb) for more than 10 seconds
+					- but will be much faster
+					- player quite far from the guard - guard not sure if he saw smth or not 
+					- alertLevel = 1
+				 * 
+				 */
+			}
+			else if (Mode == "inSightRangeClose")
+			{
+				/*- player in sight range up close
+					- speed increase
+					- will alert other guards if the player gets out of guard’s sight range for more than 3 seconds
+					- will go back to patrol mode, but will be much faster
+					- will shoot on sight. 
+					-if noise is detected, will not follow - the delay will still be in effect
+				 */					
+			}			
 		}
 		
 		
@@ -582,6 +705,8 @@ package actors.enemy
 		{
 			bottomMarkerGroup = [];
 			topMarkerGroup = [];
+			stopMarkerGroup = [];
+			var tempStopMarker:Marker;
 			
 			for (var i:int = 0; i < Registry.markers_ladderBottom.length; i++)
 			{
@@ -591,6 +716,14 @@ package actors.enemy
 			for (var j:int = 0; j < Registry.markers_ladderTop.length; j++)
 			{
 				topMarkerGroup.push(Registry.markers_ladderTop.members[j]);
+			}
+			for (var k:int = 0; k < Registry.markers_enemyStop.length; k++)
+			{
+				/*tempStopMarker = Registry.markers_enemyStop.members[k];
+				stopMarkerPoint.x = int(tempStopMarker.x / Registry.TILESIZE);
+				stopMarkerPoint.y = int(tempStopMarker.y / Registry.TILESIZE);	*/		
+				stopMarkerGroup.push(Registry.markers_enemyStop.members[k]);			
+			
 			}
 			
 		}
