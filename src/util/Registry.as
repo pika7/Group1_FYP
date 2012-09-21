@@ -53,6 +53,7 @@ package util
 		public static var guardLadderDirection:String; //going up or down
 		public static var guardStartPoint:patrolPathNode;
 		public static var guardEndPoint:patrolPathNode;
+		public static var noiseTile:invisibleNoiseTile;
 		
 		/* marker groups */
 		public static var markers_ladderBottom:FlxGroup;

@@ -72,7 +72,7 @@ package
 			
 			/* add UI elements */
 			add(Registry.uiHandler = new UIHandler());
-	
+		
 			
 			/* FOR TESTING */
 			Registry.guard = new Guard(150, 20);
@@ -83,6 +83,7 @@ package
 			add(Registry.sightranges);
 			add(Registry.guard);
 			add(Registry.bulletGroup);
+			
 			
 			/* show the mouse */
 			FlxG.mouse.show();
@@ -120,8 +121,8 @@ package
 			FlxG.overlap(Registry.player, Registry.exit, completeLevel);
 			
 			
-		//	FlxG.overlap(Registry.sightranges, Registry.player, Registry.guard.seePlayer);
-		//	FlxG.overlap(Registry.guard, Registry.markers_enemyStop, Registry.guard.handleEnemyStop);
+		//	FlxG.overlap(Registry.sightranges, Registry.player, Registry.guard.seePlayer)
+			FlxG.overlap(Registry.guard, Registry.noiseTile, Registry.guard.noiseFinallyReached);
 			FlxG.overlap(Registry.guard, Registry.noiseHandler, Registry.guard.noiseAlert);
 			FlxG.overlap(Registry.guard, Registry.markers_ladderTop, Registry.guard.handleLadderTop);
 			FlxG.overlap(Registry.guard, Registry.markers_ladderBottom, Registry.guard.handleLadderBottom);
