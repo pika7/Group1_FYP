@@ -172,7 +172,7 @@ package actors.enemy
 		
 		public function noiseFinallyReached():void
 		{
-			trace("executed");
+		//	trace("executed");
 			noiseReached = true;
 		}
 		
@@ -725,7 +725,7 @@ package actors.enemy
 				}
 				
 				/*reached the source of noise */
-				if ((xInTiles == noiseTile.x) && (yInTiles ==noiseTile.y))
+				if ((xInTiles == noiseTile.x) && (yInTiles == noiseTile.y))
 				{
 					noiseReached = true;
 					velocity.x = 0;
@@ -760,7 +760,7 @@ package actors.enemy
 				/* No need to go back to the place where noise was detected for the first time - follow the noise */
 				if (goBackToOriginalPlace == false && noiseReached == false )
 				{
-					trace("lastfexecuted", Registry.player.x, Mode, noiseTile.x, noiseTile.y, xInTiles, yInTiles);
+					//trace("lastfexecuted", Registry.player.x, Mode, noiseTile.x, noiseTile.y, xInTiles, yInTiles);
 					trackPath = patrolPathClass.getPath(startX, startY, endX, endY);
 					followThePath();
 				}	
