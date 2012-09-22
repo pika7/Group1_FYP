@@ -43,6 +43,8 @@ package actors.enemy
 		private var climbLadderPatrol:Boolean = false; 
 		private var noisePoint:FlxPoint = new FlxPoint;
 		public var noiseDetected:Boolean = false;
+		
+		private var newNoiseDetected:Boolean = false;
 		private var climbingDown:Boolean = false;
 		private var ladderStopCounter:Number = 0;
 		private var ladderStopCheck:Boolean = false;
@@ -118,13 +120,17 @@ package actors.enemy
 		private var noiseSourceY:int;
 		private var noiseReached:Boolean = false;
 		private var noiseTile:invisibleNoiseTile;
+		private var patrolStatus:String = "";
+		private var patrolStatusBeforeNoise:String = "";
+		private var sightDetected:Boolean = false;
+		private var backFromOtherStatus:Boolean = false;
 		
 		private var patrolPathCreated:Boolean = false;
 		private var startedPatrol:Boolean = false;
 		private var stopMarkerPoint:FlxPoint = new FlxPoint(0, 0);
 		private var goBackToOriginalPlace:Boolean = false;
 		private var goBackToPathPoint:FlxPoint = new FlxPoint(0, 0);
-		
+		private var patrolStartToEnd:Boolean = false;
 		
 		private var noiseDetectedFirstTime:Boolean = false;
 		
@@ -377,30 +383,35 @@ package actors.enemy
 		/* start following the player */
 		public function noiseAlert(guard:Guard, noise:NoiseRadius):void
 		{
-			Mode = "noiseDetected";
-			
-			if (noiseDetectedFirstTime == false)
+			/* no need to check for noise if already seen */
+			if (sightDetected == false)
 			{
-				goBackToPathPoint.x = x;
-				goBackToPathPoint.y = y + 100;
-				noiseDetectedFirstTime = true;
-			}
+				newNoiseDetected = true;
+				Mode = "noiseDetected";
+				patrolStatusBeforeNoise = patrolStatus;
+				if (noiseDetectedFirstTime == false)
+				{
+					goBackToPathPoint.x = x;
+					goBackToPathPoint.y = y + 100;
+					noiseDetectedFirstTime = true;
+				}
 			
 			
-			noiseFace();
-			play("alert");
+				noiseFace();
+				play("alert");
 				
-			//get the path coordinates in array
-			startX = Registry.guard.x;
-			startY = Registry.guard.y + 100;
-			endX = Registry.player.x;
-			endY = Registry.player.y + 100;			
+				//get the path coordinates in array
+				startX = Registry.guard.x;
+				startY = Registry.guard.y + 100;
+				endX = Registry.player.x;
+				endY = Registry.player.y + 100;			
 			
-			/* initialize noisetile */
+				/* initialize noisetile */
 			
-			noiseTile.x = int(endX / Registry.TILESIZE);
-			noiseTile.y = int(endY / Registry.TILESIZE);
-			noiseTile.exists = true;
+				noiseTile.x = int(endX / Registry.TILESIZE);
+				noiseTile.y = int(endY / Registry.TILESIZE);
+				noiseTile.exists = true;
+			}
 		}
 		
 		/*function for top marker reaction */
@@ -607,8 +618,8 @@ package actors.enemy
 			{
 				if (FlxCollision.pixelPerfectCheck(sightrange, player))	
 				{
-					detected = true;
-					canSee = true;
+					
+					sightDetected = true;
 					pixelCounter = 0;
 				}
 			}	
@@ -661,12 +672,13 @@ package actors.enemy
 				var patrolStartPointXInTiles:int = patrolStartPointX / 32;
 				var patrolStartPointYInTiles:int = patrolStartPointY / 32;
 			
-				
+				//create patrol Path for the first time
 				if (patrolPathCreated == false && startedPatrol == false)
 				{
 					trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY , patrolEndPointX, patrolEndPointY);
 					followThePath();
 					startedPatrol = true;
+					patrolStatus = "toEndPoint";
 				}			
 				//reached the end
 				if (startedPatrol == true && (patrolEndPointXInTiles == xInTiles) && (patrolEndPointYInTiles==yInTiles))
@@ -677,6 +689,7 @@ package actors.enemy
 					{	
 						trackPath = patrolPathClass.getPath(patrolEndPointX, patrolEndPointY , patrolStartPointX, patrolStartPointY);
 						followThePath();
+						patrolStatus = "toStartPoint";
 						stopCounter = 0;
 					}
 				}
@@ -689,82 +702,92 @@ package actors.enemy
 					{
 						trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY , patrolEndPointX, patrolEndPointY);
 						followThePath();
+						patrolStatus = "toEndPoint";
 						stopCounter = 0;
 					}
 				}
+				/* back from other status and continuing patrol*/
+				if ((backFromOtherStatus == true))
+				{
+					if (patrolStatusBeforeNoise == "toEndPoint")
+					{
+						trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY , patrolEndPointX, patrolEndPointY);
+						followThePath();
+						patrolStatus = "toEndPoint";
+						stopCounter = 0;
+						backFromOtherStatus = false;
+						
+					}
+					if (patrolStatusBeforeNoise == "toStartPoint")
+					{
+						trackPath = patrolPathClass.getPath(patrolEndPointX, patrolEndPointY , patrolStartPointX, patrolStartPointY);
+						followThePath();
+						patrolStatus = "toStartPoint";
+						stopCounter = 0;
+						backFromOtherStatus = false;
+					}
+				}
 			}
+			/* create a path based on the noise source and start following it */
 			else if (Mode == "noiseDetected")
-			{	
+			{
+				trackPath = patrolPathClass.getPath(startX, startY, endX, endY);
+				followThePath(); 
+				Mode = "noiseFollowing";									
+			}
+			/* following the noise - always check if the endpoint is reached */
+			else if (Mode == "noiseFollowing")
+			{
 				/* checking if the guard needs to turn back while following */
 				var traversePoint:Marker;
 				
-				
-				
 				for (var i:int = 0; i < stopMarkerGroup.length; i++)
 				{
-					traversePoint = stopMarkerGroup[i];
-					stopMarkerPoint.x = int(traversePoint.x / Registry.TILESIZE);
-					stopMarkerPoint.y = int(traversePoint.y / Registry.TILESIZE);
-														
-					/* stop at stopmarker point when it is folloiwng noise 
-					 * but hasn't reached the noise yet */
-					if (noiseReached ==false && ((xInTiles == stopMarkerPoint.x -1) && (yInTiles == stopMarkerPoint.y)))
-					{
-						//stop and go back to patrol mode
-						stopCounter += FlxG.elapsed;
-						velocity.x = 0;
-						if (stopCounter > 2)
+						traversePoint = stopMarkerGroup[i];
+						stopMarkerPoint.x = int(traversePoint.x / Registry.TILESIZE);
+						stopMarkerPoint.y = int(traversePoint.y / Registry.TILESIZE);							
+						/* stop at stopmarker point when it is folloiwng noise 
+						* but hasn't reached the noise yet */
+						if (((xInTiles == stopMarkerPoint.x - 1) && (yInTiles == stopMarkerPoint.y)))
 						{
-							//find the nearest path from this point to where the noise is detected for the first time
-							trackPath = patrolPathClass.getPath(x, y, goBackToPathPoint.x, goBackToPathPoint.y);
-							followThePath();
-							stopCounter = 0;
-							goBackToOriginalPlace = true;
+							Mode = "noiseReached";
 						}
-					}
 				}
-				
+					
 				/*reached the source of noise */
 				if ((xInTiles == noiseTile.x) && (yInTiles == noiseTile.y))
 				{
-					noiseReached = true;
-					velocity.x = 0;
-							
-					
-					stopCounter += FlxG.elapsed;
-					if (stopCounter > 2)
-					{
-							//find the nearest path from this point to where the noise is detected for the first time
-							trackPath = patrolPathClass.getPath(x, y, goBackToPathPoint.x, goBackToPathPoint.y);
-							followThePath();
-							stopCounter = 0;							
-							noiseReached = false;
-							noiseTile.exists = false;
-							goBackToOriginalPlace = true;
-							
-					}
-					
-				}
-				
-				/* reached where the noise was detected for the first time after searching the noisepoint */
-				if (goBackToOriginalPlace == true && (xInTiles == (int(goBackToPathPoint.x / Registry.TILESIZE))) && (yInTiles == (int(goBackToPathPoint.y / Registry.TILESIZE))))
-				{
-					
-					Mode = "Normal"; 
-					noiseDetected = false;
-					noiseDetectedFirstTime = false;
-					goBackToOriginalPlace = false;
-					
-				}
-				
-				/* No need to go back to the place where noise was detected for the first time - follow the noise */
-				if (goBackToOriginalPlace == false && noiseReached == false )
-				{
-					//trace("lastfexecuted", Registry.player.x, Mode, noiseTile.x, noiseTile.y, xInTiles, yInTiles);
-					trackPath = patrolPathClass.getPath(startX, startY, endX, endY);
-					followThePath();
-				}	
+						Mode = "noiseReached";
+				}			
 			}
+			/* noise reached, wait for 2 sec */
+			else if (Mode == "noiseReached")
+			{
+				stopCounter += FlxG.elapsed;
+				velocity.x = 0;
+				play("search");
+				if (stopCounter > 2)
+				{
+					//find the nearest path from this point to where the noise is detected for the first time
+					trackPath = patrolPathClass.getPath(x, y, goBackToPathPoint.x, goBackToPathPoint.y);
+					followThePath();
+					stopCounter = 0;
+					noiseTile.exists = false;
+					Mode = "goingBackToPatrolPath";
+				}
+			}
+			else if (Mode == "goingBackToPatrolPath")
+			{	
+				play("alert");
+				/* reached where the noise was detected for the first time after searching the noisepoint */
+				if ((xInTiles == (int(goBackToPathPoint.x / Registry.TILESIZE))) && (yInTiles == (int(goBackToPathPoint.y / Registry.TILESIZE))))
+				{
+					Mode = "Normal"; 
+					backFromOtherStatus = true;
+					noiseDetectedFirstTime = false;
+				}
+			}
+			
 			else if (Mode == "inSightRangeFar")
 			{
 				/*- player in sight range but far
@@ -787,7 +810,12 @@ package actors.enemy
 					- will shoot on sight. 
 					-if noise is detected, will not follow - the delay will still be in effect
 				 */					
-			}			
+			}		
+			else if (Mode == "ShootingNow")
+			{
+				
+				
+			}
 		}
 		
 		
