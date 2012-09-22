@@ -340,7 +340,15 @@ package actors.enemy
 		{
 			if (touchedBottomMarker == true && Registry.guardLadderDirection == "UP")
 			{
-				if ((int(bottomMarkerMovePoint.x / 32)) == (int(x / 32)) && ((int(bottomMarkerMovePoint.y / 32)) == int((y + 100) / 32)))
+				if ((int(bottomMarkerMovePoint.x / 32)) == (int(x / 32)) && ((int(bottomMarkerMovePoint.y / 32)) == int((y + 100) / 32))&&Mode=="Normal")
+				{
+					climbing = true;
+					velocity.y = - xVelocity / 2;
+					x = tempBottomMarker.x	 - 20;
+					velocity.x = 0;
+					acceleration.y = 0;
+				}
+				if (Mode == "noiseDetected" || Mode == "goingBackToPatrolPath")
 				{
 					climbing = true;
 					velocity.y = - xVelocity / 2;
