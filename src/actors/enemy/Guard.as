@@ -171,17 +171,10 @@ package actors.enemy
 			/*patrol route coordinates */
 			patrolStartPointX = 48;
 			patrolStartPointY = 657;
-			patrolEndPointX = 974;
-			patrolEndPointY = 337;
+			patrolEndPointX = 1525;
+			patrolEndPointY = 499;
 			
- 		}
-		
-		public function noiseFinallyReached():void
-		{
-		//	trace("executed");
-			noiseReached = true;
-		}
-		
+ 		}		
 		
 		public function followThePath():void
 		{	
@@ -204,8 +197,7 @@ package actors.enemy
 				var temppt:FlxPoint;
 				var anotherTempPt:FlxPoint;
 				var markerTempPt:FlxPoint;			 
-
-				//NEED TO GO UP - 
+			
 				if (Registry.guardLadderDirection == "UP")
 				{
 					minimumMarkerDistance = 0;
@@ -215,19 +207,23 @@ package actors.enemy
 					{
 						//search for the marker position IN that path
 						if (touchedBottomMarker == false)
-						{	
+						{
+						
 							//find the closest marker first so you can move there
 							for (var mIndex:int = 0; mIndex < bottomMarkerInPathGroup.length; mIndex++)
 							{	
 								markerTempPt = bottomMarkerInPathGroup[mIndex];
 								if (mIndex == 0)
 								{
-									minimumMarkerDistance = Math.abs(Math.sqrt(((markerTempPt.x - tempDestinationPoint.x) * (markerTempPt.x - tempDestinationPoint.x)) + ((markerTempPt.y - tempDestinationPoint.y) * (markerTempPt.y - tempDestinationPoint.y)))); 
+									
+									minimumMarkerDistance = Math.abs(Math.sqrt(((markerTempPt.x - tempEndDestinationPoint.x) * (markerTempPt.x - tempEndDestinationPoint.x)) + ((markerTempPt.y - tempEndDestinationPoint.y) * (markerTempPt.y - tempEndDestinationPoint.y)))); 
 									tempMarkerDistance = minimumMarkerDistance;
 								}
 								else
 								{
-									tempMarkerDistance = Math.abs(Math.sqrt(((markerTempPt.x - tempDestinationPoint.x) * (markerTempPt.x - tempDestinationPoint.x)) + ((markerTempPt.y - tempDestinationPoint.y) * (markerTempPt.y - tempDestinationPoint.y)))); 
+								
+									tempMarkerDistance = Math.abs(Math.sqrt(((markerTempPt.x - tempEndDestinationPoint.x) * (markerTempPt.x - tempEndDestinationPoint.x)) + ((markerTempPt.y - tempEndDestinationPoint.y) * (markerTempPt.y - tempEndDestinationPoint.y)))); 
+
 								}
 								
 								if (tempMarkerDistance < minimumMarkerDistance || tempMarkerDistance==minimumMarkerDistance)
@@ -236,7 +232,7 @@ package actors.enemy
 										tempMarkerIndex = mIndex;
 								}
 							}
-							bottomMarkerMovePoint = bottomMarkerInPathGroup[tempMarkerIndex];							
+							bottomMarkerMovePoint = bottomMarkerInPathGroup[tempMarkerIndex];								
 							FlxVelocity.moveTowardsPoint(this, bottomMarkerMovePoint, xVelocity);
 							velocity.y = 0;
 						}					
@@ -344,11 +340,14 @@ package actors.enemy
 		{
 			if (touchedBottomMarker == true && Registry.guardLadderDirection == "UP")
 			{
-				climbing = true;
-				velocity.y = - xVelocity / 2;
-				x = tempBottomMarker.x	 - 20;
-				velocity.x = 0;
-				acceleration.y = 0;	
+				if ((int(bottomMarkerMovePoint.x / 32)) == (int(x / 32)) && ((int(bottomMarkerMovePoint.y / 32)) == int((y + 100) / 32)))
+				{
+					climbing = true;
+					velocity.y = - xVelocity / 2;
+					x = tempBottomMarker.x	 - 20;
+					velocity.x = 0;
+					acceleration.y = 0;
+				}
 			}
 			if (touchedBottomMarker == true && (Registry.guardLadderDirection == "DOWN"))
 			{
@@ -625,6 +624,12 @@ package actors.enemy
 			}	
 		}
 		
+		public function seePlayerFar(sightrange:sightRangesFar, player:Player):void
+		{
+			
+			
+		}
+		
 	
 		/* update function */
 		override public function update():void
@@ -665,68 +670,72 @@ package actors.enemy
 			
 			
 			if (Mode == "Normal")
-			{
+			{			
 				play("walk");
 				var patrolEndPointXInTiles:int = (patrolEndPointX / 32) - 1;
 				var patrolEndPointYInTiles:int = patrolEndPointY / 32;
 				var patrolStartPointXInTiles:int = patrolStartPointX / 32;
 				var patrolStartPointYInTiles:int = patrolStartPointY / 32;
-			
+				
+				
 				//create patrol Path for the first time
-				if (patrolPathCreated == false && startedPatrol == false)
-				{
+				if (justTouched(FLOOR) &&patrolPathCreated == false && startedPatrol == false)
+				{		
 					trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY , patrolEndPointX, patrolEndPointY);
 					followThePath();
 					startedPatrol = true;
 					patrolStatus = "toEndPoint";
-				}			
-				//reached the end
-				if (startedPatrol == true && (patrolEndPointXInTiles == xInTiles) && (patrolEndPointYInTiles==yInTiles))
-				{
-					stopCounter += FlxG.elapsed;
-					velocity.x = 0;
-					if (stopCounter > 2)
-					{	
-						trackPath = patrolPathClass.getPath(patrolEndPointX, patrolEndPointY , patrolStartPointX, patrolStartPointY);
-						followThePath();
-						patrolStatus = "toStartPoint";
-						stopCounter = 0;
-					}
+					
 				}
-				//came back to the startPoint
-				if (startedPatrol == true && (patrolStartPointXInTiles == xInTiles) && (patrolStartPointYInTiles == yInTiles))
-				{
-					stopCounter += FlxG.elapsed;
-					velocity.x = 0;
-					if (stopCounter > 2)
+					//reached the end
+					if (startedPatrol == true && (patrolEndPointXInTiles == xInTiles) && (patrolEndPointYInTiles==yInTiles))
 					{
-						trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY , patrolEndPointX, patrolEndPointY);
-						followThePath();
-						patrolStatus = "toEndPoint";
-						stopCounter = 0;
+						stopCounter += FlxG.elapsed;
+						velocity.x = 0;
+						if (stopCounter > 2)
+						{	
+							trackPath = patrolPathClass.getPath(patrolEndPointX, patrolEndPointY , patrolStartPointX, patrolStartPointY);
+							followThePath();
+							patrolStatus = "toStartPoint";
+							stopCounter = 0;
+						}
 					}
-				}
-				/* back from other status and continuing patrol*/
-				if ((backFromOtherStatus == true))
-				{
-					if (patrolStatusBeforeNoise == "toEndPoint")
+					//came back to the startPoint
+					if (startedPatrol == true && (patrolStartPointXInTiles == xInTiles) && (patrolStartPointYInTiles == yInTiles))
 					{
-						trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY , patrolEndPointX, patrolEndPointY);
-						followThePath();
-						patrolStatus = "toEndPoint";
-						stopCounter = 0;
-						backFromOtherStatus = false;
+						stopCounter += FlxG.elapsed;
+						velocity.x = 0;
+						if (stopCounter > 2)
+						{
+							trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY , patrolEndPointX, patrolEndPointY);
+							followThePath();
+							patrolStatus = "toEndPoint";
+							stopCounter = 0;
+						}
+					}
+				
+					/* back from other status and continuing patrol*/
+					if ((backFromOtherStatus == true))
+					{
+						if (patrolStatusBeforeNoise == "toEndPoint")
+						{
+							trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY , patrolEndPointX, patrolEndPointY);
+							followThePath();
+							patrolStatus = "toEndPoint";
+							stopCounter = 0;
+							backFromOtherStatus = false;
 						
+						}
+						if (patrolStatusBeforeNoise == "toStartPoint")
+						{
+							trackPath = patrolPathClass.getPath(patrolEndPointX, patrolEndPointY , patrolStartPointX, patrolStartPointY);
+							followThePath();
+							patrolStatus = "toStartPoint";
+							stopCounter = 0;
+							backFromOtherStatus = false;
+						}
 					}
-					if (patrolStatusBeforeNoise == "toStartPoint")
-					{
-						trackPath = patrolPathClass.getPath(patrolEndPointX, patrolEndPointY , patrolStartPointX, patrolStartPointY);
-						followThePath();
-						patrolStatus = "toStartPoint";
-						stopCounter = 0;
-						backFromOtherStatus = false;
-					}
-				}
+				
 			}
 			/* create a path based on the noise source and start following it */
 			else if (Mode == "noiseDetected")
