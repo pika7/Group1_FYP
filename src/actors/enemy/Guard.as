@@ -679,7 +679,7 @@ package actors.enemy
 			checkMode();
 			checkFacing();
 			super.update();		
-		//	trace(Mode, noiseTile.x, noiseTile.y, int(x / 32), int((y+100)/32), Registry.guardLadderDirection, touchedBottomMarker, patrolStatusBeforeNoise);
+			//trace(Mode, noiseTile.x, noiseTile.y, int(x / 32), int((y+100)/32), Registry.guardLadderDirection, touchedBottomMarker, patrolStatusBeforeNoise);
 		}
 		
 			public function checkFacing():void
@@ -833,7 +833,7 @@ package actors.enemy
 
 				//trace("Xintiles, Yin Tiles:", xInTiles, yInTiles, noiseTile.x, noiseTile.y, goBackToPathPoint.x, goBackToPathPoint.y);
 				
-				if (isTouching(FLOOR))
+				if (isTouching(FLOOR) && Registry.guardLadderDirection == "NONE")
 				{
 					if (noiseTile.x > xInTiles)
 					{
