@@ -144,7 +144,7 @@ package actors.enemy
 			
 			/* sprite speed initialization*/
 			acceleration.y = GRAVITY;
-			velocity.x = levelZeroVelocity / 2;
+		//	velocity.x = levelZeroVelocity / 2;
 			/* sprite animations */
 			addAnimation("walk", [0], 0, false);
 			addAnimation("shoot", [1], 0, false);
@@ -176,6 +176,9 @@ package actors.enemy
 			
  		}		
 		
+		/* for following the created path*/
+		/* will only go for top/bottom ladder marker positions if enemies are above/below */
+		
 		public function followThePath():void
 		{	
 				bottomMarkerInPathGroup = [];
@@ -187,7 +190,7 @@ package actors.enemy
 			
 				//check markers
 				checkMarkers(trackPath);	
-		
+				
 				//store the endpoint
 				tempEndDestinationPoint.x = Registry.guardEndPoint.x * Registry.TILESIZE;
 				tempEndDestinationPoint.y = Registry.guardEndPoint.y * Registry.TILESIZE;
@@ -257,13 +260,13 @@ package actors.enemy
 								markerTempPt = topMarkerInPathGroup[markerIndex];
 								if (markerIndex== 0)
 								{
-									minimumMarkerDistance = Math.abs(Math.sqrt(((markerTempPt.x - tempDestinationPoint.x) * (markerTempPt.x - tempDestinationPoint.x)) + ((markerTempPt.y - tempDestinationPoint.y) * (markerTempPt.y - tempDestinationPoint.y)))); 
+									minimumMarkerDistance = Math.abs(Math.sqrt(((markerTempPt.x - tempEndDestinationPoint.x) * (markerTempPt.x - tempEndDestinationPoint.x)) + ((markerTempPt.y - tempEndDestinationPoint.y) * (markerTempPt.y - tempEndDestinationPoint.y)))); 
 									tempMarkerDistance = minimumMarkerDistance;
 						
 								}
 								else
 								{
-									tempMarkerDistance = Math.abs(Math.sqrt(((markerTempPt.x - tempDestinationPoint.x) * (markerTempPt.x - tempDestinationPoint.x)) + ((markerTempPt.y - tempDestinationPoint.y) * (markerTempPt.y - tempDestinationPoint.y)))); 
+									tempMarkerDistance = Math.abs(Math.sqrt(((markerTempPt.x - tempEndDestinationPoint.x) * (markerTempPt.x - tempEndDestinationPoint.x)) + ((markerTempPt.y - tempEndDestinationPoint.y) * (markerTempPt.y - tempEndDestinationPoint.y)))); 
 								}
 								
 								if (tempMarkerDistance < minimumMarkerDistance || tempMarkerDistance == minimumMarkerDistance)
@@ -284,7 +287,6 @@ package actors.enemy
 					FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, xVelocity);
 					velocity.y = 0;
 				}
-			
 		}
 		else if (climbing == true)
 		{			
@@ -340,7 +342,8 @@ package actors.enemy
 		{
 			if (touchedBottomMarker == true && Registry.guardLadderDirection == "UP")
 			{
-				if ((int(bottomMarkerMovePoint.x / 32)) == (int(x / 32)) && ((int(bottomMarkerMovePoint.y / 32)) == int((y + 100) / 32))&&Mode=="Normal")
+				//if the mode is normal, only hit the designated ladder
+				if ((int(bottomMarkerMovePoint.x / 32)) == (int(x / 32)) && ((int(bottomMarkerMovePoint.y / 32)) == int((y + 100) / 32))&& ((Mode=="Normal") || (Mode == "goingBackToPatrolPath")))
 				{
 					climbing = true;
 					velocity.y = - xVelocity / 2;
@@ -348,6 +351,8 @@ package actors.enemy
 					velocity.x = 0;
 					acceleration.y = 0;
 				}
+				
+				//just hit the nearest marker if not in normal mode (cuz you're following anyway)
 				if (Mode == "noiseDetected" || Mode == "goingBackToPatrolPath")
 				{
 					climbing = true;
@@ -357,23 +362,22 @@ package actors.enemy
 					acceleration.y = 0;
 				}
 			}
+			
+			/* reaction after landing on the floor */
 			if (touchedBottomMarker == true && (Registry.guardLadderDirection == "DOWN"))
 			{
 				climbing = false;
-				velocity.y = 30;		
-				velocity.x = 80;
-				acceleration.y = GRAVITY / 3;
+				velocity.y = xVelocity / 2;
+				acceleration.y = GRAVITY;
 				FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, xVelocity);
+				velocity.y = 0;
 			}
 			if (touchedBottomMarker == true && climbing == true && Registry.guardLadderDirection == "NONE")
 			{
 				climbing = false;
 				velocity.y = 0;		
 				x = tempXSetMarker.x -20;
-				acceleration.y = GRAVITY;		
-				velocity.x = 50;		
-				FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, xVelocity);
-					
+				acceleration.y = GRAVITY;				
 			}
 			
 			
@@ -396,6 +400,7 @@ package actors.enemy
 				newNoiseDetected = true;
 				Mode = "noiseDetected";
 				patrolStatusBeforeNoise = patrolStatus;
+				
 				if (noiseDetectedFirstTime == false)
 				{
 					goBackToPathPoint.x = x;
@@ -407,17 +412,35 @@ package actors.enemy
 				noiseFace();
 				play("alert");
 				
+				
 				//get the path coordinates in array
 				startX = Registry.guard.x;
 				startY = Registry.guard.y + 100;
 				endX = Registry.player.x;
 				endY = Registry.player.y + 100;			
 			
-				/* initialize noisetile */
-			
-				noiseTile.x = int(endX / Registry.TILESIZE);
-				noiseTile.y = int(endY / Registry.TILESIZE);
-				noiseTile.exists = true;
+				
+				/*//check if those points overlap marker
+				var tempMarkerCheckPt:FlxPoint = new FlxPoint(int((endX)/Registry.TILESIZE), int((endY)/Registry.TILESIZE));
+				var tempMarkerArray:Array = [];
+				tempMarkerArray.push(tempMarkerCheckPt);
+				
+				if (checkMarkers(tempMarkerArray))
+				{
+					trace("this is executed");
+					noiseTile.x = int((endX / Registry.TILESIZE)) +1;
+					noiseTile.y = int(endY / Registry.TILESIZE);
+					endX = Registry.player.x +Registry.TILESIZE;
+					endY = Registry.player.y + 100;		
+					noiseTile.exists = true;
+				}				
+				else
+				{*/
+					/* initialize noisetile */
+					noiseTile.x = int(endX / Registry.TILESIZE);
+					noiseTile.y = int(endY / Registry.TILESIZE);
+					noiseTile.exists = true;
+				
 			}
 		}
 		
@@ -440,6 +463,12 @@ package actors.enemy
 				velocity.x = 0;
 				velocity.y = 30;
 			}
+			if (Registry.guardLadderDirection == "NONE" && touchedTopMarker == true)
+			{
+				touchedTopMarker = false; 
+				FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, xVelocity);				
+			}
+
 			
 		}	
 	
@@ -465,10 +494,6 @@ package actors.enemy
 		{
 			if (isTouching(FLOOR))
 			{
-				//climbing = false;
-				goingDown = false;
-				goingUp = false;
-				
 				switch(alertLevel)
 				{
 					case 0:
@@ -587,7 +612,7 @@ package actors.enemy
 			if (touchedBottomMarker == true)
 			{
 				
-				if (x > tempBottomMarker.x +30 || x < tempBottomMarker.x -30)
+				if (x > tempBottomMarker.x + 30 || x < tempBottomMarker.x -30)
 				{
 					touchedBottomMarker = false;
 					
@@ -598,6 +623,18 @@ package actors.enemy
 		/* sets the topmarkertouched boolean variable to false after going past certain coordinates */
 		private function checkTouchedTopMarker():void
 		{
+			//going down
+			if (touchedTopMarker == true && climbing == true)
+			{
+				if (velocity.y > 0)
+				{
+					if (y > tempTopMarker.y + 167)
+					{
+						touchedTopMarker = false;
+					}
+				}
+			}
+			
 			if (touchedTopMarker == true)
 			{
 				if ((x < tempTopMarker.x +10 ) || (x > tempTopMarker.x +10))
@@ -605,16 +642,7 @@ package actors.enemy
 					touchedTopMarker = false;
 				}
 			}
-		}
-		
-		
-		public function handleEnemyStop(guard:Guard, marker:Marker):void
-		{	
-			if (touchedMarker==false && Mode == "Normal") //only stop at the marker in Normal mode
-			{
-				velocity.x = 0;
-				touchedMarker = true;
-			}			
+			
 		}
 						
 		/* guard sees player if in sight range */
@@ -651,9 +679,7 @@ package actors.enemy
 			checkMode();
 			checkFacing();
 			super.update();		
-			
-			
-								
+		//	trace(Mode, noiseTile.x, noiseTile.y, int(x / 32), int((y+100)/32), Registry.guardLadderDirection, touchedBottomMarker, patrolStatusBeforeNoise);
 		}
 		
 			public function checkFacing():void
@@ -666,7 +692,6 @@ package actors.enemy
 				{
 					facing = RIGHT;
 				}
-			
 			}
 					
 		/* check the mode and make the guard act accoridngly */
@@ -687,7 +712,7 @@ package actors.enemy
 				
 				
 				//create patrol Path for the first time
-				if (justTouched(FLOOR) &&patrolPathCreated == false && startedPatrol == false)
+				if (justTouched(FLOOR) && patrolPathCreated == false && startedPatrol == false)
 				{		
 					trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY , patrolEndPointX, patrolEndPointY);
 					followThePath();
@@ -708,6 +733,7 @@ package actors.enemy
 							stopCounter = 0;
 						}
 					}
+					
 					//came back to the startPoint
 					if (startedPatrol == true && (patrolStartPointXInTiles == xInTiles) && (patrolStartPointYInTiles == yInTiles))
 					{
@@ -726,9 +752,20 @@ package actors.enemy
 					if ((backFromOtherStatus == true))
 					{
 						if (patrolStatusBeforeNoise == "toEndPoint")
-						{
-							trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY , patrolEndPointX, patrolEndPointY);
-							followThePath();
+						{	
+							trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY, patrolEndPointX, patrolEndPointY);
+							followThePath();							
+							if (isTouching(FLOOR))
+							{
+								if (patrolEndPointX > x)
+								{
+									velocity.x = xVelocity;
+								}
+								else
+								{
+									velocity.x = -xVelocity;
+								}
+							}
 							patrolStatus = "toEndPoint";
 							stopCounter = 0;
 							backFromOtherStatus = false;
@@ -738,6 +775,17 @@ package actors.enemy
 						{
 							trackPath = patrolPathClass.getPath(patrolEndPointX, patrolEndPointY , patrolStartPointX, patrolStartPointY);
 							followThePath();
+							if (isTouching(FLOOR))
+							{
+								if (patrolStartPointX > x)
+								{
+									velocity.x = xVelocity;
+								}
+								else
+								{
+									velocity.x = -xVelocity;
+								}
+							}
 							patrolStatus = "toStartPoint";
 							stopCounter = 0;
 							backFromOtherStatus = false;
@@ -748,13 +796,25 @@ package actors.enemy
 			/* create a path based on the noise source and start following it */
 			else if (Mode == "noiseDetected")
 			{
-				trackPath = patrolPathClass.getPath(startX, startY, endX, endY);
+				/* create a new Path as soon as the noise is detected */
+				trackPath = patrolPathClass.getPath(startX, startY, noiseTile.x * Registry.TILESIZE, noiseTile.y * Registry.TILESIZE);
 				followThePath(); 
 				Mode = "noiseFollowing";									
 			}
 			/* following the noise - always check if the endpoint is reached */
 			else if (Mode == "noiseFollowing")
 			{
+				/* create a new path when finished climbing the ladder */
+			
+				
+				
+				if (touchedBottomMarker == true && justTouched(FLOOR) || (touchedTopMarker ==true && justTouched(FLOOR)))
+				{
+					patrolPathClass.getPath(x, y + 100, noiseTile.x * Registry.TILESIZE, noiseTile.y * Registry.TILESIZE);
+					followThePath();		
+				}
+				
+				
 				/* checking if the guard needs to turn back while following */
 				var traversePoint:Marker;
 				
@@ -770,12 +830,29 @@ package actors.enemy
 							Mode = "noiseReached";
 						}
 				}
-					
+
+				//trace("Xintiles, Yin Tiles:", xInTiles, yInTiles, noiseTile.x, noiseTile.y, goBackToPathPoint.x, goBackToPathPoint.y);
+				
+				if (isTouching(FLOOR))
+				{
+					if (noiseTile.x > xInTiles)
+					{
+						velocity.x = xVelocity;
+					}
+					else
+					{
+						velocity.x = -xVelocity;
+					}
+				}
+				
+				
 				/*reached the source of noise */
 				if ((xInTiles == noiseTile.x) && (yInTiles == noiseTile.y))
 				{
 						Mode = "noiseReached";
 				}			
+				
+				
 			}
 			/* noise reached, wait for 2 sec */
 			else if (Mode == "noiseReached")
@@ -783,10 +860,11 @@ package actors.enemy
 				stopCounter += FlxG.elapsed;
 				velocity.x = 0;
 				play("search");
+				backFromOtherStatus = true;
 				if (stopCounter > 2)
 				{
 					//find the nearest path from this point to where the noise is detected for the first time
-					trackPath = patrolPathClass.getPath(x, y, goBackToPathPoint.x, goBackToPathPoint.y);
+					trackPath = patrolPathClass.getPath(x, y+100, goBackToPathPoint.x, goBackToPathPoint.y);
 					followThePath();
 					stopCounter = 0;
 					noiseTile.exists = false;
@@ -795,12 +873,28 @@ package actors.enemy
 			}
 			else if (Mode == "goingBackToPatrolPath")
 			{	
-				play("alert");
+				//trace(int(goBackToPathPoint.x/32), int(goBackToPathPoint.y/32));
+				play("alert");				
+				trackPath = patrolPathClass.getPath(x, y+100, goBackToPathPoint.x, goBackToPathPoint.y);
+				followThePath();
+				
+				if (isTouching(FLOOR))
+				{
+					if (goBackToPathPoint.x > x && Registry.guardLadderDirection == "NONE")
+					{
+						velocity.x = xVelocity;
+					}
+					else
+					{
+						velocity.x = -xVelocity;
+					}
+				}
+				
 				/* reached where the noise was detected for the first time after searching the noisepoint */
 				if ((xInTiles == (int(goBackToPathPoint.x / Registry.TILESIZE))) && (yInTiles == (int(goBackToPathPoint.y / Registry.TILESIZE))))
 				{
-					Mode = "Normal"; 
 					backFromOtherStatus = true;
+					Mode = "Normal"; 
 					noiseDetectedFirstTime = false;
 				}
 			}
