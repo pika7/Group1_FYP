@@ -26,18 +26,13 @@ package actors.enemy
 		private const levelOneVelocity:Number = 200;
 		private const levelTwoVelocity:Number = 300;
 		
-		private var stopDelay:FlxDelay = new FlxDelay(2000);
 		private var tempVelocity:int;
 		private var xVelocity:Number;
 		private var bullet:FlxSprite;
 		private var currentBullet:FlxSprite;
-		private var bulletDelay:FlxDelay = new FlxDelay(1500);
 		private var shootingNow:Boolean = false;
 		private var lastLocation:FlxPoint = new FlxPoint(0, 0);
-		private var stoppingNow:Boolean = false;
-		private var sightRangeGraphic:FlxSprite;
 		private var climbing:Boolean = false;
-		private var canClimb:Boolean = false;
 		private var bulletCounter:Number = 0;
 		private var noiseCounter:Number = 0;
 		private var climbLadderPatrol:Boolean = false; 
@@ -50,7 +45,6 @@ package actors.enemy
 		private var ladderStopCheck:Boolean = false;
 		public var trackPath:Array;
 		private var patrolPathClass:patrolPathList;
-		public var climbDown:Boolean = false;
 		private var alertLevel:int;
 		private var stopCounter:Number = 0;
 		
@@ -80,14 +74,9 @@ package actors.enemy
 		private var touchedBottomMarker:Boolean = false;
 		private var touchedTopMarker:Boolean = false;
 		
-		private var checkNum:int = 0;
 		
 		private var XinTile:int = 0;
 		private var YinTile:int = 0;
-		
-		
-		private var prevpt:FlxPoint = new FlxPoint(0,0);
-		private var travelpt:FlxPoint = new FlxPoint(0, 0);
 		
 		private var bottomMarkerInPath:Boolean = false;
 		private var topMarkerInPath:Boolean = false;
@@ -135,7 +124,7 @@ package actors.enemy
 		private var noiseDetectedFirstTime:Boolean = false;
 		
 		/* constructor */
-		public function Guard(X:int, Y:int) 
+		public function Guard(X:int, Y:int, patrolStartX:int, patrolStartY:int, patrolEndX:int, patrolEndY:int) 
 		{
 			super(X, Y);
 			loadGraphic(guardPNG, true, true, 128, 128, true);
@@ -163,16 +152,21 @@ package actors.enemy
 			
 			/* pathfinding stuff */
 			patrolPathClass = new patrolPathList();
-			travelpt = new FlxPoint(0, 0);
+		
 			loadMarkers();
 			
 			noiseTile = new invisibleNoiseTile(0, 0);
 			
 			/*patrol route coordinates */
-			patrolStartPointX = 48;
+			/*patrolStartPointX = 48;
 			patrolStartPointY = 657;
 			patrolEndPointX = 1525;
-			patrolEndPointY = 499;
+			patrolEndPointY = 499;*/
+			
+			patrolStartPointX = patrolStartX;
+			patrolStartPointY = patrolStartY;
+			patrolEndPointX = patrolEndX;
+			patrolEndPointY = patrolEndY;
 			
  		}		
 		
@@ -500,10 +494,10 @@ package actors.enemy
 						xVelocity = levelZeroVelocity;
 						break;
 					case 1:
-						xVelocity = levelOneVelocity;
+						xVelocity = levelOneVelocity/2;
 						break;
 					case 2:
-						xVelocity = levelTwoVelocity;
+						xVelocity = levelTwoVelocity/4;
 						break;
 				}
 			}

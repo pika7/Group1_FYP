@@ -5,6 +5,7 @@ package
 {
 	import actors.enemy.Guard;
 	import actors.enemy.sightRanges;
+	import actors.enemy.sightRangesFar;
 	import actors.Player;
 	import levels.TestLevel;
 	import org.flixel.*;
@@ -75,11 +76,13 @@ package
 		
 			
 			/* FOR TESTING */
-			Registry.guard = new Guard(252, 493);
+			Registry.guard = new Guard(252, 493, 48, 657, 1525, 499);
 			Registry.scentTrailHandler.start();
 			
 			Registry.sightranges = new sightRanges(160, 20);
+			Registry.sightrangesfar = new sightRangesFar(161, 20);
 			
+			add(Registry.sightrangesfar);
 			add(Registry.sightranges);
 			add(Registry.guard);
 			add(Registry.bulletGroup);
