@@ -104,14 +104,15 @@ package actors.enemy
 		private var patrolEndPointX:int;
 		private var patrolEndPointY:int; 
 		
-		
+		private var pixelFarCounter:Number = 0;
 		private var noiseSourceX:int;
 		private var noiseSourceY:int;
 		private var noiseReached:Boolean = false;
 		private var noiseTile:invisibleNoiseTile;
 		private var patrolStatus:String = "";
 		private var patrolStatusBeforeNoise:String = "";
-		private var sightDetected:Boolean = false;
+		private var sightDetectedClose:Boolean = false;
+		private var sightDetectedFar:Boolean = false;
 		private var backFromOtherStatus:Boolean = false;
 		
 		private var patrolPathCreated:Boolean = false;
@@ -120,8 +121,11 @@ package actors.enemy
 		private var goBackToOriginalPlace:Boolean = false;
 		private var goBackToPathPoint:FlxPoint = new FlxPoint(0, 0);
 		private var patrolStartToEnd:Boolean = false;
+		private var tempSeenFarPoint:FlxPoint = new FlxPoint(0, 0);
 		
 		private var noiseDetectedFirstTime:Boolean = false;
+		private var seenFarFirstTime:Boolean = false;
+		private var sightRadius:guardSightRadius ;
 		
 		/* constructor */
 		public function Guard(X:int, Y:int, patrolStartX:int, patrolStartY:int, patrolEndX:int, patrolEndY:int) 
@@ -156,13 +160,8 @@ package actors.enemy
 			loadMarkers();
 			
 			noiseTile = new invisibleNoiseTile(0, 0);
-			
-			/*patrol route coordinates */
-			/*patrolStartPointX = 48;
-			patrolStartPointY = 657;
-			patrolEndPointX = 1525;
-			patrolEndPointY = 499;*/
-			
+			sightRadius = new guardSightRadius(0,0);
+						
 			patrolStartPointX = patrolStartX;
 			patrolStartPointY = patrolStartY;
 			patrolEndPointX = patrolEndX;
@@ -347,11 +346,11 @@ package actors.enemy
 				}
 				
 				//just hit the nearest marker if not in normal mode (cuz you're following anyway)
-				if (Mode == "noiseDetected" || Mode == "goingBackToPatrolPath")
+				if (Mode == "noiseDetected" || Mode == "goingBackToPatrolPath" || Mode=="noiseFollowing")
 				{
 					climbing = true;
 					velocity.y = - xVelocity / 2;
-					x = tempBottomMarker.x	 - 20;
+					x = tempBottomMarker.x - 20;
 					velocity.x = 0;
 					acceleration.y = 0;
 				}
@@ -389,7 +388,7 @@ package actors.enemy
 		public function noiseAlert(guard:Guard, noise:NoiseRadius):void
 		{
 			/* no need to check for noise if already seen */
-			if (sightDetected == false)
+			if (Mode != "seenFar" || Mode != "seenClose"|| Mode!="seenFarCheck")
 			{
 				newNoiseDetected = true;
 				Mode = "noiseDetected";
@@ -402,38 +401,19 @@ package actors.enemy
 					noiseDetectedFirstTime = true;
 				}
 			
-			
 				noiseFace();
 				play("alert");
-				
-				
+			
 				//get the path coordinates in array
 				startX = Registry.guard.x;
 				startY = Registry.guard.y + 100;
 				endX = Registry.player.x;
 				endY = Registry.player.y + 100;			
-			
-				
-				/*//check if those points overlap marker
-				var tempMarkerCheckPt:FlxPoint = new FlxPoint(int((endX)/Registry.TILESIZE), int((endY)/Registry.TILESIZE));
-				var tempMarkerArray:Array = [];
-				tempMarkerArray.push(tempMarkerCheckPt);
-				
-				if (checkMarkers(tempMarkerArray))
-				{
-					trace("this is executed");
-					noiseTile.x = int((endX / Registry.TILESIZE)) +1;
-					noiseTile.y = int(endY / Registry.TILESIZE);
-					endX = Registry.player.x +Registry.TILESIZE;
-					endY = Registry.player.y + 100;		
-					noiseTile.exists = true;
-				}				
-				else
-				{*/
-					/* initialize noisetile */
-					noiseTile.x = int(endX / Registry.TILESIZE);
-					noiseTile.y = int(endY / Registry.TILESIZE);
-					noiseTile.exists = true;
+		
+				/* initialize noisetile */
+				noiseTile.x = int(endX / Registry.TILESIZE);
+				noiseTile.y = int(endY / Registry.TILESIZE);
+				noiseTile.exists = true;
 				
 			}
 		}
@@ -463,7 +443,6 @@ package actors.enemy
 				FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, xVelocity);				
 			}
 
-			
 		}	
 	
 					
@@ -486,7 +465,7 @@ package actors.enemy
 		/* changes velocity according to alertLevel*/
 		private function setVelocity():void
 		{
-			if (isTouching(FLOOR))
+			//if (isTouching(FLOOR))
 			{
 				switch(alertLevel)
 				{
@@ -639,24 +618,45 @@ package actors.enemy
 			
 		}
 						
-		/* guard sees player if in sight range */
+		/* guard sees player if in close sight range */
 		public function seePlayer(sightrange:sightRanges, player:Player):void
 		{
 			pixelCounter += FlxG.elapsed;
-			if (pixelCounter > 0.5) //check it every 0.5 frame
+			if (pixelCounter > 1) //check it every 1 frame
 			{
 				if (FlxCollision.pixelPerfectCheck(sightrange, player))	
 				{
 					
-					sightDetected = true;
+					Mode = "seenClose";
 					pixelCounter = 0;
 				}
 			}	
 		}
 		
-		public function seePlayerFar(sightrange:sightRangesFar, player:Player):void
+		/* guard sees the player if in far sight range */
+		public function seePlayerFar(sightrangeFar:sightRangesFar, player:Player):void
 		{
-			
+			pixelFarCounter += FlxG.elapsed;
+			{
+				if (pixelFarCounter > 1)
+				{
+					if (FlxCollision.pixelPerfectCheck(sightrangeFar, player))	
+					{
+						if (seenFarFirstTime == false)
+						{	
+							goBackToPathPoint.x = x;
+							goBackToPathPoint.y = y + 100;
+							seenFarFirstTime = true;
+						}
+						tempSeenFarPoint.x = Registry.player.x;
+						tempSeenFarPoint.y = Registry.player.y +100;
+						Mode = "seenFar";
+						sightDetectedFar = true;
+						pixelFarCounter = 0;
+					}
+				}
+			}
+				
 			
 		}
 		
@@ -673,6 +673,7 @@ package actors.enemy
 			checkMode();
 			checkFacing();
 			super.update();		
+			//trace(Mode);	
 			//trace(Mode, noiseTile.x, noiseTile.y, int(x / 32), int((y+100)/32), Registry.guardLadderDirection, touchedBottomMarker, patrolStatusBeforeNoise);
 		}
 		
@@ -800,8 +801,7 @@ package actors.enemy
 			{
 				/* create a new path when finished climbing the ladder */
 			
-				
-				
+			
 				if (touchedBottomMarker == true && justTouched(FLOOR) || (touchedTopMarker ==true && justTouched(FLOOR)))
 				{
 					patrolPathClass.getPath(x, y + 100, noiseTile.x * Registry.TILESIZE, noiseTile.y * Registry.TILESIZE);
@@ -827,7 +827,7 @@ package actors.enemy
 
 				//trace("Xintiles, Yin Tiles:", xInTiles, yInTiles, noiseTile.x, noiseTile.y, goBackToPathPoint.x, goBackToPathPoint.y);
 				
-				if (isTouching(FLOOR) && Registry.guardLadderDirection == "NONE")
+				if ((isTouching(FLOOR) && Registry.guardLadderDirection == "NONE")||(touchedBottomMarker==true && Registry.guardLadderDirection=="DOWN" ))
 				{
 					if (noiseTile.x > xInTiles)
 					{
@@ -893,20 +893,23 @@ package actors.enemy
 				}
 			}
 			
-			else if (Mode == "inSightRangeFar")
+			else if (Mode == "seenFar")
 			{
-				/*- player in sight range but far
-				 * overlap sightrange - two graphics
-				 * one smaller and one larger
-					- speed increase
-					- will go back to Mode = Normal if player gets out of guard’s sight range (running away/smoke bomb) for more than 10 seconds
-					- but will be much faster
-					- player quite far from the guard - guard not sure if he saw smth or not 
-					- alertLevel = 1
-				 * 
-				 */
+				
+				
 			}
-			else if (Mode == "inSightRangeClose")
+			/* checking if what the guard saw was the player or not */
+			else if (Mode == "seenFarCheck")
+			{
+				
+				
+			}
+			else if (Mode == "seenFarReached")
+			{
+				
+				
+			}	
+			else if (Mode == "seenClose")
 			{
 				/*- player in sight range up close
 					- speed increase
