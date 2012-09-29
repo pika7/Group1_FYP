@@ -88,6 +88,7 @@ package actors.enemy
 		private var topMarkerMovePoint:FlxPoint = new FlxPoint(0, 0);
 		private var tempEndPoint:FlxPoint = new FlxPoint(0, 0);
 		private var tempEndDestinationPoint:FlxPoint = new FlxPoint(0, 0);
+		private var tempStartDestinationPoint:FlxPoint = new FlxPoint(0, 0);
 		private var startX:int;
 		private var startY:int;
 		private var endX:int;
@@ -126,6 +127,18 @@ package actors.enemy
 		private var noiseDetectedFirstTime:Boolean = false;
 		private var seenFarFirstTime:Boolean = false;
 		private var sightRadius:guardSightRadius ;
+		private var bottomMarkerNeedUpPathGroup:Array;
+		private var bottomMarkerNeedDownPathGroup:Array;
+		private var topMarkerNeedUpPathGroup:Array;
+		private var topMarkerNeedDownPathGroup:Array;
+		private var pointsToFollow:Array;
+
+		private var PrevPt:FlxPoint = new FlxPoint(0, 0);
+		private var tempPt:FlxPoint = new FlxPoint(0,0);
+		private var tempNextPt:FlxPoint = new FlxPoint(0,0);
+		private var targetPoint:FlxPoint = new FlxPoint(0, 0);
+		private var reachedTheEnd:Boolean = false;
+		private var reachedTheStart:Boolean = false;
 		
 		/* constructor */
 		public function Guard(X:int, Y:int, patrolStartX:int, patrolStartY:int, patrolEndX:int, patrolEndY:int) 
@@ -157,7 +170,7 @@ package actors.enemy
 			/* pathfinding stuff */
 			patrolPathClass = new patrolPathList();
 		
-			loadMarkers();
+	
 			
 			noiseTile = new invisibleNoiseTile(0, 0);
 			sightRadius = new guardSightRadius(0,0);
@@ -173,209 +186,167 @@ package actors.enemy
 		/* will only go for top/bottom ladder marker positions if enemies are above/below */
 		
 		public function followThePath():void
-		{	
+		{		
+				//initialize arrays
 				bottomMarkerInPathGroup = [];
 				topMarkerInPathGroup = [];
-		
+				bottomMarkerNeedUpPathGroup = [];
+				bottomMarkerNeedDownPathGroup = [];
+				topMarkerNeedUpPathGroup = [];
+				topMarkerNeedDownPathGroup = [];
+				pointsToFollow = [];
+				
 				//reset marker booleans
 				bottomMarkerInPath = false;
 				topMarkerInPath = false;
-			
-				//check markers
-				checkMarkers(trackPath);	
 				
-				//store the endpoint
-				tempEndDestinationPoint.x = Registry.guardEndPoint.x * Registry.TILESIZE;
-				tempEndDestinationPoint.y = Registry.guardEndPoint.y * Registry.TILESIZE;
-			
-		if (isTouching(FLOOR))  //case when noise is detected on floor
-		{	
-				var temppt:FlxPoint;
-				var anotherTempPt:FlxPoint;
-				var markerTempPt:FlxPoint;			 
-			
-				if (Registry.guardLadderDirection == "UP")
+				//store start point
+				tempStartDestinationPoint.x = Registry.guardStartPoint.x;
+				tempStartDestinationPoint.y = Registry.guardStartPoint.y;
+				tempEndDestinationPoint.x = Registry.guardEndPoint.x;
+				tempEndDestinationPoint.y = Registry.guardEndPoint.y;
+				
+				pointsToFollow.push(tempStartDestinationPoint);
+				
+				
+				if (trackPath.length == 1)
 				{
-					minimumMarkerDistance = 0;
-					
-					//get the marker position with minimum distance from the endpoint so we can choose to climb that marker
-					if (bottomMarkerInPath == true)
-					{
-						//search for the marker position IN that path
-						if (touchedBottomMarker == false)
-						{
-						
-							//find the closest marker first so you can move there
-							for (var mIndex:int = 0; mIndex < bottomMarkerInPathGroup.length; mIndex++)
-							{	
-								markerTempPt = bottomMarkerInPathGroup[mIndex];
-								if (mIndex == 0)
-								{
-									
-									minimumMarkerDistance = Math.abs(Math.sqrt(((markerTempPt.x - tempEndDestinationPoint.x) * (markerTempPt.x - tempEndDestinationPoint.x)) + ((markerTempPt.y - tempEndDestinationPoint.y) * (markerTempPt.y - tempEndDestinationPoint.y)))); 
-									tempMarkerDistance = minimumMarkerDistance;
-								}
-								else
-								{
-								
-									tempMarkerDistance = Math.abs(Math.sqrt(((markerTempPt.x - tempEndDestinationPoint.x) * (markerTempPt.x - tempEndDestinationPoint.x)) + ((markerTempPt.y - tempEndDestinationPoint.y) * (markerTempPt.y - tempEndDestinationPoint.y)))); 
-
-								}
-								
-								if (tempMarkerDistance < minimumMarkerDistance || tempMarkerDistance==minimumMarkerDistance)
-								{
-										minimumMarkerDistance = tempMarkerDistance;
-										tempMarkerIndex = mIndex;
-								}
-							}
-							bottomMarkerMovePoint = bottomMarkerInPathGroup[tempMarkerIndex];								
-							FlxVelocity.moveTowardsPoint(this, bottomMarkerMovePoint, xVelocity);
-							velocity.y = 0;
-						}					
-					}		
+					tempPt = trackPath[0];
+					pointsToFollow.push(tempPt);
 				}
-				/* NEED TO GO DOWN WHEN TOUCHING THE FLOOR */
-				if (Registry.guardLadderDirection == "DOWN")
+				else
 				{
-					minimumMarkerDistance = 0;
-					
-					//get the marker position with minimum distance from the endpoint so we can choose to climb that marker
-					if (topMarkerInPath == true)
+					//check the coordinates in trackpath array
+					for (var i:int = 0; i < trackPath.length; i++)
 					{
-						//search for the marker position in that path
-						if (touchedTopMarker == false)
+						//check for coordinates
+						if((i==0) && (i+1 < trackPath.length))
 						{
-							tempDestinationPoint.x = Registry.guardEndPoint.x * Registry.TILESIZE;
-							tempDestinationPoint.y = Registry.guardEndPoint.y * Registry.TILESIZE;	
+							PrevPt = tempStartDestinationPoint;
+							tempPt = trackPath[i];
+							tempNextPt = trackPath[i + 1];
+						}						
+						else if ((i > 0) && (i + 1 < trackPath.length))
+						{
+							PrevPt = trackPath[i - 1];
+							tempPt = trackPath[i];
+							tempNextPt = trackPath[i + 1];
 						}
-						for (var markerIndex:int = 0; markerIndex < topMarkerInPathGroup.length; markerIndex++)
-							{	
-								markerTempPt = topMarkerInPathGroup[markerIndex];
-								if (markerIndex== 0)
-								{
-									minimumMarkerDistance = Math.abs(Math.sqrt(((markerTempPt.x - tempEndDestinationPoint.x) * (markerTempPt.x - tempEndDestinationPoint.x)) + ((markerTempPt.y - tempEndDestinationPoint.y) * (markerTempPt.y - tempEndDestinationPoint.y)))); 
-									tempMarkerDistance = minimumMarkerDistance;
-						
-								}
-								else
-								{
-									tempMarkerDistance = Math.abs(Math.sqrt(((markerTempPt.x - tempEndDestinationPoint.x) * (markerTempPt.x - tempEndDestinationPoint.x)) + ((markerTempPt.y - tempEndDestinationPoint.y) * (markerTempPt.y - tempEndDestinationPoint.y)))); 
-								}
-								
-								if (tempMarkerDistance < minimumMarkerDistance || tempMarkerDistance == minimumMarkerDistance)
-								{
-										minimumMarkerDistance = tempMarkerDistance;
-										tempMarkerIndex = markerIndex;
-								}
-							}
-							topMarkerMovePoint = topMarkerInPathGroup[tempMarkerIndex];							
-							FlxVelocity.moveTowardsPoint(this, topMarkerMovePoint, xVelocity);
-							velocity.y = 0;
-					}
-				}
-				if (Registry.guardLadderDirection == "NONE")
-				{
-					tempEndDestinationPoint.x = Registry.guardEndPoint.x * Registry.TILESIZE;
-					tempEndDestinationPoint.y = Registry.guardEndPoint.y * Registry.TILESIZE;;
-					FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, xVelocity);
-					velocity.y = 0;
-				}
-		}
-		else if (climbing == true)
-		{			
-			if (Registry.guardLadderDirection == "DOWN")
-			{			
-				climbing == true; 
-				velocity.y = xVelocity/2;
-				x = tempBottomMarker.x -20;
-				velocity.x = 0;
-				acceleration.y = 0;
-			}								
-			
-			if (Registry.guardLadderDirection == "UP")
-			{
-				climbing = true;
-				velocity.y = - xVelocity / 2;
-				x = tempBottomMarker.x -20;
-				velocity.x = 0;
-				acceleration.y = 0;
-				
-			}
-		
-		}
-		
-		}
-		/* check if there are markers in path */
-		public function checkMarkers(pathArray:Array):void
-		{
-			//check the whole path first for markers
-			for (var i:int = 0; i < pathArray.length; i++)
-			{
-					var checkPoint:FlxPoint;
-					checkPoint = pathArray[i];
-					checkPoint.x = checkPoint.x * Registry.TILESIZE;
-					checkPoint.y = checkPoint.y * Registry.TILESIZE;
 					
-					//if there is at leas
-					if (checkBottomMarkers(checkPoint))
-					{
-						bottomMarkerInPath = true;
-						bottomMarkerInPathGroup.push(checkPoint);
+							if (((tempPt.x == (PrevPt.x+1)) && (tempNextPt.y ==(tempPt.y - 1)) && (tempNextPt.x == tempPt.x) && (tempPt.y ==PrevPt.y) ) || ((tempPt.x == (PrevPt.x - 1)) && (tempNextPt.y ==(tempPt.y - 1)) &&(tempNextPt.x ==tempPt.x) && (tempPt.y ==PrevPt.y)))
+							{
+								bottomMarkerNeedUpPathGroup.push(tempPt);
+								pointsToFollow.push(tempPt);
+							}
+							else if (((tempPt.x == PrevPt.x) && (tempPt.y == PrevPt.y + 1) && (tempNextPt.x == tempPt.x + 1) && (tempNextPt.y == tempPt.y) ) || ((tempPt.x == PrevPt.x) && (tempPt.y == PrevPt.y + 1) && (tempNextPt.x == tempPt.x - 1) && (tempNextPt.y == tempPt.y)) )
+							{
+								bottomMarkerNeedDownPathGroup.push(tempPt);
+								pointsToFollow.push(tempPt);
+							}
+							else if (((tempPt.x == PrevPt.x) && (tempPt.y == PrevPt.y - 1) && (tempNextPt.x == tempPt.x + 1) && (tempNextPt.y == tempPt.y) ) || ((tempPt.x == PrevPt.x) && (tempPt.y == PrevPt.y - 1) && (tempNextPt.x == tempPt.x - 1) && (tempNextPt.y == tempPt.y)))
+							{
+								topMarkerNeedUpPathGroup.push(tempPt);
+								pointsToFollow.push(tempPt);
+							}
+							else if (((tempPt.x == PrevPt.x+1) && (tempPt.y == PrevPt.y) && (tempNextPt.x == tempPt.x) && (tempNextPt.y == tempPt.y + 1)) || ((tempPt.x == PrevPt.x -1) && (tempPt.y == PrevPt.y) && (tempNextPt.x == tempPt.x) && (tempNextPt.y == tempPt.y + 1)))
+							{
+								topMarkerNeedDownPathGroup.push(tempPt);
+								pointsToFollow.push(tempPt);
+							}
 					}
-					if (checkTopMarkers(checkPoint))
+						
+				}
+					pointsToFollow.push(tempEndDestinationPoint);
+			
+					
+					for (var i:int = 0; i < pointsToFollow.length; i++)
 					{
-						topMarkerInPath = true;
-						topMarkerInPathGroup.push(checkPoint);
-					}	
-			}		
+						var pointo:FlxPoint;
+						pointo = pointsToFollow[i];
+						//trace(i, pointo.x, pointo.y);
+					}
+					
+					/*
+					for (var i:int = 0; i < bottomMarkerNeedUpPathGroup.length; i++)
+					{
+						var pointo:FlxPoint;
+						pointo = bottomMarkerNeedUpPathGroup[i];
+						trace("bottommarkerNeedUP", pointo.x, pointo.y);
+					}
+					for (var j:int = 0; j < bottomMarkerNeedDownPathGroup.length; j++)
+					{
+						var pointo:FlxPoint;
+						pointo = bottomMarkerNeedDownPathGroup[j];
+						trace("bottommarkerNeedDown", pointo.x, pointo.y);
+					}
+					for (var j:int = 0; j < topMarkerNeedUpPathGroup.length; j++)
+					{
+						var pointo:FlxPoint;
+						pointo = topMarkerNeedUpPathGroup[j];
+						trace("topMarkerNeedUpPathGroup", pointo.x, pointo.y);
+					}
+					for (var j:int = 0; j < topMarkerNeedDownPathGroup.length; j++)
+					{
+						var pointo:FlxPoint;
+						pointo = topMarkerNeedDownPathGroup[j];
+						trace("topMarkerNeedDownPathGroup", pointo.x, pointo.y);
+					}*/
+									
 		}
 		
-		/* function for bottom marker reaction */
-		public function bottomMarkerReaction():void
+		public function startFollowing():void
 		{
-			if (touchedBottomMarker == true && Registry.guardLadderDirection == "UP")
-			{
-				//if the mode is normal, only hit the designated ladder
-				if ((int(bottomMarkerMovePoint.x / 32)) == (int(x / 32)) && ((int(bottomMarkerMovePoint.y / 32)) == int((y + 100) / 32))&& ((Mode=="Normal") || (Mode == "goingBackToPatrolPath")))
-				{
-					climbing = true;
-					velocity.y = - xVelocity / 2;
-					x = tempBottomMarker.x	 - 20;
-					velocity.x = 0;
-					acceleration.y = 0;
-				}
-				
-				//just hit the nearest marker if not in normal mode (cuz you're following anyway)
-				if (Mode == "noiseDetected" || Mode == "goingBackToPatrolPath" || Mode=="noiseFollowing")
-				{
-					climbing = true;
-					velocity.y = - xVelocity / 2;
-					x = tempBottomMarker.x - 20;
-					velocity.x = 0;
-					acceleration.y = 0;
-				}
-			}
+			var xInTiles:int = int(x / 32);
+			var yInTiles:int = int((y + 100) / 32);
 			
-			/* reaction after landing on the floor */
-			if (touchedBottomMarker == true && (Registry.guardLadderDirection == "DOWN"))
+			tempPt = pointsToFollow[0];
+			
+			//trace("tempPT", tempPt.x, tempPt.y, "coordInTIles", xInTiles, yInTiles);
+			
+			if (((yInTiles == tempPt.y) && (xInTiles==tempPt.x)))
 			{
-				climbing = false;
-				velocity.y = xVelocity / 2;
+				velocity.x = 0;
+				pointsToFollow.splice(0,1);
+			}
+			else if (((yInTiles == tempPt.y) && ((xInTiles < tempPt.x))))
+			{
+				if (climbing == true)
+				{
+					y = y - 30;
+					climbing = false;
+				}
+				velocity.x = xVelocity;
 				acceleration.y = GRAVITY;
-				FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, xVelocity);
-				velocity.y = 0;
 			}
-			if (touchedBottomMarker == true && climbing == true && Registry.guardLadderDirection == "NONE")
+			else if (((yInTiles == tempPt.y) && ((xInTiles > tempPt.x))))
+			{	
+				if (climbing == true)
+				{
+					y = y - 30;
+					climbing = false;
+				}
+				velocity.x = -xVelocity;
+				acceleration.y = GRAVITY;
+			}
+			else if (yInTiles < tempPt.y && (xInTiles ==tempPt.x))
 			{
-				climbing = false;
-				velocity.y = 0;		
-				x = tempXSetMarker.x -20;
-				acceleration.y = GRAVITY;				
+				x = x - 30;
+				velocity.x = 0;
+				velocity.y = xVelocity / 2;
+				climbing = true;
+				acceleration.y = 0;
 			}
-			
-			
+			else if (yInTiles > tempPt.y && (xInTiles ==tempPt.x))
+			{
+				x = x - 30;
+				velocity.x = 0;
+				velocity.y = -xVelocity / 2;
+				climbing = true;
+				acceleration.y = 0;
+			}
 			
 		}
+		
 		
 		public function getAlertLevel():int
 		{
@@ -418,32 +389,7 @@ package actors.enemy
 			}
 		}
 		
-		/*function for top marker reaction */
-		public function topMarkerReaction():void
-		{
-			if (Registry.guardLadderDirection == "UP" && climbing == true && touchedTopMarker==true)
-			{
-				climbing = false;
-				y = tempXSetMarker.y - 80; 
-				acceleration.y = GRAVITY;
-				touchedTopMarker = false;	
-				FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, xVelocity);
-			}
-			if (Registry.guardLadderDirection == "DOWN" && touchedTopMarker == true)
-			{
-				climbing = true;
-				x = tempXSetMarker.x -20;
-				acceleration.y = 0;
-				velocity.x = 0;
-				velocity.y = 30;
-			}
-			if (Registry.guardLadderDirection == "NONE" && touchedTopMarker == true)
-			{
-				touchedTopMarker = false; 
-				FlxVelocity.moveTowardsPoint(this, tempEndDestinationPoint, xVelocity);				
-			}
-
-		}	
+	
 	
 					
 		/* different facing depending on noise coordinates */
@@ -465,10 +411,8 @@ package actors.enemy
 		/* changes velocity according to alertLevel*/
 		private function setVelocity():void
 		{
-			//if (isTouching(FLOOR))
+			switch(alertLevel)
 			{
-				switch(alertLevel)
-				{
 					case 0:
 						xVelocity = levelZeroVelocity;
 						break;
@@ -478,8 +422,8 @@ package actors.enemy
 					case 2:
 						xVelocity = levelTwoVelocity/4;
 						break;
-				}
 			}
+			
 		}	
 		
 		/* creation of bullets for use */
@@ -568,55 +512,7 @@ package actors.enemy
 				}
 			}
 		}
-		
-		/* sets the bottommarkertouched boolean variable to false after going past certain coordinates */
-		private function checkTouchedBottomMarker():void
-		{
-			if (touchedBottomMarker == true && climbing==true)
-			{
-				if (velocity.y < 0) //going up
-				{
-					if (y < tempBottomMarker.y - 167)
-					{
-						touchedBottomMarker = false;
-					}
-				}
-			}
-			if (touchedBottomMarker == true)
-			{
-				
-				if (x > tempBottomMarker.x + 30 || x < tempBottomMarker.x -30)
-				{
-					touchedBottomMarker = false;
-					
-				}
-			}
-		}
-		
-		/* sets the topmarkertouched boolean variable to false after going past certain coordinates */
-		private function checkTouchedTopMarker():void
-		{
-			//going down
-			if (touchedTopMarker == true && climbing == true)
-			{
-				if (velocity.y > 0)
-				{
-					if (y > tempTopMarker.y + 167)
-					{
-						touchedTopMarker = false;
-					}
-				}
-			}
-			
-			if (touchedTopMarker == true)
-			{
-				if ((x < tempTopMarker.x +10 ) || (x > tempTopMarker.x +10))
-				{
-					touchedTopMarker = false;
-				}
-			}
-			
-		}
+	
 						
 		/* guard sees player if in close sight range */
 		public function seePlayer(sightrange:sightRanges, player:Player):void
@@ -661,33 +557,19 @@ package actors.enemy
 		}
 		
 	
-		/* update function */
-		override public function update():void
-		{	
-			setVelocity();	
-			bottomMarkerReaction();
-			topMarkerReaction();
-			checkTouchedBottomMarker();
-			checkTouchedTopMarker();
-			bulletCounterCheck();
-			checkMode();
-			checkFacing();
-			super.update();		
-			//trace(Mode);	
-			//trace(Mode, noiseTile.x, noiseTile.y, int(x / 32), int((y+100)/32), Registry.guardLadderDirection, touchedBottomMarker, patrolStatusBeforeNoise);
-		}
+	
 		
-			public function checkFacing():void
+		public function checkFacing():void
+		{
+			if (velocity.x < 0)
 			{
-				if (velocity.x < 0)
-				{
-					facing = LEFT;
-				}
-				else
-				{
-					facing = RIGHT;
-				}
+				facing = LEFT;
 			}
+			else
+			{
+				facing = RIGHT;
+			}
+		}
 					
 		/* check the mode and make the guard act accoridngly */
 		public function checkMode():void
@@ -696,292 +578,101 @@ package actors.enemy
 			var xInTiles:int = (x / 32);
 			var yInTiles:int = ((y + 100) / 32);
 			
-			
 			if (Mode == "Normal")
 			{			
 				play("walk");
-				var patrolEndPointXInTiles:int = (patrolEndPointX / 32) - 1;
+				var patrolEndPointXInTiles:int = patrolEndPointX / 32;
 				var patrolEndPointYInTiles:int = patrolEndPointY / 32;
 				var patrolStartPointXInTiles:int = patrolStartPointX / 32;
 				var patrolStartPointYInTiles:int = patrolStartPointY / 32;
-				
 				
 				//create patrol Path for the first time
 				if (justTouched(FLOOR) && patrolPathCreated == false && startedPatrol == false)
 				{		
 					trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY , patrolEndPointX, patrolEndPointY);
 					followThePath();
+					Mode = "Patrolling";
 					startedPatrol = true;
 					patrolStatus = "toEndPoint";
-					
+				
 				}
-					//reached the end
-					if (startedPatrol == true && (patrolEndPointXInTiles == xInTiles) && (patrolEndPointYInTiles==yInTiles))
-					{
+				else if (startedPatrol == true && (patrolEndPointXInTiles == xInTiles) && (patrolEndPointYInTiles==yInTiles) && patrolStatus=="toEndPoint")
+				{
 						stopCounter += FlxG.elapsed;
 						velocity.x = 0;
 						if (stopCounter > 2)
 						{	
 							trackPath = patrolPathClass.getPath(patrolEndPointX, patrolEndPointY , patrolStartPointX, patrolStartPointY);
 							followThePath();
+							Mode = "Patrolling";
 							patrolStatus = "toStartPoint";
 							stopCounter = 0;
 						}
-					}
-					
-					//came back to the startPoint
-					if (startedPatrol == true && (patrolStartPointXInTiles == xInTiles) && (patrolStartPointYInTiles == yInTiles))
-					{
+				}
+				else if (startedPatrol == true && (patrolStartPointXInTiles == xInTiles) && (patrolStartPointYInTiles==yInTiles) && patrolStatus=="toStartPoint")
+				{
 						stopCounter += FlxG.elapsed;
 						velocity.x = 0;
 						if (stopCounter > 2)
-						{
+						{	
 							trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY , patrolEndPointX, patrolEndPointY);
 							followThePath();
+							Mode = "Patrolling";
 							patrolStatus = "toEndPoint";
 							stopCounter = 0;
 						}
-					}
-				
-					/* back from other status and continuing patrol*/
-					if ((backFromOtherStatus == true))
-					{
-						if (patrolStatusBeforeNoise == "toEndPoint")
-						{	
-							trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY, patrolEndPointX, patrolEndPointY);
-							followThePath();							
-							if (isTouching(FLOOR))
-							{
-								if (patrolEndPointX > x)
-								{
-									velocity.x = xVelocity;
-								}
-								else
-								{
-									velocity.x = -xVelocity;
-								}
-							}
-							patrolStatus = "toEndPoint";
-							stopCounter = 0;
-							backFromOtherStatus = false;
-						
-						}
-						if (patrolStatusBeforeNoise == "toStartPoint")
-						{
-							trackPath = patrolPathClass.getPath(patrolEndPointX, patrolEndPointY , patrolStartPointX, patrolStartPointY);
-							followThePath();
-							if (isTouching(FLOOR))
-							{
-								if (patrolStartPointX > x)
-								{
-									velocity.x = xVelocity;
-								}
-								else
-								{
-									velocity.x = -xVelocity;
-								}
-							}
-							patrolStatus = "toStartPoint";
-							stopCounter = 0;
-							backFromOtherStatus = false;
-						}
-					}
+				}
 				
 			}
-			/* create a path based on the noise source and start following it */
+			else if (Mode == "Patrolling")
+			{
+				if (pointsToFollow.length > 0)
+				{
+					startFollowing();
+				}
+				if (pointsToFollow.length == 0)
+				{
+					Mode = "Normal";
+				}
+				
+			}
 			else if (Mode == "noiseDetected")
 			{
-				/* create a new Path as soon as the noise is detected */
 				trackPath = patrolPathClass.getPath(startX, startY, noiseTile.x * Registry.TILESIZE, noiseTile.y * Registry.TILESIZE);
 				followThePath(); 
-				Mode = "noiseFollowing";									
+				Mode = "noiseFollowing";
 			}
-			/* following the noise - always check if the endpoint is reached */
 			else if (Mode == "noiseFollowing")
 			{
-				/* create a new path when finished climbing the ladder */
-			
-			
-				if (touchedBottomMarker == true && justTouched(FLOOR) || (touchedTopMarker ==true && justTouched(FLOOR)))
+				if (pointsToFollow.length > 0)
 				{
-					patrolPathClass.getPath(x, y + 100, noiseTile.x * Registry.TILESIZE, noiseTile.y * Registry.TILESIZE);
-					followThePath();		
+					startFollowing();
+				}
+				if (pointsToFollow.length == 0)
+				{
+					play("search");
 				}
 				
-				
-				/* checking if the guard needs to turn back while following */
-				var traversePoint:Marker;
-				
-				for (var i:int = 0; i < stopMarkerGroup.length; i++)
-				{
-						traversePoint = stopMarkerGroup[i];
-						stopMarkerPoint.x = int(traversePoint.x / Registry.TILESIZE);
-						stopMarkerPoint.y = int(traversePoint.y / Registry.TILESIZE);							
-						/* stop at stopmarker point when it is folloiwng noise 
-						* but hasn't reached the noise yet */
-						if (((xInTiles == stopMarkerPoint.x - 1) && (yInTiles == stopMarkerPoint.y)))
-						{
-							Mode = "noiseReached";
-						}
-				}
+			}
+		
 
-				//trace("Xintiles, Yin Tiles:", xInTiles, yInTiles, noiseTile.x, noiseTile.y, goBackToPathPoint.x, goBackToPathPoint.y);
-				
-				if ((isTouching(FLOOR) && Registry.guardLadderDirection == "NONE")||(touchedBottomMarker==true && Registry.guardLadderDirection=="DOWN" ))
-				{
-					if (noiseTile.x > xInTiles)
-					{
-						velocity.x = xVelocity;
-					}
-					else
-					{
-						velocity.x = -xVelocity;
-					}
-				}
-				
-				
-				/*reached the source of noise */
-				if ((xInTiles == noiseTile.x) && (yInTiles == noiseTile.y))
-				{
-						Mode = "noiseReached";
-				}			
-				
-				
-			}
-			/* noise reached, wait for 2 sec */
-			else if (Mode == "noiseReached")
-			{
-				stopCounter += FlxG.elapsed;
-				velocity.x = 0;
-				play("search");
-				backFromOtherStatus = true;
-				if (stopCounter > 2)
-				{
-					//find the nearest path from this point to where the noise is detected for the first time
-					trackPath = patrolPathClass.getPath(x, y+100, goBackToPathPoint.x, goBackToPathPoint.y);
-					followThePath();
-					stopCounter = 0;
-					noiseTile.exists = false;
-					Mode = "goingBackToPatrolPath";
-				}
-			}
-			else if (Mode == "goingBackToPatrolPath")
-			{	
-				//trace(int(goBackToPathPoint.x/32), int(goBackToPathPoint.y/32));
-				play("alert");				
-				trackPath = patrolPathClass.getPath(x, y+100, goBackToPathPoint.x, goBackToPathPoint.y);
-				followThePath();
-				
-				if (isTouching(FLOOR))
-				{
-					if (goBackToPathPoint.x > x && Registry.guardLadderDirection == "NONE")
-					{
-						velocity.x = xVelocity;
-					}
-					else
-					{
-						velocity.x = -xVelocity;
-					}
-				}
-				
-				/* reached where the noise was detected for the first time after searching the noisepoint */
-				if ((xInTiles == (int(goBackToPathPoint.x / Registry.TILESIZE))) && (yInTiles == (int(goBackToPathPoint.y / Registry.TILESIZE))))
-				{
-					backFromOtherStatus = true;
-					Mode = "Normal"; 
-					noiseDetectedFirstTime = false;
-				}
-			}
+		}
+		
+		/* update function */
+		override public function update():void
+		{	
+			setVelocity();	
+			bulletCounterCheck();
+			checkMode();
+			checkFacing();
+			super.update();		
 			
-			else if (Mode == "seenFar")
-			{
-				
-				
-			}
-			/* checking if what the guard saw was the player or not */
-			else if (Mode == "seenFarCheck")
-			{
-				
-				
-			}
-			else if (Mode == "seenFarReached")
-			{
-				
-				
-			}	
-			else if (Mode == "seenClose")
-			{
-				/*- player in sight range up close
-					- speed increase
-					- will alert other guards if the player gets out of guard’s sight range for more than 3 seconds
-					- will go back to patrol mode, but will be much faster
-					- will shoot on sight. 
-					-if noise is detected, will not follow - the delay will still be in effect
-				 */					
-			}		
-			else if (Mode == "ShootingNow")
-			{
-				
-				
-			}
+			//trace(Mode, noiseTile.x, noiseTile.y, int(x / 32), int((y+100)/32), Registry.guardLadderDirection, touchedBottomMarker, patrolStatusBeforeNoise);
 		}
 		
 		
-		/* load marker positions for later use */
-		private function loadMarkers():void
-		{
-			bottomMarkerGroup = [];
-			topMarkerGroup = [];
-			stopMarkerGroup = [];
-			var tempStopMarker:Marker;
-			
-			for (var i:int = 0; i < Registry.markers_ladderBottom.length; i++)
-			{
-				bottomMarkerGroup.push(Registry.markers_ladderBottom.members[i]);
-			}
-			
-			for (var j:int = 0; j < Registry.markers_ladderTop.length; j++)
-			{
-				topMarkerGroup.push(Registry.markers_ladderTop.members[j]);
-			}
-			for (var k:int = 0; k < Registry.markers_enemyStop.length; k++)
-			{
-				stopMarkerGroup.push(Registry.markers_enemyStop.members[k]);			
-			}
-			
-		}
 
-		/* load bottom ladder marker positions for reference */
 		
-		private function checkBottomMarkers(point:FlxPoint):Boolean
-		{	var checkMarker:Marker;
-			for (var i:int = 0; i < bottomMarkerGroup.length; i++)
-			{
-				 checkMarker = bottomMarkerGroup[i];
-				 //add 27 to y as offset
-				 if (point.x == checkMarker.x && point.y + 27 == checkMarker.y)
-				 {
-					 return true;
-				 }
-			}
-			return false;
-		}
-		
-		/* load top ladder marker positions for reference */
-		private function checkTopMarkers(point:FlxPoint):Boolean
-		{
-			var checkMarker:Marker;
-			for (var i:int = 0; i < topMarkerGroup.length; i++)
-			{
-				 checkMarker = topMarkerGroup[i];
-				 //deduct 37 as offset
-				 if (point.x == checkMarker.x && point.y - 37 == checkMarker.y)
-				 {
-					 return true;
-				 }
-			}
-			return false;
-		}
 	}
 
 }

@@ -76,7 +76,7 @@ package
 		
 			
 			/* FOR TESTING */
-			Registry.guard = new Guard(252, 493, 48, 657, 1525, 499);
+			Registry.guard = new Guard(32, 493, 48, 657, 1490, 499);
 			Registry.scentTrailHandler.start();
 			
 			Registry.sightranges = new sightRanges(160, 20);
@@ -127,8 +127,8 @@ package
 			//FlxG.overlap(Registry.sightranges, Registry.player, Registry.guard.seePlayer);
 			//FlxG.overlap(Registry.sightrangesfar, Registry.player, Registry.guard.seePlayerFar);
 			FlxG.overlap(Registry.guard, Registry.noiseHandler, Registry.guard.noiseAlert);
-			FlxG.overlap(Registry.guard, Registry.markers_ladderTop, Registry.guard.handleLadderTop);
-			FlxG.overlap(Registry.guard, Registry.markers_ladderBottom, Registry.guard.handleLadderBottom);
+		//	FlxG.overlap(Registry.guard, Registry.markers_ladderTop, Registry.guard.handleLadderTop);
+		//	FlxG.overlap(Registry.guard, Registry.markers_ladderBottom, Registry.guard.handleLadderBottom);
 			
 			if (!(FlxG.overlap(Registry.player, Registry.markers_ladderBottom, Registry.player.handleLadderBottom) || FlxG.overlap(Registry.player, Registry.markers_ladderTop, Registry.player.handleLadderTop)))
 			{
