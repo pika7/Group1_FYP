@@ -9,6 +9,7 @@ package cutscenes
 		protected var background:Background;
 		protected var leftFaceGraphic:FaceGraphic;
 		protected var rightFaceGraphic:FaceGraphic;
+		protected var textBox:TextBox;
 		
 		public function Cutscene() 
 		{
@@ -24,6 +25,7 @@ package cutscenes
 			
 			add(leftFaceGraphic);
 			add(rightFaceGraphic);
+			add(textBox = new TextBox());
 		}
 	}
 }
