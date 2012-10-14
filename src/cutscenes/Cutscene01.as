@@ -9,6 +9,8 @@ package cutscenes
 			background.setBackground(Background.BACKGROUND_A);
 			leftFaceGraphic.setCharacter(FaceGraphic.GIRL_1);
 			rightFaceGraphic.setCharacter(FaceGraphic.GIRL_2);
+			
+			/* set the events here */
 		}
 	}
 }

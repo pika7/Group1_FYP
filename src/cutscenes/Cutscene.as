@@ -26,6 +26,7 @@ package cutscenes
 			add(leftFaceGraphic);
 			add(rightFaceGraphic);
 			add(textBox = new TextBox());
+			
 		}
 	}
 }
