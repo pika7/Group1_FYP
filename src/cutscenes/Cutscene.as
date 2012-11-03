@@ -9,6 +9,9 @@ package cutscenes
 		protected var background:Background;
 		protected var leftFaceGraphic:FaceGraphic;
 		protected var rightFaceGraphic:FaceGraphic;
+		protected var textBox:TextBox;
+		protected var nameText:FlxText;
+		protected var dialogText:FlxText;
 		
 		public function Cutscene() 
 		{
@@ -24,6 +27,21 @@ package cutscenes
 			
 			add(leftFaceGraphic);
 			add(rightFaceGraphic);
+			
+			add(textBox = new TextBox());
+			
+			nameText = new FlxText(40, 410, 700);
+			nameText.size = 18;
+			nameText.color = 0xFFFFFF00;
+			nameText.text = "Name test";
+			
+			
+			dialogText = new FlxText(50, 435, 700);
+			dialogText.size = 18;
+			dialogText.text = "I'm not really sure what I should put here...";
+			
+			add(nameText);
+			add(dialogText);
 		}
 	}
 }
