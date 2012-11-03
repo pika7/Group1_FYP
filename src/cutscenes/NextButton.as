@@ -10,6 +10,7 @@ package cutscenes
 		{
 			super(X, Y);
 			loadGraphic(buttonPNG, false, false);
+			visible = false;
 		}	
 	}
 }
