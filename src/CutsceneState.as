@@ -22,6 +22,8 @@ package
 			{
 				FlxG.switchState(new PlayState());
 			}
+			
+			super.update();
 		}
 	}
 }
