@@ -141,6 +141,7 @@ public class Guard extends FlxSprite
 	private var reachedTheEnd:Boolean = false;
 	private var reachedTheStart:Boolean = false;
 	private var movingLeft:Boolean = false;
+	private var goBackPatrol:Boolean = false;
 
 	/* constructor */
 	public function Guard(X:int, Y:int, patrolStartX:int, patrolStartY:int, patrolEndX:int, patrolEndY:int)
@@ -562,48 +563,65 @@ public class Guard extends FlxSprite
 			var patrolStartPointXInTiles:int = patrolStartPointX / 32;
 			var patrolStartPointYInTiles:int = patrolStartPointY / 32;
 
-		//create patrol Path for the first time
-		if (justTouched(FLOOR) && patrolPathCreated == false && startedPatrol == false)
-		{	
-			trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY , patrolEndPointX, patrolEndPointY);
-			followThePath();
-			Mode = "Patrolling";
-			startedPatrol = true;
-			patrolStatus = "toEndPoint";
-		}		
-		else if (startedPatrol == true && (patrolEndPointXInTiles == xInTiles) && (patrolEndPointYInTiles==yInTiles) && patrolStatus=="toEndPoint")
-		{
-			stopCounter += FlxG.elapsed;
-			velocity.x = 0;
-			if (stopCounter > 2)
-			{	
-				trackPath = patrolPathClass.getPath(patrolEndPointX, patrolEndPointY , patrolStartPointX, patrolStartPointY);
-				followThePath();
-				Mode = "Patrolling";
-				patrolStatus = "toStartPoint";
-				stopCounter = 0;
-			}
-		}
-		else if (startedPatrol == true && (patrolStartPointXInTiles == xInTiles) && (patrolStartPointYInTiles==yInTiles) && patrolStatus=="toStartPoint")
-		{
-			stopCounter += FlxG.elapsed;
-			velocity.x = 0;
-			if (stopCounter > 2)
+			//create patrol Path for the first time
+			if (justTouched(FLOOR) && patrolPathCreated == false && startedPatrol == false)
 			{	
 				trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY , patrolEndPointX, patrolEndPointY);
 				followThePath();
 				Mode = "Patrolling";
+				startedPatrol = true;
 				patrolStatus = "toEndPoint";
-				stopCounter = 0;
+			}		
+			else if (startedPatrol == true && (patrolEndPointXInTiles == xInTiles) && (patrolEndPointYInTiles==yInTiles) && patrolStatus=="toEndPoint")
+			{
+				stopCounter += FlxG.elapsed;
+				velocity.x = 0;
+				if (stopCounter > 2)
+				{	
+					trackPath = patrolPathClass.getPath(patrolEndPointX, patrolEndPointY , patrolStartPointX, patrolStartPointY);
+					followThePath();
+					Mode = "Patrolling";
+					patrolStatus = "toStartPoint";
+					stopCounter = 0;
+				}
 			}
-		}
+			else if (startedPatrol == true && (patrolStartPointXInTiles == xInTiles) && (patrolStartPointYInTiles==yInTiles) && patrolStatus=="toStartPoint")
+			{
+				stopCounter += FlxG.elapsed;
+				velocity.x = 0;
+				if (stopCounter > 2)
+				{	
+					trackPath = patrolPathClass.getPath(patrolStartPointX, patrolStartPointY , patrolEndPointX, patrolEndPointY);
+					followThePath();
+					Mode = "Patrolling";
+					patrolStatus = "toEndPoint";
+					stopCounter = 0;
+				}
+			}
+			else if (goBackPatrol == true) 
+			{
+				if (patrolStatusBeforeNoise == "toEndPoint")
+				{
+					trackPath = patrolPathClass.getPath(x, y , patrolEndPointX, patrolEndPointY);
+					followThePath();
+					Mode = "Patrolling";
+				}
+				if (patrolStatusBeforeNoise == "toStartPoint")
+				{
+					trackPath = patrolPathClass.getPath(x, y , patrolStartPointX, patrolStartPointY);
+					followThePath();
+					Mode = "Patrolling";
+				}
+	
 
+			}
 		}
 		else if (Mode == "Patrolling")
 		{
 			if (pointsToFollow.length > 0)
 			{
 				startFollowing();
+			
 			}
 			if (pointsToFollow.length == 0)
 			{
@@ -625,9 +643,48 @@ public class Guard extends FlxSprite
 			if (pointsToFollow.length == 0)
 			{
 				play("search");
+				stopCounter += FlxG.elapsed;
+				if (stopCounter > 2)
+				{		
+					goBackPatrol = true;
+					stopCounter = 0;
+					Mode = "Normal";
+				}	
 			}
 		}
+	
 	}
+		
+		
+		/*else if (Mode == "backToPatrol")
+		{
+			if (patrolStatusBeforeNoise == "toEndPoint")
+			{
+				trackPath = patrolPathClass.getPath(x, y+100 , patrolEndPointX, patrolEndPointY);
+				
+				followThePath();
+				startFollowing();
+				backFromOtherStatus = false;
+			}
+			else if (startedPatrol == true && (patrolStartPointXInTiles == xInTiles) && (patrolStartPointYInTiles == yInTiles) && patrolStatus == "toEndPoint")
+			{
+				Mode == "Normal";
+			}
+			else if (patrolStatusBeforeNoise == "toStartPoint")
+			{
+				trackPath = patrolPathClass.getPath(x, y+100 , patrolStartPointX, patrolStartPointY);
+				followThePath();
+				startFollowing();
+				backFromOtherStatus = false;
+			}
+			else if (startedPatrol == true && (patrolStartPointXInTiles == xInTiles) && (patrolStartPointYInTiles==yInTiles) && patrolStatus=="toStartPoint")
+			{
+				Mode == "Normal";
+			}
+		}*/
+	
+	
+	
 
 	/* update function */
 	override public function update():void
