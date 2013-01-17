@@ -6,6 +6,7 @@ package
 	import actors.enemy.Guard;
 	import actors.enemy.sightRanges;
 	import actors.enemy.sightRangesFar;
+	import actors.enemy.guardSightRadius;
 	import actors.Player;
 	import levels.TestLevel;
 	import org.flixel.*;
@@ -80,13 +81,14 @@ package
 			Registry.scentTrailHandler.start();
 			
 			Registry.sightranges = new sightRanges(160, 20);
-			Registry.sightrangesfar = new sightRangesFar(161, 20);
+			//Registry.sightrangesfar = new sightRangesFar(161, 20);
+			Registry.gSightRadius = new guardSightRadius(160, 20);
 			
 			add(Registry.sightrangesfar);
 			add(Registry.sightranges);
 			add(Registry.guard);
 			add(Registry.bulletGroup);
-			
+			add(Registry.gSightRadius);
 			
 			/* show the mouse */
 			FlxG.mouse.show();
@@ -124,9 +126,11 @@ package
 			FlxG.overlap(Registry.player, Registry.exit, completeLevel);
 			
 			
-			//FlxG.overlap(Registry.sightranges, Registry.player, Registry.guard.seePlayer);
+			FlxG.overlap(Registry.sightranges, Registry.player, Registry.guard.seePlayer);
 			//FlxG.overlap(Registry.sightrangesfar, Registry.player, Registry.guard.seePlayerFar);
 			FlxG.overlap(Registry.guard, Registry.noiseHandler, Registry.guard.noiseAlert);
+			FlxG.overlap(Registry.gSightRadius, Registry.player, Registry.guard.circleDetect);
+			
 		//	FlxG.overlap(Registry.guard, Registry.markers_ladderTop, Registry.guard.handleLadderTop);
 		//	FlxG.overlap(Registry.guard, Registry.markers_ladderBottom, Registry.guard.handleLadderBottom);
 			

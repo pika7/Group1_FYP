@@ -22,44 +22,45 @@ package actors.enemy
 		
 		override public function update():void
 		{
-			velocity.x = Registry.guard.velocity.x;
+			//velocity.x = Registry.guard.velocity.x;
 			
-			checkFacing();
-			play("sightRangeFar");
+			//checkFacing();
+			//play("sightRangeFar");
 		
 		}
 		
 		private function checkFacing():void
 		{
 			facing = Registry.sightranges.facing;
-			
-			if (Registry.guard.getAlertLevel() == 0)
+			if (Registry.guard.radiusChange == false)
 			{
+				if (Registry.guard.getAlertLevel() == 0)
+				{
 			
-				if (facing == RIGHT)
-				{	
-					x = Registry.sightranges.x + 90;
-					y = Registry.sightranges.y;
+					if (facing == RIGHT)
+					{	
+						x = Registry.sightranges.x + 90;
+						y = Registry.sightranges.y;
+					}
+					else if (facing == LEFT)
+					{
+						x = Registry.sightranges.x + 200;
+						y = Registry.sightranges.y;
+					}
 				}
-				else if (facing == LEFT)
+				if (Registry.guard.getAlertLevel() == 1)
 				{
-					x = Registry.sightranges.x + 200;
-					y = Registry.sightranges.y;
+					if (facing == RIGHT)
+					{	
+						x = Registry.sightranges.x + 260;
+						y = Registry.sightranges.y;
+					}
+					else if (facing == LEFT)
+					{
+						x = Registry.sightranges.x+30;
+						y = Registry.sightranges.y;
+					}
 				}
-			}
-			if (Registry.guard.getAlertLevel() == 1)
-			{
-				if (facing == RIGHT)
-				{	
-					x = Registry.sightranges.x + 260;
-					y = Registry.sightranges.y;
-				}
-				else if (facing == LEFT)
-				{
-					x = Registry.sightranges.x+30;
-					y = Registry.sightranges.y;
-				}
-			}
 			if (Registry.guard.getAlertLevel() == 2)
 			{
 				if (facing == RIGHT)
@@ -76,7 +77,7 @@ package actors.enemy
 			}
 		}
 	
-		
+		}
 		
 		
 	}

@@ -5,7 +5,7 @@ package actors.enemy
 	
 	public class sightRanges extends FlxSprite
 	{
-		[Embed(source = '../../../assets/img/enemies/sightRanges.png')] private var sightRangePNG:Class;
+		[Embed(source = '../../../assets/img/enemies/sightRangesReduced.png')] private var sightRangePNG:Class;
 		
 		public function sightRanges(X:int, Y:int) 
 		{	
@@ -51,16 +51,24 @@ package actors.enemy
 		
 		private function checkFacing():void
 		{
-			facing = Registry.guard.facing;
-			if (facing == RIGHT)
+			if (Registry.guard.radiusChange == false)
 			{
-				x = Registry.guard.x +100;
-				y = Registry.guard.y;
+				visible = true;
+				facing = Registry.guard.facing;
+				if (facing == RIGHT)
+				{
+					x = Registry.guard.x +100;
+					y = Registry.guard.y;
+				}
+				else if (facing == LEFT)
+				{
+					x = Registry.guard.x - 320;
+					y = Registry.guard.y;
+				}
 			}
-			else if (facing == LEFT)
+			else 
 			{
-				x = Registry.guard.x - 320;
-				y = Registry.guard.y;
+				visible = false;
 			}
 		}
 		

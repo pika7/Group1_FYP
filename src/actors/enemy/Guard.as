@@ -23,8 +23,8 @@ public class Guard extends FlxSprite
 	/* initialization of variables */
 	private const GRAVITY:int = 600;
 	private const levelZeroVelocity:Number = 100;
-	private const levelOneVelocity:Number = 200;
-	private const levelTwoVelocity:Number = 300;
+	private const levelOneVelocity:Number = 120;
+	private const levelTwoVelocity:Number = 130;
 
 	private var tempVelocity:int;
 	private var xVelocity:Number;
@@ -47,6 +47,7 @@ public class Guard extends FlxSprite
 	private var patrolPathClass:patrolPathList;
 	private var alertLevel:int;
 	private var stopCounter:Number = 0;
+	private var bugStopCounter:Number = 0;
 
 	private var bottomMarker:Marker;
 	private var topMarker:Marker;
@@ -106,6 +107,7 @@ public class Guard extends FlxSprite
 	private var patrolEndPointY:int;
 
 	private var pixelFarCounter:Number = 0;
+	private var pixelCircleCounter:Number = 0;
 	private var noiseSourceX:int;
 	private var noiseSourceY:int;
 	private var noiseReached:Boolean = false;
@@ -138,10 +140,17 @@ public class Guard extends FlxSprite
 	private var tempNextPt:FlxPoint = new FlxPoint(0,0);
 	private var targetPoint:FlxPoint = new FlxPoint(0, 0);
 	private var superTempPt:FlxPoint = new FlxPoint(0, 0);
+	private var circleTempPoint:FlxPoint = new FlxPoint(0, 0);
 	private var reachedTheEnd:Boolean = false;
 	private var reachedTheStart:Boolean = false;
 	private var movingLeft:Boolean = false;
 	private var goBackPatrol:Boolean = false;
+	private var noiseCanBeDetected:Boolean = true;
+	private var stopped:Boolean = false;
+	private var seenClose:Boolean = false;
+	public var radiusChange:Boolean = false;
+	private var circleDetected:Boolean = false;
+	private var alertLevelTimer:Number = 0;
 
 	/* constructor */
 	public function Guard(X:int, Y:int, patrolStartX:int, patrolStartY:int, patrolEndX:int, patrolEndY:int)
@@ -351,7 +360,7 @@ public class Guard extends FlxSprite
 	public function noiseAlert(guard:Guard, noise:NoiseRadius):void
 	{
 		/* no need to check for noise if already seen */
-		if (Mode != "seenFar" || Mode != "seenClose"|| Mode!="seenFarCheck")
+		(Mode != "seenFar" || Mode != "seenClose"|| Mode!="seenFarCheck" || Mode != "circleFollow" )
 		{
 			newNoiseDetected = true;
 			Mode = "noiseDetected";
@@ -404,10 +413,10 @@ public class Guard extends FlxSprite
 				xVelocity = levelZeroVelocity;
 				break;
 			case 1:
-				xVelocity = levelOneVelocity/2;
+				xVelocity = levelOneVelocity;
 				break;
 			case 2:
-				xVelocity = levelTwoVelocity/4;
+				xVelocity = levelTwoVelocity;
 				break;
 		}	
 	}	
@@ -502,14 +511,35 @@ public class Guard extends FlxSprite
 	public function seePlayer(sightrange:sightRanges, player:Player):void
 	{
 		pixelCounter += FlxG.elapsed;
-		if (pixelCounter > 1) //check it every 1 frame
+		if (pixelCounter > 1 && Mode != "circleFollow") //check it every 1 frame
 		{
 			if (FlxCollision.pixelPerfectCheck(sightrange, player))	
 			{
 				Mode = "seenClose";
+				tempSeenFarPoint.x = Registry.player.x;
+				tempSeenFarPoint.y = Registry.player.y +100;
 				pixelCounter = 0;
+				patrolStatusBeforeNoise = patrolStatus;
+				seenClose = true;
 			}
 		}	
+	}
+	
+	/* guard detects player if in sight range */
+	public function circleDetect(circle:guardSightRadius, player:Player):void
+	{
+		pixelCircleCounter += FlxG.elapsed;
+		if (pixelCircleCounter > 1) //check it every 1 frame
+		{
+			if (FlxCollision.pixelPerfectCheck(circle, player))	
+			{
+				circleTempPoint.x = Registry.player.x;
+				circleTempPoint.y = Registry.player.y +100;
+				Mode = "circleFollow";
+				pixelCircleCounter = 0;
+			}
+		}	
+		
 	}
 
 	/* guard sees the player if in far sight range */
@@ -519,19 +549,13 @@ public class Guard extends FlxSprite
 		{
 			if (pixelFarCounter > 1)
 			{
-				if (FlxCollision.pixelPerfectCheck(sightrangeFar, player))	
-				{
-					if (seenFarFirstTime == false)
-					{	
-						goBackToPathPoint.x = x;
-						goBackToPathPoint.y = y + 100;
-						seenFarFirstTime = true;
-					}
-			tempSeenFarPoint.x = Registry.player.x;
-			tempSeenFarPoint.y = Registry.player.y +100;
-			Mode = "seenFar";
-			sightDetectedFar = true;
-			pixelFarCounter = 0;
+				if (FlxCollision.pixelPerfectCheck(sightrangeFar, player) && sightDetectedClose ==false)	
+				{	
+					tempSeenFarPoint.x = Registry.player.x;
+					tempSeenFarPoint.y = Registry.player.y +100;
+					Mode = "seenFar";
+					sightDetectedFar = true;
+					pixelFarCounter = 0;
 				}
 			}
 		}
@@ -562,7 +586,8 @@ public class Guard extends FlxSprite
 			var patrolEndPointYInTiles:int = patrolEndPointY / 32;
 			var patrolStartPointXInTiles:int = patrolStartPointX / 32;
 			var patrolStartPointYInTiles:int = patrolStartPointY / 32;
-
+			radiusChange = false;
+			
 			//create patrol Path for the first time
 			if (justTouched(FLOOR) && patrolPathCreated == false && startedPatrol == false)
 			{	
@@ -600,15 +625,24 @@ public class Guard extends FlxSprite
 			}
 			else if (goBackPatrol == true) 
 			{
+				radiusChange = false;
+				if (seenClose == true)
+				{
+					alertLevel = 2;
+				}
 				if (patrolStatusBeforeNoise == "toEndPoint")
 				{
-					trackPath = patrolPathClass.getPath(x, y , patrolEndPointX, patrolEndPointY);
+					
+					goBackPatrol = false;
+					trackPath = patrolPathClass.getPath(x, y+100, patrolEndPointX, patrolEndPointY);
 					followThePath();
 					Mode = "Patrolling";
 				}
 				if (patrolStatusBeforeNoise == "toStartPoint")
 				{
-					trackPath = patrolPathClass.getPath(x, y , patrolStartPointX, patrolStartPointY);
+					
+					goBackPatrol = false;
+					trackPath = patrolPathClass.getPath(x, y+100, patrolStartPointX, patrolStartPointY);
 					followThePath();
 					Mode = "Patrolling";
 				}
@@ -643,46 +677,88 @@ public class Guard extends FlxSprite
 			if (pointsToFollow.length == 0)
 			{
 				play("search");
+				facing = LEFT;
 				stopCounter += FlxG.elapsed;
+		
 				if (stopCounter > 2)
-				{		
+				{	
 					goBackPatrol = true;
 					stopCounter = 0;
+					alertLevel = 1;
 					Mode = "Normal";
 				}	
 			}
 		}
+		else if (Mode == "seenClose")
+		{
+			/* guard alert changes to circle */
+			radiusChange = true;
+			trackPath = patrolPathClass.getPath(x, y+100, tempSeenFarPoint.x, tempSeenFarPoint.y);
+			followThePath();
+			Mode = "seenCloseFollowing";
+		}
+		
+		else if (Mode == "seenCloseFollowing")
+		{
+				if (pointsToFollow.length > 0)
+				{
+					startFollowing();
+				}
+				if (pointsToFollow.length == 0)
+				{
+					play("search");
+					stopCounter += FlxG.elapsed;
+		
+					if (stopCounter > 2)
+					{	
+						goBackPatrol = true;
+						stopCounter = 0;	
+						Mode = "Normal";
+					}	
+				}	
+		}
+		else if (Mode == "circleFollow")
+		{
+			trackPath = patrolPathClass.getPath(x, y+100, circleTempPoint.x, circleTempPoint.y);
+			followThePath();
+			Mode = "circleFollowing";
+			
+		}
+		else if (Mode == "circleFollowing")
+		{
+				if (pointsToFollow.length > 0)
+				{
+					startFollowing();
+				}
+				if (pointsToFollow.length == 0)
+				{
+					play("search");
+					stopCounter += FlxG.elapsed;
+		
+					if (stopCounter > 2)
+					{	
+						goBackPatrol = true;
+						stopCounter = 0;	
+						Mode = "Normal";
+					}	
+				}
+			
+		}
+		
 	
 	}
-		
-		
-		/*else if (Mode == "backToPatrol")
-		{
-			if (patrolStatusBeforeNoise == "toEndPoint")
-			{
-				trackPath = patrolPathClass.getPath(x, y+100 , patrolEndPointX, patrolEndPointY);
-				
-				followThePath();
-				startFollowing();
-				backFromOtherStatus = false;
-			}
-			else if (startedPatrol == true && (patrolStartPointXInTiles == xInTiles) && (patrolStartPointYInTiles == yInTiles) && patrolStatus == "toEndPoint")
-			{
-				Mode == "Normal";
-			}
-			else if (patrolStatusBeforeNoise == "toStartPoint")
-			{
-				trackPath = patrolPathClass.getPath(x, y+100 , patrolStartPointX, patrolStartPointY);
-				followThePath();
-				startFollowing();
-				backFromOtherStatus = false;
-			}
-			else if (startedPatrol == true && (patrolStartPointXInTiles == xInTiles) && (patrolStartPointYInTiles==yInTiles) && patrolStatus=="toStartPoint")
-			{
-				Mode == "Normal";
-			}
-		}*/
 	
+
+		
+		
+		
+	/* reset Alertlevel to 0 */
+	public function alertLevelReset():void
+	{
+		alertLevelTimer = 0;
+		
+		
+	}
 	
 	
 
@@ -691,6 +767,7 @@ public class Guard extends FlxSprite
 	{	
 		setVelocity();	
 		bulletCounterCheck();
+		alertLevelReset();
 		checkMode();
 		checkFacing();
 		super.update();	
