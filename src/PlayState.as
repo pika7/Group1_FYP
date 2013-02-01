@@ -5,7 +5,6 @@ package
 {
 	import actors.enemy.Guard;
 	import actors.enemy.sightRanges;
-	import actors.enemy.sightRangesFar;
 	import actors.enemy.guardSightRadius;
 	import actors.Player;
 	import levels.TestLevel;
@@ -84,7 +83,7 @@ package
 			//Registry.sightrangesfar = new sightRangesFar(161, 20);
 			Registry.gSightRadius = new guardSightRadius(160, 20);
 			
-			add(Registry.sightrangesfar);
+			
 			add(Registry.sightranges);
 			add(Registry.guard);
 			add(Registry.bulletGroup);

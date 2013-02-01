@@ -48,7 +48,6 @@ package util
 		/* enemy stuff */
 		public static var guard:Guard;
 		public static var sightranges:sightRanges;	
-		public static var sightrangesfar:sightRangesFar;
 		public static var gSightRadius:guardSightRadius;
 		public static var bulletGroup:FlxGroup = new FlxGroup;
 		public static var enemyGroup:FlxGroup = new FlxGroup; //enemies will be added here late

@@ -113,6 +113,7 @@ package actors
 		public var isClimbingDownLadder:Boolean = false; // returns true if the player started at the top of the ladder and is on the ladder.
 		public var doneClimbingUpLadder:Boolean = false; // returns true if the player just finished climbing to the top of the ladder.
 		public var doneClimbingDownLadder:Boolean = false; // returns true if the player just finished climbing to the bottom of the ladder.
+		public var isHangingOnHookshot:Boolean = false;
 		
 		public function Player(X:int, Y:int) 
 		{
@@ -146,6 +147,9 @@ package actors
 			/* normal mode */
 			if (mode == NORMAL)
 			{
+				/*not hanging on the hookshot anymore*/
+				isHangingOnHookshot = false;
+				
 				/* control left and right movement */
 				if (FlxG.keys.pressed("A"))
 				{
@@ -375,6 +379,9 @@ package actors
 			/* dangling from the hookshot, can swing */
 			else if (mode == HOOKSHOT_DANGLING)
 			{	
+				/* set the ishangingonhookshot value to true */
+				isHangingOnHookshot = true;
+				
 				/* calculate the difference between this frame and the previous frame */
 				ropeDifference = ropeLength - distanceBetween(firePoint, Registry.hookshot);
 				
@@ -474,6 +481,8 @@ package actors
 			/* released the hookshot, amplify the horizontal and vertical motion so that it feels better */
 			else if (mode == HOOKSHOT_FLY)
 			{	
+				
+				
 				/* allow very limited air control */
 				if (FlxG.keys.pressed("A"))
 				{

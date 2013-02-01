@@ -8,15 +8,15 @@ package actors.enemy
 	 */
 	public class guardSightRadius extends FlxSprite
 	{
-		[Embed(source = '../../../assets/img/enemies/guardAlertcircle.png')] private var sightRadiusPNG:Class;
+		[Embed(source = '../../../assets/img/enemies/guardAlertcircle3.png')] private var sightRadiusPNG:Class;
 	
 		public function guardSightRadius(X:int, Y:int) 
 		{
 			super(X, Y);
-			loadGraphic(sightRadiusPNG, false, true, 200, 200, false);
+			loadGraphic(sightRadiusPNG, false, true, 100, 100, false);
 			alpha = 0.5;
-			width = 200;
-			height = 200;
+			width = 100;
+			height = 100;
 			exists = true;
 			visible = false;
 		}
@@ -26,10 +26,21 @@ package actors.enemy
 			if (Registry.guard.radiusChange == true)
 			{
 				visible = true;
-				x = Registry.guard.x - width / 2 + 10;
-				y = Registry.guard.y - height / 2 + 30;
+				x = Registry.guard.x;
+				y = Registry.guard.y - (Registry.TILESIZE * 2) ;
+				
+				if (Registry.guard.facing == RIGHT)
+				{
+					facing = RIGHT;
+				}
+				else
+				{
+					facing = LEFT;
+					x = Registry.guard.x - (Registry.TILESIZE *2);
+				}
+				
 			}
-			if(Registry.guard.radiusChange ==false)
+			if(Registry.guard.radiusChange == false)
 			{
 				visible = false;
 			}
