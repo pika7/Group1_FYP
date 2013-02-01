@@ -3,6 +3,7 @@
 
 package  
 {
+	import actors.enemy.Dog;
 	import actors.enemy.Guard;
 	import actors.enemy.sightRanges;
 	import actors.enemy.guardSightRadius;
@@ -77,6 +78,7 @@ package
 			
 			/* FOR TESTING */
 			Registry.guard = new Guard(32, 493, 48, 657, 1490, 499);
+			Registry.dog = new Dog(130, 430, 140, 462, 399, 460); 
 			Registry.scentTrailHandler.start();
 			
 			Registry.sightranges = new sightRanges(160, 20);
@@ -88,6 +90,7 @@ package
 			add(Registry.guard);
 			add(Registry.bulletGroup);
 			add(Registry.gSightRadius);
+			add(Registry.dog);
 			
 			/* show the mouse */
 			FlxG.mouse.show();
@@ -115,6 +118,8 @@ package
 				FlxG.collide(Registry.level, Registry.guard);
 			}
 		
+			FlxG.collide(Registry.level, Registry.dog);
+			
 			FlxG.collide(Registry.level, Registry.tranqBulletHandler, TranqBullet.ping_callback);
 			FlxG.collide(Registry.level, Registry.smokeBombHandler, ThrowableWeapon.bounce);	
 			FlxG.collide(Registry.level, Registry.stunGrenadeHandler, ThrowableWeapon.bounce);

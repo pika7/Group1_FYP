@@ -43,6 +43,9 @@ public class sightRanges extends FlxSprite
 			case 2:
 				play("alert2");
 				break;
+			case 3:
+				play("alert2");
+				break;
 		}
 	}
 

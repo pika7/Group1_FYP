@@ -691,7 +691,6 @@ public class Guard extends FlxSprite
 			{
 				play("search");
 				checkFacing();
-				facing = LEFT;
 				stopCounter += FlxG.elapsed;
 		
 				if (stopCounter > 2)

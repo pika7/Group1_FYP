@@ -47,6 +47,7 @@ package util
 		
 		/* enemy stuff */
 		public static var guard:Guard;
+		public static var dog:Dog;
 		public static var sightranges:sightRanges;	
 		public static var gSightRadius:guardSightRadius;
 		public static var bulletGroup:FlxGroup = new FlxGroup;
@@ -54,6 +55,8 @@ package util
 		public static var guardLadderDirection:String; //going up or down
 		public static var guardStartPoint:patrolPathNode;
 		public static var guardEndPoint:patrolPathNode;
+		public static var dogStartPoint:patrolPathNode;
+		public static var dogEndPoint:patrolPathNode;
 		public static var noiseTile:invisibleNoiseTile;
 		
 		/* marker groups */
