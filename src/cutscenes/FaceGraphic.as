@@ -15,7 +15,7 @@ package cutscenes
 		public static const ENTER_VELOCITY:int = 500;
 		public static const FACING_RIGHT_START_X:int = -100;
 		public static const FACING_LEFT_START_X:int = 400;
-		public static const ENTER_DELAY = 100;
+		public static const ENTER_DELAY:int = 100;
 		
 		/* timers */
 		private var enterDelay:FlxDelay = new FlxDelay(ENTER_DELAY);

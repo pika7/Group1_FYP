@@ -5,7 +5,7 @@ package cutscenes
 	
 	public class TextBox extends FlxGroup
 	{
-		public static const CHAR_DELAY = 10;
+		public static const CHAR_DELAY:int = 10;
 		
 		protected var textFrame:TextFrame;
 		protected var name:FlxText;
@@ -72,6 +72,10 @@ package cutscenes
 			{
 				currChar++;
 				charDelay.start();
+			}
+			else
+			{
+				nextButton.visible = true;
 			}
 		}
 	}

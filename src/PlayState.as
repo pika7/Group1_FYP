@@ -13,7 +13,6 @@ package
 	import ui.UIHandler;
 	import util.Registry;
 	import objs.*;
-	import util.ScentTrailHandler;
 	import util.SmokeBombHandler;
 	import util.StunGrenadeHandler;
 	import util.TranqBulletHandler;
@@ -38,7 +37,6 @@ package
 			Registry.tranqBulletHandler = new TranqBulletHandler();
 			Registry.smokeBombHandler = new SmokeBombHandler();
 			Registry.stunGrenadeHandler = new StunGrenadeHandler();
-			Registry.scentTrailHandler = new ScentTrailHandler();
 			Registry.player = new Player(20, 20);
 			
 			/* TODO: allow selection of different levels */
@@ -57,7 +55,6 @@ package
 			add(Registry.hookshotChain = new HookshotChain());
 			add(Registry.hookshot.rope); //yup, have to add the hookshot and the rope as well
 			add(Registry.noiseHandler);
-			add(Registry.scentTrailHandler);
 			add(Registry.player);
 			
 			/* add markers */
@@ -79,7 +76,6 @@ package
 			/* FOR TESTING */
 			Registry.guard = new Guard(32, 493, 48, 657, 1490, 499);
 			Registry.dog = new Dog(130, 430, 140, 462, 399, 460); 
-			Registry.scentTrailHandler.start();
 			
 			Registry.sightranges = new sightRanges(160, 20);
 			//Registry.sightrangesfar = new sightRangesFar(161, 20);
@@ -237,9 +233,6 @@ package
 			
 			Registry.noiseHandler.clear();
 			remove(Registry.noiseHandler);
-			
-			Registry.scentTrailHandler.clear();
-			remove(Registry.scentTrailHandler);
 			
 			Registry.markers_hookshotable.clear();
 			remove(Registry.markers_hookshotable);
