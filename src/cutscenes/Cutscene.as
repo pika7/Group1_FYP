@@ -28,5 +28,10 @@ package cutscenes
 			
 			add(textBox = new TextBox());
 		}
+		
+		override public function update():void
+		{
+			/* create a queue to hold all the pending istructions */
+		}
 	}
 }

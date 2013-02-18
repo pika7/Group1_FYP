@@ -11,6 +11,7 @@ package
 		public function CutsceneState() 
 		{
 			// TODO: make something that allows you to select cutscenes
+			// TODO: make an array of cutscenes instead?
 			cutscene = new Cutscene01();
 			
 			add(cutscene);

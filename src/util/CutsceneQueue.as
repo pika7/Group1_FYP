@@ -18,7 +18,7 @@ package util
 			return (first == null);
 		}
 		
-		public function enqueue(data:CutsceneInfoNode):void {
+		public function enqueue(data:CutsceneInstruction):void {
 			var node:Node = new Node();
 			node.data = data;
 			node.next = null;
@@ -31,7 +31,7 @@ package util
 			}
 		}
 		
-		public function dequeue():CutsceneInfoNode {
+		public function dequeue():CutsceneInstruction {
 			if (isEmpty()) {
 				trace("Error: \n\t Objects of type Queue must contain data before being dequeued.");
 				return null;
@@ -41,7 +41,7 @@ package util
 			return data;
 		}
 		
-		public function peek() : CutsceneInfoNode
+		public function peek() : CutsceneInstruction
 		{
 			if (isEmpty()) {
 				trace("Error: \n\t Objects of type Queue must contain data before you can peek.");

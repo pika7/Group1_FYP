@@ -12,6 +12,7 @@ package cutscenes
 			leftFaceGraphic.setCharacter(FaceGraphic.GIRL_1);
 			rightFaceGraphic.setCharacter(FaceGraphic.GIRL_2);
 			
+			/* TODO: later on parse from a text file */
 			/* set the events here */
 			leftFaceGraphic.enter(FaceGraphic.GIRL_1);
 			rightFaceGraphic.enter(FaceGraphic.GIRL_2);
