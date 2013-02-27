@@ -3,6 +3,6 @@ package util
 	public class Node
 	{
 		public var next : Node;
-		public var data : CutsceneInfoNode;
+		public var data : CutsceneInstruction;
 	}
 }

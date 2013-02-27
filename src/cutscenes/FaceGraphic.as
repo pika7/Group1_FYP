@@ -35,7 +35,6 @@ package cutscenes
 		{
 			/* adjust the alpha based on timers */
 			
-			
 			super.update();
 		}
 		
@@ -57,6 +56,7 @@ package cutscenes
 		 */
 		public function enter(character:int):void
 		{
+			frame = character;
 			enterDelay.start();
 			visible = true;
 			

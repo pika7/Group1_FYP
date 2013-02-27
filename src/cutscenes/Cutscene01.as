@@ -9,8 +9,6 @@ package cutscenes
 			super();
 			
 			background.setBackground(Background.BACKGROUND_A);
-			leftFaceGraphic.setCharacter(FaceGraphic.GIRL_1);
-			rightFaceGraphic.setCharacter(FaceGraphic.GIRL_2);
 			
 			/* TODO: later on parse from a text file */
 			/* set the events here */

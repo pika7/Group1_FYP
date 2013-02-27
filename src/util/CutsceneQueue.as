@@ -36,7 +36,7 @@ package util
 				trace("Error: \n\t Objects of type Queue must contain data before being dequeued.");
 				return null;
 			}
-			var data:CutsceneInfoNode = first.data;
+			var data:CutsceneInstruction = first.data;
 			first = first.next;
 			return data;
 		}
