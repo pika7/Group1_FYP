@@ -17,6 +17,8 @@ package cutscenes
 		public static const FACING_LEFT_START_X:int = 400;
 		public static const ENTER_DELAY:int = 100;
 		
+		private var completeCallback:Function; // just used to transfer this var between functions, fucking callbacks.....
+		
 		/* timers */
 		private var enterDelay:FlxDelay = new FlxDelay(ENTER_DELAY);
 		
@@ -53,9 +55,12 @@ package cutscenes
 		 * before entering the new one.
 		 * 
 		 * @param character The character to enter
+		 * @param callback	The callback function to call after the character has finished
+		 * 					entering.
 		 */
-		public function enter(character:int):void
+		public function enter(character:int, callback:Function):void
 		{
+			completeCallback = callback;
 			frame = character;
 			enterDelay.start();
 			visible = true;
@@ -87,6 +92,7 @@ package cutscenes
 		public function stop():void
 		{
 			velocity.x = 0;
+			completeCallback.call();
 		}
 	}
 }

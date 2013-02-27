@@ -12,10 +12,8 @@ package
 		public function CutsceneState() 
 		{
 			// TODO: make a function in playstate (or whatever state cutscene is switching from that passes a file
-			cutscene = new Cutscene();
-			
+			cutscene = new Cutscene("cutscenes/cutscene01.txt");
 			add(cutscene);
-			cutscene.run("cutscenes/cutscene01.txt");
 		}
 		
 		override public function update():void

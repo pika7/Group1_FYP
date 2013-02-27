@@ -14,6 +14,8 @@ package cutscenes
 		protected var sayText:String;
 		protected var currChar:int;
 		
+		private var completeCallback:Function; // just something for passing stuff between functions, shitty spaghetti code.
+		
 		/* timers */
 		protected var charDelay:FlxDelay = new FlxDelay(CHAR_DELAY);
 		
@@ -48,11 +50,15 @@ package cutscenes
 		/**
 		 * The textbox displays the name and text provided.
 		 * 
-		 * @param	name	The name of the character.
-		 * @param	text	What the character says.
+		 * @param	name		The name of the character.
+		 * @param	text		What the character says.
+		 * @param	callback	The function to call after the text box is done.
 		 */
-		public function say(paramName:String, paramText:String):void
+		public function say(paramName:String, paramText:String, callback:Function):void
 		{
+			completeCallback = callback;
+			
+			text.text = ""; // empty the text box
 			name.text = paramName;
 			sayText = paramText;
 			currChar = 0;
@@ -76,6 +82,7 @@ package cutscenes
 			else
 			{
 				nextButton.visible = true;
+				completeCallback.call(); // later make it call when press spacebar
 			}
 		}
 	}
