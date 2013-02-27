@@ -14,7 +14,7 @@ package cutscenes
 		protected var sayText:String;
 		protected var currChar:int;
 		
-		private var completeCallback:Function; // just something for passing stuff between functions, shitty spaghetti code.
+		private var completeCallback:Function = null; // just something for passing stuff between functions, shitty spaghetti code.
 		
 		/* timers */
 		protected var charDelay:FlxDelay = new FlxDelay(CHAR_DELAY);
@@ -44,7 +44,14 @@ package cutscenes
 		
 		override public function update():void
 		{
-			/* make the characters appear one by one */
+			/* listen for the spacebar if all text has been displayed */
+			if (nextButton.visible)
+			{
+				if (FlxG.keys.pressed("SPACE"))
+				{
+					completeCallback.call();
+				}
+			}
 		}
 		
 		/**
@@ -82,7 +89,6 @@ package cutscenes
 			else
 			{
 				nextButton.visible = true;
-				completeCallback.call(); // later make it call when press spacebar
 			}
 		}
 	}

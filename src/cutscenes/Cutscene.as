@@ -24,6 +24,7 @@ package cutscenes
 		private var complete:Boolean = false; // whether or not the current instruction is complete
 		private var running:Boolean = false; // whether or not an instruction is currently running
 		private var allDone:Boolean = false; // whether this cutscene is complete
+		private var temp:String;
 		
 		/**
 		 * Run a cutscene with the provided file.
@@ -84,13 +85,13 @@ package cutscenes
 							background.setBackground(Background.BACKGROUND_A, setComplete);
 							break;
 						case "ENTER_LEFT":
-							leftFaceGraphic.enter(FaceGraphic.GIRL_1, setComplete);
+							leftFaceGraphic.enter(FaceGraphic.faceGraphics[instructions[currInstruction][1]], setComplete);
 							break;
 						case "ENTER_RIGHT":
-							rightFaceGraphic.enter(FaceGraphic.GIRL_2, setComplete);
+							rightFaceGraphic.enter(FaceGraphic.faceGraphics[instructions[currInstruction][1]], setComplete);
 							break;
 						case "SAY":
-							textBox.say("Girl", "Hello there. How are you doing today? I have no idea what to write here.", setComplete);
+							textBox.say(instructions[currInstruction][1], instructions[currInstruction][2], setComplete);
 							break;
 					}
 				 }
@@ -107,7 +108,7 @@ package cutscenes
 			var currInstruction:String;
 			
 			/* split the instructions int an array of strings */
-			instructions = evt.target.data.split("\n");
+			instructions = evt.target.data.split("\r\n");
 			
 			/* split the instructions themselves further */
 			for (var i:int = 0; i < instructions.length; i++)
