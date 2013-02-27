@@ -17,6 +17,7 @@ package cutscenes
 		protected var textBox:TextBox;
 		protected var queue:CutsceneQueue;
 		protected var file:String; // the file from which to load the cutscene
+		protected var instructions:Array; // an array with all the instructions
 		
 		public function Cutscene() 
 		{
@@ -61,8 +62,19 @@ package cutscenes
 		//////// PRIVATE FUNCTIONS /////////
 		private function urlLoader_complete(evt:Event):void
 		{
-			//textArea.text = urlLoader.data;
-			trace(evt.target.data);
+			//trace(evt.target.data);
+			var currInstruction:String;
+			
+			// split the instructions int an array of strings
+			instructions = evt.target.data.split("\n");
+			
+			// split the instructions themselves further
+			for (var i:int = 0; i < instructions.length; i++)
+			{
+				currInstruction = instructions[i];
+				instructions[i] = new Array();
+				instructions[i] = currInstruction.split("|");
+			}
 		}
 	}
 }
