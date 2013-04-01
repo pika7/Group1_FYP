@@ -10,6 +10,8 @@ package actors.enemy
 	{
 		[Embed(source = '../../../assets/img/enemies/guardAlertcircle3.png')] private var sightRadiusPNG:Class;
 	
+		public var radiusChange:Boolean = false;
+		
 		public function guardSightRadius(X:int, Y:int) 
 		{
 			super(X, Y);
@@ -21,34 +23,7 @@ package actors.enemy
 			visible = false;
 		}
 		
-		public function checkExists():void
-		{
-			if (Registry.guard.radiusChange == true)
-			{
-				visible = true;
-				x = Registry.guard.x;
-				y = Registry.guard.y - (Registry.TILESIZE * 2) ;
-				
-				if (Registry.guard.facing == RIGHT)
-				{
-					facing = RIGHT;
-				}
-				else
-				{
-					facing = LEFT;
-					x = Registry.guard.x - (Registry.TILESIZE *2);
-				}
-				
-			}
-			if(Registry.guard.radiusChange == false)
-			{
-				visible = false;
-			}
-		}
-		override public function update():void
-		{
-			checkExists();
-		}
+		
 		
 	}
 

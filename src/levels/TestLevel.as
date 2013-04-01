@@ -2,6 +2,8 @@ package levels
 {
 	
 	import org.flixel.*;
+	import actors.enemy.Guards;
+	import util.Registry;
 	
 	public class TestLevel extends Level
 	{
@@ -20,6 +22,9 @@ package levels
 		/* parsing */
 		[Embed(source = "../../assets/csv/test_level/mapCSV_test_level_checkpoints.csv", mimeType = "application/octet-stream")] public var itemsCSV:Class;
 		[Embed(source = "../../assets/img/tilemaps/checkpoint_map.png")] public var itemTilesPNG:Class;
+		
+		/* enemies */
+		public var guards:Guards;
 		
 		public function TestLevel() 
 		{
@@ -50,7 +55,18 @@ package levels
 			/* parse things */
 			parseCheckpoints(checkpoints);
 			parseMarkers(markers);
+			addGuards();
+			
+			
 		}
+		
+		public function addGuards():void
+		{
+				
+			
+		}
+		
+		
 		
 	}
 

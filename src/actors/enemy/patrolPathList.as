@@ -3,7 +3,6 @@ package actors.enemy
 	import org.flixel.*;
 	import util.Registry;
 	import actors.enemy.patrolPathNode;
-	import org.flixel.plugin.photonstorm.*;	
 	
 	public class patrolPathList
 	{	
@@ -41,8 +40,8 @@ package actors.enemy
 		private var tempNode:patrolPathNode;
 		private var tempNodeIndex:int = 0
 	
-		private var startNode:patrolPathNode;
-		private var endNode:patrolPathNode;
+		public var startNode:patrolPathNode;
+		public var endNode:patrolPathNode;
 		private var currentNode:patrolPathNode;
 		
 		private var minimumDistance:Number;
@@ -81,8 +80,8 @@ package actors.enemy
 			startNode = getStartNode();
 			endNode =  getEndNode();
 			
-			Registry.guardStartPoint = startNode;
-			Registry.guardEndPoint = endNode;
+			//Registry.guardStartPoint = startNode;
+			//Registry.guardEndPoint = endNode;
 			
 			//for checking direction when climbing the ladder
 			if (endNode.y < startNode.y)
@@ -99,8 +98,6 @@ package actors.enemy
 			}
 			
 			Registry.guardLadderDirection = ladderDirection;
-			
-			
 			
 			for (var i:int = 0; i < tileGroup.length; i++)
 			{

@@ -25,11 +25,13 @@ package cutscenes
 		/**
 		 * Set the background number.
 		 * 
-		 * @param	number	The background to show.
+		 * @param	number		The background to show.
+		 * @param	callback	The function to call after setting the background.
 		 */
-		public function setBackground(number:int):void
+		public function setBackground(number:int, callback:Function):void
 		{
 			frame = number;
+			callback.call();
 		}
 	}
 }

@@ -6,6 +6,7 @@
 
 package levels 
 {
+	
 	import objs.GoalItem;
 	import objs.Hole;
 	import org.flixel.*;
@@ -19,6 +20,8 @@ package levels
 		protected var checkpoints:FlxTilemap;
 		protected var markers:FlxTilemap;
 		protected var over:FlxTilemap;
+		
+		
 		
 		public var width:int;
 		public var height:int;
@@ -116,6 +119,8 @@ package levels
 				}
 			}
 		}
+		
+		
 		
 	}
 

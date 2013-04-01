@@ -5,7 +5,7 @@ package cutscenes
 	
 	public class TextBox extends FlxGroup
 	{
-		public static const CHAR_DELAY = 10;
+		public static const CHAR_DELAY:int = 10;
 		
 		protected var textFrame:TextFrame;
 		protected var name:FlxText;
@@ -13,6 +13,8 @@ package cutscenes
 		protected var nextButton:NextButton
 		protected var sayText:String;
 		protected var currChar:int;
+		
+		private var completeCallback:Function = null; // just something for passing stuff between functions, shitty spaghetti code.
 		
 		/* timers */
 		protected var charDelay:FlxDelay = new FlxDelay(CHAR_DELAY);
@@ -42,17 +44,28 @@ package cutscenes
 		
 		override public function update():void
 		{
-			/* make the characters appear one by one */
+			/* listen for the spacebar if all text has been displayed */
+			if (nextButton.visible)
+			{
+				if (FlxG.keys.pressed("SPACE"))
+				{
+					completeCallback.call();
+				}
+			}
 		}
 		
 		/**
 		 * The textbox displays the name and text provided.
 		 * 
-		 * @param	name	The name of the character.
-		 * @param	text	What the character says.
+		 * @param	name		The name of the character.
+		 * @param	text		What the character says.
+		 * @param	callback	The function to call after the text box is done.
 		 */
-		public function say(paramName:String, paramText:String):void
+		public function say(paramName:String, paramText:String, callback:Function):void
 		{
+			completeCallback = callback;
+			
+			text.text = ""; // empty the text box
 			name.text = paramName;
 			sayText = paramText;
 			currChar = 0;
@@ -72,6 +85,10 @@ package cutscenes
 			{
 				currChar++;
 				charDelay.start();
+			}
+			else
+			{
+				nextButton.visible = true;
 			}
 		}
 	}

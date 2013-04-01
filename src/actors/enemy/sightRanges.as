@@ -7,11 +7,11 @@ public class sightRanges extends FlxSprite
 {
 	[Embed(source = '../../../assets/img/enemies/sightRanges.png')] private var sightRangePNG:Class;
 
+	public var alertLevel:int = 0;
+	
 	public function sightRanges(X:int, Y:int)
 	{	
 		super(X, Y);
-		x = Registry.guard.x+100;
-		y = Registry.guard.y;
 		width = 341;
 		height = 128;
 		facing = RIGHT;
@@ -25,14 +25,13 @@ public class sightRanges extends FlxSprite
 
 	override public function update():void
 	{
-		velocity.x = Registry.guard.velocity.x;
+		velocity.x = 100;
 		checkAlertLevel();
-		checkFacing();
 	}
 
 	public function checkAlertLevel():void
 	{
-		switch (Registry.guard.getAlertLevel())
+		switch (alertLevel)
 		{	
 			case 0:
 				play("alert0");	
@@ -46,21 +45,6 @@ public class sightRanges extends FlxSprite
 			case 3:
 				play("alert2");
 				break;
-		}
-	}
-
-	private function checkFacing():void
-	{	
-		facing = Registry.guard.facing;
-		if (facing == RIGHT)	
-		{
-			x = Registry.guard.x +100;
-			y = Registry.guard.y;
-		}
-		else if (facing == LEFT)
-		{
-			x = Registry.guard.x - 320;
-			y = Registry.guard.y;
 		}
 	}
 

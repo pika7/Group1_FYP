@@ -3,26 +3,31 @@
 
 package  
 {
-	import actors.enemy.Dog;
 	import actors.enemy.Guard;
+	import actors.enemy.guardSightRadiusGroup;
 	import actors.enemy.sightRanges;
 	import actors.enemy.guardSightRadius;
+	import actors.enemy.sightRangesGroup;
 	import actors.Player;
 	import levels.TestLevel;
 	import org.flixel.*;
 	import ui.UIHandler;
 	import util.Registry;
 	import objs.*;
-	import util.ScentTrailHandler;
 	import util.SmokeBombHandler;
 	import util.StunGrenadeHandler;
 	import util.TranqBulletHandler;
 	import weapons.*;
 	import levels.TestGuardPath; //for loading test patrol path
 	import util.NoiseHandler;
+	import actors.enemy.Guards;
 	
 	public class PlayState extends FlxState
 	{
+		public var guards:Guards;
+		public var guardSightRanges:sightRangesGroup;
+		public var guardSightRadii:guardSightRadiusGroup;
+		
 		override public function create():void
 		{
 			/* initialise registry objects */
@@ -38,7 +43,6 @@ package
 			Registry.tranqBulletHandler = new TranqBulletHandler();
 			Registry.smokeBombHandler = new SmokeBombHandler();
 			Registry.stunGrenadeHandler = new StunGrenadeHandler();
-			Registry.scentTrailHandler = new ScentTrailHandler();
 			Registry.player = new Player(20, 20);
 			
 			/* TODO: allow selection of different levels */
@@ -57,7 +61,6 @@ package
 			add(Registry.hookshotChain = new HookshotChain());
 			add(Registry.hookshot.rope); //yup, have to add the hookshot and the rope as well
 			add(Registry.noiseHandler);
-			add(Registry.scentTrailHandler);
 			add(Registry.player);
 			
 			/* add markers */
@@ -76,22 +79,38 @@ package
 			add(Registry.uiHandler = new UIHandler());
 		
 			
-			/* FOR TESTING */
-			Registry.guard = new Guard(32, 493, 48, 657, 1490, 499);
-			Registry.dog = new Dog(130, 430, 140, 462, 399, 460); 
-			Registry.scentTrailHandler.start();
+			/* FOR TESTING GUARDS*/
+		
 			
-			Registry.sightranges = new sightRanges(160, 20);
-			//Registry.sightrangesfar = new sightRangesFar(161, 20);
-			Registry.gSightRadius = new guardSightRadius(160, 20);
+		//	Registry.sightranges = new sightRanges(160, 20);
+		//	Registry.gSightRadius = new guardSightRadius(160, 20);
 			
 			
-			add(Registry.sightranges);
-			add(Registry.guard);
+			
+			/* put guards in different positions according to differnet levels */		
+			guards = new Guards;
+			guards.addGuard(32, 493, 48, 657, 1490, 499);
+			guards.addGuard(500, 493, 500, 657, 1490, 499);
+			guards.addGuard(1000, 493, 1000, 657, 1490, 499);
+			add(guards);
+			
+			/* put sight ranges in different places according to different levels */
+			guardSightRanges = new sightRangesGroup;
+			guardSightRanges.addSightRange(160, 20);
+			guardSightRanges.addSightRange(628, 20);
+			guardSightRanges.addSightRange(1128, 20);
+			add(guardSightRanges);
+			
+			/* put circle sight ranges here according to different levels */
+			guardSightRadii = new guardSightRadiusGroup;
+			guardSightRadii.addSightRadius(0, 0);
+			guardSightRadii.addSightRadius(0, 0);
+			guardSightRadii.addSightRadius(0, 0);
+			add(guardSightRadii);
+			
 			add(Registry.bulletGroup);
-			add(Registry.gSightRadius);
-			add(Registry.dog);
-			
+			//add(Registry.gSightRadius);
+		
 			/* show the mouse */
 			FlxG.mouse.show();
 		}
@@ -113,13 +132,12 @@ package
 				FlxG.collide(Registry.level, Registry.player);
 			}
 			
-			if (!Registry.guard.onLadder())
-			{
-				FlxG.collide(Registry.level, Registry.guard);
-			}
-		
-			FlxG.collide(Registry.level, Registry.dog);
 			
+			///////////////////////////////////////////
+			// ENEMY COLLISION CONTROLS 
+			//////////////////////////////////////
+			enemyCollisionControl();
+		
 			FlxG.collide(Registry.level, Registry.tranqBulletHandler, TranqBullet.ping_callback);
 			FlxG.collide(Registry.level, Registry.smokeBombHandler, ThrowableWeapon.bounce);	
 			FlxG.collide(Registry.level, Registry.stunGrenadeHandler, ThrowableWeapon.bounce);
@@ -128,15 +146,7 @@ package
 			
 			FlxG.overlap(Registry.player, Registry.goalItem, getGoalItem);
 			FlxG.overlap(Registry.player, Registry.exit, completeLevel);
-			
-			
-			FlxG.overlap(Registry.sightranges, Registry.player, Registry.guard.seePlayer);
-			//FlxG.overlap(Registry.sightrangesfar, Registry.player, Registry.guard.seePlayerFar);
-			FlxG.overlap(Registry.guard, Registry.noiseHandler, Registry.guard.noiseAlert);
-			FlxG.overlap(Registry.gSightRadius, Registry.player, Registry.guard.circleDetect);
-			
-		//	FlxG.overlap(Registry.guard, Registry.markers_ladderTop, Registry.guard.handleLadderTop);
-		//	FlxG.overlap(Registry.guard, Registry.markers_ladderBottom, Registry.guard.handleLadderBottom);
+				
 			
 			if (!(FlxG.overlap(Registry.player, Registry.markers_ladderBottom, Registry.player.handleLadderBottom) || FlxG.overlap(Registry.player, Registry.markers_ladderTop, Registry.player.handleLadderTop)))
 			{
@@ -238,14 +248,11 @@ package
 			Registry.noiseHandler.clear();
 			remove(Registry.noiseHandler);
 			
-			Registry.scentTrailHandler.clear();
-			remove(Registry.scentTrailHandler);
-			
 			Registry.markers_hookshotable.clear();
 			remove(Registry.markers_hookshotable);
 			
 			/* TEMPORARY */
-			remove(Registry.guard);
+			//remove(Registry.guard);
 		}
 		
 		/* the player dies if she runs out of health */
@@ -256,6 +263,81 @@ package
 			clearRegistry();
 			FlxG.switchState(new EndState());
 		}
+		
+		private function enemyCollisionControl():void
+		{
+		//have a variable that points to each guard (needed for collision control)
+			for (var i:int = 0; i < guards.length; i++)
+			{
+				var tempGuard:Guard = guards.members[i];
+				var tempSightRange:sightRanges = guardSightRanges.members[i];
+				var tempSightRadius:guardSightRadius = guardSightRadii.members[i];
+				
+				if (tempGuard.facing == 0x0010)
+				{
+					tempSightRange.facing = 0x0010;
+					
+					tempSightRange.x = tempGuard.x + 100;
+					tempSightRange.y = tempGuard.y;
+					
+					if (tempGuard.radiusChange == true)
+					{
+						tempSightRadius.facing = 0x0010;
+						tempSightRadius.visible = true;
+						tempSightRadius.x = tempGuard.x;
+						tempSightRadius.y = tempGuard.y - (Registry.TILESIZE * 2) ;
+					}
+					else
+					{
+						tempSightRadius.visible = false;
+					}
+					
+				}
+				else
+				{
+					
+					tempSightRange.facing =  0x0001;
+					tempSightRange.x = tempGuard.x - 320;
+					tempSightRange.y = tempGuard.y;
+					if (tempGuard.radiusChange == true)
+					{
+						tempSightRadius.visible = true;
+						tempSightRadius.facing =  0x0001;
+						tempSightRadius.x = tempGuard.x  - (Registry.TILESIZE * 2);
+						tempSightRadius.y = tempGuard.y - (Registry.TILESIZE * 2) ;
+					}
+					else
+					{
+						tempSightRadius.visible = false;
+					}
+					
+				}
+				
+				if (tempGuard.getAlertLevel() == 0)
+				{
+					tempSightRange.alertLevel = 0;
+				}
+				else if (tempGuard.getAlertLevel() == 1)
+				{
+					tempSightRange.alertLevel = 1;
+				}
+				else
+				{
+					tempSightRange.alertLevel = 2;
+				}
+		
+				FlxG.overlap(tempSightRange, Registry.player, tempGuard.seePlayer);
+				//FlxG.overlap(tempSightRadius, Registry.player, tempGuard.circleDetect);		
+				FlxG.overlap(tempGuard, Registry.noiseHandler, tempGuard.noiseAlert);
+				
+				if (!tempGuard.onLadder())
+				{
+					FlxG.collide(Registry.level, tempGuard);
+				}
+			}
+		
+		}
+		
 		
 	}
 

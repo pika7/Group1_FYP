@@ -41,13 +41,12 @@ package util
 		public static var smokeBombHandler:SmokeBombHandler;
 		public static var stunGrenadeHandler:StunGrenadeHandler;
 		public static var noiseHandler:NoiseHandler;
-		public static var scentTrailHandler:ScentTrailHandler;
 		public static var hidingSpots:FlxGroup;
 		public static var uiHandler:UIHandler;
 		
 		/* enemy stuff */
 		public static var guard:Guard;
-		public static var dog:Dog;
+		public static var guards:Guards;
 		public static var sightranges:sightRanges;	
 		public static var gSightRadius:guardSightRadius;
 		public static var bulletGroup:FlxGroup = new FlxGroup;
@@ -57,7 +56,7 @@ package util
 		public static var guardEndPoint:patrolPathNode;
 		public static var dogStartPoint:patrolPathNode;
 		public static var dogEndPoint:patrolPathNode;
-		public static var noiseTile:invisibleNoiseTile;
+			public static var noiseTile:invisibleNoiseTile;
 		
 		/* marker groups */
 		public static var markers_ladderBottom:FlxGroup;

@@ -20,7 +20,7 @@ public class Guard extends FlxSprite
 {
 	[Embed(source = '../../../assets/img/enemies/guardtemp.png')] private var guardPNG:Class;
 
-	/* initialization of variables */
+	/* initialization of GUARD variables */
 	private const GRAVITY:int = 600;
 	private const levelZeroVelocity:Number = 100;
 	private const levelOneVelocity:Number = 120;
@@ -153,7 +153,7 @@ public class Guard extends FlxSprite
 	private var circleDetected:Boolean = false;
 	private var alertLevelTimer:Number = 0;
 	private var alertLevelChangedTo2:Boolean = false;
-
+			
 	/* constructor */
 	public function Guard(X:int, Y:int, patrolStartX:int, patrolStartY:int, patrolEndX:int, patrolEndY:int)
 	{
@@ -212,10 +212,10 @@ public class Guard extends FlxSprite
 		topMarkerInPath = false;
 
 		//store start point
-		tempStartDestinationPoint.x = Registry.guardStartPoint.x;
-		tempStartDestinationPoint.y = Registry.guardStartPoint.y;
-		tempEndDestinationPoint.x = Registry.guardEndPoint.x;
-		tempEndDestinationPoint.y = Registry.guardEndPoint.y;
+		tempStartDestinationPoint.x = patrolPathClass.startNode.x;
+		tempStartDestinationPoint.y = patrolPathClass.startNode.y;
+		tempEndDestinationPoint.x = patrolPathClass.endNode.x;
+		tempEndDestinationPoint.y = patrolPathClass.endNode.y;
 
 		pointsToFollow.push(tempStartDestinationPoint);
 
@@ -377,8 +377,8 @@ public class Guard extends FlxSprite
 			play("alert");
 
 		//get the path coordinates in array
-		startX = Registry.guard.x;
-		startY = Registry.guard.y + 100;
+		startX = x;
+		startY = y + 100;
 		endX = Registry.player.x;
 		endY = Registry.player.y + 100;	
 
@@ -645,7 +645,7 @@ public class Guard extends FlxSprite
 				{
 					
 					goBackPatrol = false;
-					trackPath = patrolPathClass.getPath(x, y+100, patrolEndPointX, patrolEndPointY);
+					trackPath = patrolPathClass.getPath(x, y + 100, patrolEndPointX, patrolEndPointY);
 					followThePath();
 					facing = RIGHT;
 					Mode = "Patrolling";
@@ -731,6 +731,10 @@ public class Guard extends FlxSprite
 					{	
 						goBackPatrol = true;
 						stopCounter = 0;	
+						if (alertLevel != 3)
+						{
+							alertLevel = 2;
+						}
 						Mode = "Normal";
 					}	
 				}	
@@ -797,6 +801,7 @@ public class Guard extends FlxSprite
 	//	checkFacing();
 		super.update();	
 	}
+	
 
 
 
