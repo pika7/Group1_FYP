@@ -280,7 +280,7 @@ package
 					tempSightRange.x = tempGuard.x + 100;
 					tempSightRange.y = tempGuard.y;
 					
-					if (tempGuard.radiusChange == true)
+					/*if (tempGuard.radiusChange == true)
 					{
 						tempSightRadius.facing = 0x0010;
 						tempSightRadius.visible = true;
@@ -290,7 +290,7 @@ package
 					else
 					{
 						tempSightRadius.visible = false;
-					}
+					}*/
 					
 				}
 				else
@@ -299,7 +299,7 @@ package
 					tempSightRange.facing =  0x0001;
 					tempSightRange.x = tempGuard.x - 320;
 					tempSightRange.y = tempGuard.y;
-					if (tempGuard.radiusChange == true)
+					/*if (tempGuard.radiusChange == true)
 					{
 						tempSightRadius.visible = true;
 						tempSightRadius.facing =  0x0001;
@@ -310,7 +310,7 @@ package
 					{
 						tempSightRadius.visible = false;
 					}
-					
+					*/
 				}
 				
 				if (tempGuard.getAlertLevel() == 0)
