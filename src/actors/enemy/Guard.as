@@ -48,6 +48,7 @@ public class Guard extends FlxSprite
 	private var patrolPathClass:patrolPathList;
 	private var alertLevel:int;
 	private var stopCounter:Number = 0;
+	private var punchStopCounter:Number = 0;
 	private var bugStopCounter:Number = 0;
 
 	private var bottomMarker:Marker;
@@ -101,6 +102,7 @@ public class Guard extends FlxSprite
 	private var canSee:Boolean = false;
 	private var touchedMarker:Boolean = false;
 	private var pixelCounter:Number = 0;
+	private var punchingNow:Boolean = false;
 
 	private var patrolStartPointX:int;
 	private var patrolStartPointY:int;
@@ -509,7 +511,59 @@ public class Guard extends FlxSprite
 			}
 		}
 	}
+	
+	/* punching function */
+	private function punchingPlayer():void	
+	{	
+		if (Mode == "Punching" && punchingNow == false)
+		{
+			velocity.x = 0;
+			velocity.y = 0;
+			checkFacing();
+			tempVelocity = velocity.x;
+			play("shoot");	
+			punchingNow = true;
+		}
+	}	
 
+	/*check bullet counter */
+	public function punchCounterCheck():void
+	{
+		if (punchingNow == true)
+		{
+			punchStopCounter += FlxG.elapsed;
+			if (punchStopCounter > 2)
+			{
+
+				Registry.gameStats.damage(10);
+				punchingNow = false;
+				goBackPatrol = true;
+				checkFacing();
+				
+				trackPath = patrolPathClass.getPath(x, y+100, tempSeenFarPoint.x, tempSeenFarPoint.y);
+				followThePath();
+				Mode = "seenCloseFollowing";
+				
+				punchStopCounter = 0;
+			}
+		}
+	}
+	
+	
+
+	/* initiate punching */
+	public function startPunch(g:Guard, p:Player):void
+	{
+		punchStopCounter += FlxG.elapsed;
+		if (punchStopCounter > 3)
+			{
+
+				Registry.gameStats.damage(5);
+				checkFacing();
+				punchStopCounter = 0;
+			}
+		
+	}
 
 	/* guard sees player if in close sight range */
 	/* If guard detects player on the floor  */
@@ -774,6 +828,10 @@ public class Guard extends FlxSprite
 		else if (Mode == "Shooting")
 		{
 			shootPlayer();
+		}
+		else if (Mode == "Punching")
+		{
+			punchingPlayer();
 		}
 		
 	

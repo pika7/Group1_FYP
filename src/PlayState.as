@@ -4,6 +4,7 @@
 package  
 {
 	import actors.enemy.Guard;
+	import actors.enemy.guardBullet;
 	import actors.enemy.guardSightRadiusGroup;
 	import actors.enemy.sightRanges;
 	import actors.enemy.guardSightRadius;
@@ -11,6 +12,7 @@ package
 	import actors.Player;
 	import levels.TestLevel;
 	import org.flixel.*;
+	import org.flixel.plugin.photonstorm.BaseTypes.Bullet;
 	import ui.UIHandler;
 	import util.Registry;
 	import objs.*;
@@ -137,7 +139,9 @@ package
 			// ENEMY COLLISION CONTROLS 
 			//////////////////////////////////////
 			enemyCollisionControl();
-		
+			FlxG.collide(Registry.bulletGroup, Registry.player, damagePlayerBullet);
+			
+			
 			FlxG.collide(Registry.level, Registry.tranqBulletHandler, TranqBullet.ping_callback);
 			FlxG.collide(Registry.level, Registry.smokeBombHandler, ThrowableWeapon.bounce);	
 			FlxG.collide(Registry.level, Registry.stunGrenadeHandler, ThrowableWeapon.bounce);
@@ -163,7 +167,7 @@ package
 			}
 			
 			/* check if dead */
-			if (Registry.gameStats.health == 0)
+			if (Registry.gameStats.health == 0 || Registry.gameStats.health < 0)
 			{
 				die();
 			}
@@ -327,7 +331,7 @@ package
 				}
 		
 				FlxG.overlap(tempSightRange, Registry.player, tempGuard.seePlayer);
-				//FlxG.overlap(tempSightRadius, Registry.player, tempGuard.circleDetect);		
+				FlxG.overlap(tempGuard, Registry.player, tempGuard.startPunch);		
 				FlxG.overlap(tempGuard, Registry.noiseHandler, tempGuard.noiseAlert);
 				
 				if (!tempGuard.onLadder())
@@ -336,6 +340,11 @@ package
 				}
 			}
 		
+		}
+		
+		private function damagePlayerBullet(v:guardBullet, s:Player):void
+		{
+				Registry.gameStats.damage(40);
 		}
 		
 		
