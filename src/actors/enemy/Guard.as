@@ -534,7 +534,6 @@ public class Guard extends FlxSprite
 			punchStopCounter += FlxG.elapsed;
 			if (punchStopCounter > 2)
 			{
-
 				Registry.gameStats.damage(10);
 				punchingNow = false;
 				goBackPatrol = true;
@@ -555,7 +554,7 @@ public class Guard extends FlxSprite
 	public function startPunch(g:Guard, p:Player):void
 	{
 		punchStopCounter += FlxG.elapsed;
-		if (punchStopCounter > 3)
+		if (punchStopCounter > 2)
 			{
 
 				Registry.gameStats.damage(5);
