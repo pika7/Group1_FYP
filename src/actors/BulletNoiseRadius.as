@@ -1,4 +1,4 @@
-/* a version of the NoiseRadius class for the bullet striking walls */
+/* just a bigger version of the NoiseRadius class. */
 
 package actors 
 {
@@ -8,9 +8,19 @@ package actors
 	{
 		[Embed(source = '../../assets/img/player/footstep_noise_radius.png')] private var circlePNG:Class;
 		
-		public function BulletNoiseRadius(X:int, Y:int, doesExist:Boolean) 
+		/**
+		 * Create a BulletNoiseRadius centered at the specified location.
+		 * 
+		 * @param	X			X value of noise origin.
+		 * @param	Y			Y value of noise origin.
+		 * @param	doesExist	Whether or not to start making noise right away.  Default is true.
+		 */
+		public function BulletNoiseRadius(X:int, Y:int, doesExist:Boolean = true) 
 		{
 			super(X, Y, doesExist);
+			loadGraphic(circlePNG, true, true, 400, 400, false);
+			x = x - width / 2;
+			y = y - height / 2;
 		}
 		
 		/**
@@ -26,5 +36,4 @@ package actors
 			return 1;
 		}
 	}
-
 }

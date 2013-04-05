@@ -49,6 +49,7 @@ package util
 			/* add the groups to this group for recursive adding */
 			add(noiseRadiusGroup);
 			add(bigNoiseRadiusGroup);
+			add(bulletNoiseRadiusGroup);
 		}
 		
 		/**
