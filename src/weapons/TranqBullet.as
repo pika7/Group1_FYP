@@ -38,7 +38,7 @@ package weapons
 		/* what happens when the bullet collides with the level */
 		private function ping():void
 		{
-			Registry.noiseHandler.makeNoise(x, y, 10);
+			Registry.noiseHandler.makeBulletNoise(x, y, 10);
 			recycleKill();
 		}
 		
