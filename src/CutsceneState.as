@@ -18,7 +18,16 @@ package
 		
 		override public function update():void
 		{
+			/*
 			if (FlxG.keys.justPressed("C"))
+			{
+				FlxG.switchState(new PlayState());
+			}
+			*/
+			
+			/* check to see if the cutscene is finished */
+			// TODO: make some kind of fadeout animation
+			if (cutscene.finished)
 			{
 				FlxG.switchState(new PlayState());
 			}

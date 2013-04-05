@@ -11,14 +11,17 @@ package cutscenes
 		public static var faceGraphics:Array;
 
 		public static const ENTER_VELOCITY:int = 500;
+		public static const EXIT_VELOCITY:int = 500;
 		public static const FACING_RIGHT_START_X:int = -100;
 		public static const FACING_LEFT_START_X:int = 400;
 		public static const ENTER_DELAY:int = 100;
+		public static const EXIST_DELAY:int = 100;
 		
 		private var completeCallback:Function; // just used to transfer this var between functions, fucking callbacks.....
 		
 		/* timers */
 		private var enterDelay:FlxDelay = new FlxDelay(ENTER_DELAY);
+		private var exitDelay:FlxDelay = new FlxDelay(EXIST_DELAY);
 		
 		public function FaceGraphic(character:int = 0) 
 		{
@@ -29,6 +32,7 @@ package cutscenes
 			
 			/* set callbacks */
 			enterDelay.callback = stop;
+			exitDelay.callback = stopAndDisappear;
 			
 			/* set up face graphic array */
 			faceGraphics = new Array();
@@ -83,12 +87,43 @@ package cutscenes
 		
 		/**
 		 * Exit a character.
+		 * 
+		 * @param	THe callback function to call after the character has finished exiting.
 		 */
-		public function exit():void
+		public function exit(callback:Function):void
+		{
+			completeCallback = callback;
+			exitDelay.start();
+			
+			if (facing == FlxObject.RIGHT)
+			{
+				velocity.x = -ENTER_VELOCITY;
+			}
+			else
+			{
+				velocity.x = ENTER_VELOCITY;
+			}
+		}
+		
+		/**
+		 * Fade the character to show that they are not talking.
+		 * 
+		 * @param	callback	The function to call after fading is complete.
+		 */
+		public function fade(callback:Function):void
 		{
 			
 		}
 		
+		/**
+		 * Unfade the character to show that they are talking or that nobody is talking.
+		 * 
+		 * @param	callback	The function to call after unfading is complete.
+		 */
+		public function unfade(callback:Function):void
+		{
+			
+		}
 		///////////////////////////////////////////////////////
 		// TIMER CALLBACKS (fuck these)
 		///////////////////////////////////////////////////////
@@ -97,6 +132,13 @@ package cutscenes
 		{
 			velocity.x = 0;
 			completeCallback.call();
+		}
+		
+		public function stopAndDisappear():void
+		{
+			velocity.x = 0;
+			completeCallback.call();
+			visible = false;
 		}
 	}
 }

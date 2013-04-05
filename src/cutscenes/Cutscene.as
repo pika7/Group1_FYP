@@ -23,8 +23,9 @@ package cutscenes
 		private var fileLoaded:Boolean = false; // whether or not the file has finished loading
 		private var complete:Boolean = false; // whether or not the current instruction is complete
 		private var running:Boolean = false; // whether or not an instruction is currently running
-		private var allDone:Boolean = false; // whether this cutscene is complete
 		private var temp:String;
+		
+		public var finished:Boolean = false; // whether this cutscene is complete
 		
 		/**
 		 * Run a cutscene with the provided file.
@@ -61,41 +62,50 @@ package cutscenes
 		
 		override public function update():void
 		{
-			/**
-			 * This is the cutscene engine.
-			 * It runs one instruction at a time until it is "complete", until the end of all instructions.
-			 * Different instructions have different completion requirements.
-			 * SETBG: Completes immediately.
-			 * ENTER_LEFT: Completes when entering is complete.
-			 * ENTER_RIGHT: Completes when entering is complete.
-			 * SAY: Completes when the user presses the spacebar.
-			 */
-			
-			 if (fileLoaded) // wait for file to load
-			 { 
-				 /* get a new instruction if not currently running one, or done */
-				 if (!running && !allDone)
-				 {
-					running = true;
-					trace(instructions[currInstruction][0]);
-					
-					switch(instructions[currInstruction][0]) // 0 is where the instructions are
-					{
-						case "SETBG":
-							background.setBackground(Background.BACKGROUND_A, setComplete);
-							break;
-						case "ENTER_LEFT":
-							leftFaceGraphic.enter(FaceGraphic.faceGraphics[instructions[currInstruction][1]], setComplete);
-							break;
-						case "ENTER_RIGHT":
-							rightFaceGraphic.enter(FaceGraphic.faceGraphics[instructions[currInstruction][1]], setComplete);
-							break;
-						case "SAY":
-							textBox.say(instructions[currInstruction][1], instructions[currInstruction][2], setComplete);
-							break;
-					}
-				 }
-			 }
+		/**
+		 * This is the cutscene engine.
+		 * It runs one instruction at a time until it is "complete", until the end of all instructions.
+		 * Different instructions have different completion requirements.
+		 * SETBG: Completes immediately.
+		 * ENTER_LEFT: Completes when entering is complete.
+		 * ENTER_RIGHT: Completes when entering is complete.
+		 * SAY: Completes when the user presses the spacebar.
+		 */
+		
+		if (fileLoaded) // wait for file to load
+		{ 
+			/* get a new instruction if not currently running one, or done */
+			if (!running && !finished)
+			{
+				running = true;
+				trace(instructions[currInstruction][0] + currInstruction);
+				
+				switch(instructions[currInstruction][0]) // 0 is where the instructions are
+				{
+					case "SETBG":
+						background.setBackground(Background.backgrounds[instructions[currInstruction][1]], setComplete);
+						break;
+					case "ENTER_LEFT":
+						leftFaceGraphic.enter(FaceGraphic.faceGraphics[instructions[currInstruction][1]], setComplete);
+						break;
+					case "ENTER_RIGHT":
+						rightFaceGraphic.enter(FaceGraphic.faceGraphics[instructions[currInstruction][1]], setComplete);
+						break; 
+					case "SAY":
+						textBox.say(instructions[currInstruction][1], instructions[currInstruction][2], setComplete);
+						break;
+					case "EXIT_LEFT":
+						leftFaceGraphic.exit(setComplete);
+						break;
+					case "EXIT_RIGHT":
+						rightFaceGraphic.exit(setComplete);
+						break;
+					default:
+						trace("Instruction not recognised.");
+						break;
+				}
+			}
+		}
 			 
 			super.update();			
 		}
@@ -114,7 +124,6 @@ package cutscenes
 			for (var i:int = 0; i < instructions.length; i++)
 			{
 				currInstruction = instructions[i];
-				instructions[i] = new Array();
 				instructions[i] = currInstruction.split("|");
 			}
 			
@@ -133,7 +142,7 @@ package cutscenes
 			}
 			else
 			{
-				allDone = true;
+				finished = true;
 			}
 		}
 	}

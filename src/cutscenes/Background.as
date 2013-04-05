@@ -6,11 +6,8 @@ package cutscenes
 	{
 		[Embed(source = '../../assets/img/cutscene/background.png')] private var bgPNG:Class;
 		
-		/* constants enumerating which background it is */
-		public static const NONE:int = 0;
-		public static const BACKGROUND_A:int = 1;
-		public static const BACKGROUND_B:int = 2;
-		
+		public static var backgrounds:Array;
+
 		/**
 		 * Create a new background.  Default is a blank black background.
 		 */
@@ -18,6 +15,12 @@ package cutscenes
 		{
 			super(0, 0);
 			loadGraphic(bgPNG, false, false, 800, 600, false);
+			
+			/* set up the background array */
+			backgrounds = new Array();
+			backgrounds["NONE"] = 0;
+			backgrounds["BACKGROUND_A"] = 1;
+			backgrounds["BACKGROUND_B"] = 2;
 			
 			frame = NONE; // no background by default
 		}

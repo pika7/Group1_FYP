@@ -44,14 +44,25 @@ package cutscenes
 		
 		override public function update():void
 		{
-			/* listen for the spacebar if all text has been displayed */
-			if (nextButton.visible)
+			/* listen for the spacebar to skip or go to next instruction */
+			if (FlxG.keys.justPressed("SPACE"))
 			{
-				if (FlxG.keys.pressed("SPACE"))
+				/* if all the text has been displayed */
+				if (nextButton.visible)
 				{
 					completeCallback.call();
+					nextButton.visible = false;
+				}
+				/* if player wants to skip to the end of the text */
+				else if (sayText != null) // if there is something to say
+				{
+					charDelay.abort();
+					text.text = sayText;
+					nextButton.visible = true;
 				}
 			}
+			
+			// TODO: skip to the end of the text if spacebar is pressed while text is running
 		}
 		
 		/**
