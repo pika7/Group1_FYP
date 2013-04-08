@@ -8,11 +8,14 @@ package ui
 	{
 		private var aimline:Aimline;
 		private var lifeBar:LifeBar;
+		public var weaponUI:WeaponUI;
 		
 		public function UIHandler() 
 		{
+			/* add the things to display here */
 			add(aimline = new Aimline());
 			add(lifeBar = new LifeBar());
+			add(weaponUI = new WeaponUI());
 		}
 		
 		override public function update():void

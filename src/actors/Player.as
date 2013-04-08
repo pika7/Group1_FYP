@@ -102,10 +102,10 @@ package actors
 		private var moveAngle:Number; // at what angle the player should anctually move
 		
 		/* constants enumerating the currently equipped weapon */
-		private const TRANQ:int = 0;
-		private const HOOKSHOT:int = 1;
-		private const SMOKEBOMB:int = 2;
-		private const STUNGRENADE:int = 3;
+		public static const TRANQ:int = 0;
+		public static const HOOKSHOT:int = 1;
+		public static const SMOKEBOMB:int = 2;
+		public static const STUNGRENADE:int = 3;
 		
 		/* public booleans, because I'm lazy */
 		public var gotGoalItem:Boolean = false;
@@ -171,8 +171,8 @@ package actors
 					noiseRadius.off();
 				}
 				
-				/* use equipped weapon */
-				if (FlxG.mouse.justPressed())
+				/* use equipped weapon only if player not clicking on UI */
+				if (FlxG.mouse.justPressed() && !Registry.uiHandler.weaponUI.pressed())
 				{
 					if (weapon == TRANQ || weapon == HOOKSHOT)
 					{
@@ -221,8 +221,8 @@ package actors
 					acceleration.x = 0;
 				}
 				
-				/* use equipped weapon */
-				if (FlxG.mouse.justPressed())
+				/* use equipped weapon if player not pressing on UI */
+				if (FlxG.mouse.justPressed() && !Registry.uiHandler.weaponUI.pressed())
 				{
 					if (weapon == TRANQ || weapon == HOOKSHOT)
 					{
@@ -618,19 +618,19 @@ package actors
 			/* TEMP: switching weapons, maybe need a delay later? */
 			if (FlxG.keys.pressed("ONE"))
 			{
-				weapon = TRANQ;
+				setWeapon(TRANQ);
 			}
 			else if (FlxG.keys.pressed("TWO"))
 			{
-				weapon = HOOKSHOT;
+				setWeapon(HOOKSHOT);
 			}
 			else if (FlxG.keys.pressed("THREE"))
 			{
-				weapon = SMOKEBOMB;
+				setWeapon(SMOKEBOMB);
 			}
 			else if (FlxG.keys.pressed("FOUR"))
 			{
-				weapon = STUNGRENADE;
+				setWeapon(STUNGRENADE);
 			}
 			
 			super.update();
@@ -967,6 +967,24 @@ package actors
 			return (mode == HIDING);
 		}
 		
+		/**
+		 * Gets the player's current weapon
+		 */
+		public function getWeapon():int
+		{
+			return weapon;
+		}
+		
+		 /**
+		  * Sets the player's current weapon
+		  */
+		 public function setWeapon(paramweapon:int):void
+		 {
+			 weapon = paramweapon;
+			 
+			 /* handle the display of the UI here, for some ridiculous reason */
+			 Registry.uiHandler.weaponUI.setWeaponDisplay(paramweapon);
+		 }
 
 	}
 }

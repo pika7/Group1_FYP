@@ -78,6 +78,7 @@ package
 			add(Registry.stunGrenadeHandler.stunExplosionGroup);
 			
 			/* add UI elements */
+			/* TODO: make sure this is always on top */
 			add(Registry.uiHandler = new UIHandler());
 		
 			
