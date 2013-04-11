@@ -53,7 +53,5 @@ package util
 			health += amount;
 			Registry.uiHandler.heal(amount);
 		}
-		
 	}
-
 }

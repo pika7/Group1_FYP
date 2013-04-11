@@ -22,6 +22,9 @@ package actors
 		private const MAX_VELOCITY_Y:int = 700;
 		private const RUNNING_ACCELERATION:int = 800;
 		private const SNEAKING_ACCELERATION:int = 400;
+		private const FLINCH_VELOCITY_X:int = 200;
+		private const FLINCH_VELOCITY_Y:int = 200;
+		private const FLINCH_GRAVITY:int = 1000; // higher than normal so the player falls faster
 		
 		/* ladders */
 		private const LADDER_VELOCITY:int = 100;
@@ -46,6 +49,7 @@ package actors
 		private const START_SWING_STRENGTH:int = 30;
 		private const SWING_BOUNCEBACK_VELOCITY:int = 50; // the speed at which the rope "bounces back" after hitting horizontal
 		private const HOOKSHOT_RELOAD_TIME:int = 500;
+		private const FLINCH_TIME:int = 200; // the amount of time the player flinches
 		
 		/* bombs */
 		private const PREPARE_BOMB_TIME:int = 500;
@@ -63,6 +67,7 @@ package actors
 		private var reloadTimer:FlxDelay;
 		private var prepareBombTimer:FlxDelay;
 		private var hookshotReloadTimer:FlxDelay;
+		private var flinchTimer:FlxDelay;
 		
 		/* private booleans */
 		
@@ -90,6 +95,7 @@ package actors
 		public static const HOOKSHOT_RELOADING_NORMAL:int = 17;
 		public static const HOOKSHOT_RELOADING_SNEAKING:int = 18;
 		public static const HIDING:int = 19; // hiding in a hiding spot, cannot be detected
+		public static const FLINCHING:int = 20; // flinching, is currently invulnerable
 		
 		/* what weapon the player currently has equipped */
 		private var weapon:int;
@@ -114,6 +120,7 @@ package actors
 		public var doneClimbingUpLadder:Boolean = false; // returns true if the player just finished climbing to the top of the ladder.
 		public var doneClimbingDownLadder:Boolean = false; // returns true if the player just finished climbing to the bottom of the ladder.
 		public var isHangingOnHookshot:Boolean = false;
+		public var isInvulnerable:Boolean = false; // whether or not the player can currently be damaged
 		
 		public function Player(X:int, Y:int) 
 		{
@@ -134,6 +141,7 @@ package actors
 			reloadTimer = new FlxDelay(RELOAD_TIME);
 			prepareBombTimer = new FlxDelay(PREPARE_BOMB_TIME);
 			hookshotReloadTimer = new FlxDelay(HOOKSHOT_RELOAD_TIME);
+			flinchTimer = new FlxDelay(FLINCH_TIME);
 			
 			/* instantiate other things */
 			noiseRadius = new NoiseRadius(x, y, false);
@@ -607,6 +615,17 @@ package actors
 					setMode(NORMAL);
 				}
 			}
+			/* just got hit by a bullet, flinching, cannot move */
+			else if (mode == FLINCHING)
+			{
+				isInvulnerable = true;
+
+				/* go to normal mode (while remaining invulnerable) after timeout */
+				if (!flinchTimer.isRunning)
+				{
+					setMode(NORMAL);
+				}
+			}
 			
 			/* make the noise radius follow the player */
 			noiseRadius.follow(this);
@@ -806,6 +825,13 @@ package actors
 					noiseRadius.off();
 					frame = 1; // TEMPORARY
 					break;
+
+				case FLINCHING:
+					mode = FLINCHING;
+					acceleration.x = 0;
+					acceleration.y = FLINCH_GRAVITY;
+					flinchTimer.start();
+					break;
 					
 				default:
 					trace("ERROR: invalid mode");
@@ -877,8 +903,15 @@ package actors
 					
 			}
 		}
+
+		/* gets the X coordinate of the center of a FlxSprite */
+		private function getCenterX(target:FlxSprite):Number
+		{
+			return (target.x + target.width)/2;
+		}
 		
 		/* modified version of distanceBetween in FlxVelocity that returns a Number instead of an int */
+		/* why is this public? */
 		public static function distanceBetween(a:FlxSprite, b:FlxSprite):Number
 		{
 			var dx:Number = (a.x + a.origin.x) - (b.x + b.origin.x);
@@ -928,6 +961,35 @@ package actors
 			}
 		}
 		
+		////////////////////////////////////////////////////////////
+		// PUBLIC FUNCTIONS
+		////////////////////////////////////////////////////////////
+		/**
+		 * Flinches the player away from the source of damage
+		 *
+		 * @param damageSource		The object that is damaging the player.
+		 */
+		public function flinch(damageSource:FlxSprite):void
+		{
+			stopAllMovement();
+			setMode(FLINCHING);
+
+			/* if the player is to the left of the damage source */
+			if (getCenterX(this) < getCenterX(damageSource)) {
+				velocity.x = -FLINCH_VELOCITY_X;
+			}
+			/* if the player is to the right of the damage source */
+			else if (getCenterX(this) > getCenterX(damageSource))
+			{
+				velocity.x = FLINCH_VELOCITY_X;
+			}
+			/* do not flinch in either direction if the damage source
+			  is directly above or below the player */
+
+			/* bounces up slightly regardless */
+			velocity.y = -FLINCH_VELOCITY_Y;
+		}
+
 		////////////////////////////////////////////////////////////
 		// GETTERS / SETTERS
 		////////////////////////////////////////////////////////////

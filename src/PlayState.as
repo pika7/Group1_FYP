@@ -26,6 +26,9 @@ package
 	
 	public class PlayState extends FlxState
 	{
+		// TODO: put this somewhere better, ask cathy
+		private const ENEMY_BULLET_DAMAGE:int = 10;
+		
 		public var guards:Guards;
 		public var guardSightRanges:sightRangesGroup;
 		public var guardSightRadii:guardSightRadiusGroup;
@@ -135,20 +138,17 @@ package
 				FlxG.collide(Registry.level, Registry.player);
 			}
 			
-			
 			///////////////////////////////////////////
 			// ENEMY COLLISION CONTROLS 
 			//////////////////////////////////////
 			enemyCollisionControl();
-		//	FlxG.collide(Registry.bulletGroup, Registry.player, damagePlayerBullet);
-			
 			
 			FlxG.collide(Registry.level, Registry.tranqBulletHandler, TranqBullet.ping_callback);
 			FlxG.collide(Registry.level, Registry.smokeBombHandler, ThrowableWeapon.bounce);	
 			FlxG.collide(Registry.level, Registry.stunGrenadeHandler, ThrowableWeapon.bounce);
 			FlxG.collide(Registry.level, Registry.bulletGroup);
 
-			
+			FlxG.overlap(Registry.player, Registry.bulletGroup, damagePlayerBullet);
 			FlxG.overlap(Registry.player, Registry.goalItem, getGoalItem);
 			FlxG.overlap(Registry.player, Registry.exit, completeLevel);
 				
@@ -211,6 +211,17 @@ package
 				clearRegistry();
 				FlxG.switchState(new EndState());
 			}
+		}
+		
+		/* damage the player if she overlaps with a bullet */
+		// TODO: set an invulnerability period
+		private function damagePlayerBullet(player:Player, bullet:guardBullet):void
+		{
+			Registry.gameStats.damage(ENEMY_BULLET_DAMAGE);
+			Registry.player.flinch(bullet);
+			
+			/* kill the bullet */
+			bullet.exists = false;
 		}
 		
 		/////////////////////////////////////////
@@ -340,15 +351,8 @@ package
 					FlxG.collide(Registry.level, tempGuard);
 				}
 			}
-		
 		}
-		
-		private function damagePlayerBullet(v:guardBullet, s:Player):void
-		{
-				Registry.gameStats.damage(40);
-		}
-		
-		
+			
 	}
 
 }

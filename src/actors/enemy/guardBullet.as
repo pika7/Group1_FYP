@@ -13,9 +13,7 @@ package actors.enemy
 			super(0, 0);
 			loadGraphic(bulletPNG, false, false, 10, 10);
 			exists = false;
-		
 		}
-		
 		
 		override public function update():void
 		{
