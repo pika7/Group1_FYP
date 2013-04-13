@@ -39,6 +39,11 @@ package weapons
 		private function ping():void
 		{
 			Registry.noiseHandler.makeBulletNoise(x, y, 10);
+<<<<<<< HEAD
+			Registry.noiseCoord.x = x;
+			Registry.noiseCoord.y = y;
+=======
+>>>>>>> 5d2b16f852b6b40e62bdc0f7d2f56fcf7b0b43bc
 			recycleKill();
 		}
 		

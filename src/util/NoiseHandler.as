@@ -82,6 +82,7 @@ package util
 			if (tempNoise)
 			{
 				tempNoise.setAt(X, Y);
+			
 				tempNoise.on(time);
 			}
 		}

@@ -13,7 +13,9 @@ package util
 	import levels.*;
 	import objs.Exit;
 	import objs.GoalItem;
+	import org.flixel.FlxBasic;
 	import org.flixel.FlxGroup;
+	import org.flixel.FlxPoint;
 	import org.flixel.FlxSprite;
 	import ui.UIHandler;
 	import weapons.Hookshot;
@@ -56,7 +58,9 @@ package util
 		public static var guardEndPoint:patrolPathNode;
 		public static var dogStartPoint:patrolPathNode;
 		public static var dogEndPoint:patrolPathNode;
-			public static var noiseTile:invisibleNoiseTile;
+		public static var noiseTile:invisibleNoiseTile;
+		public static var noiseCoord:FlxPoint = new FlxPoint(0, 0);
+		public static var stunNoiseCoord:FlxPoint = new FlxPoint(0, 0);
 		
 		/* marker groups */
 		public static var markers_ladderBottom:FlxGroup;
