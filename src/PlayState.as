@@ -78,6 +78,7 @@ package
 			add(Registry.stunGrenadeHandler.stunExplosionGroup);
 			
 			/* add UI elements */
+			/* TODO: make sure this is always on top */
 			add(Registry.uiHandler = new UIHandler());
 		
 			
@@ -283,38 +284,12 @@ package
 					
 					tempSightRange.x = tempGuard.x + 100;
 					tempSightRange.y = tempGuard.y;
-					
-					/*if (tempGuard.radiusChange == true)
-					{
-						tempSightRadius.facing = 0x0010;
-						tempSightRadius.visible = true;
-						tempSightRadius.x = tempGuard.x;
-						tempSightRadius.y = tempGuard.y - (Registry.TILESIZE * 2) ;
-					}
-					else
-					{
-						tempSightRadius.visible = false;
-					}*/
-					
 				}
 				else
 				{
-					
 					tempSightRange.facing =  0x0001;
 					tempSightRange.x = tempGuard.x - 320;
 					tempSightRange.y = tempGuard.y;
-					/*if (tempGuard.radiusChange == true)
-					{
-						tempSightRadius.visible = true;
-						tempSightRadius.facing =  0x0001;
-						tempSightRadius.x = tempGuard.x  - (Registry.TILESIZE * 2);
-						tempSightRadius.y = tempGuard.y - (Registry.TILESIZE * 2) ;
-					}
-					else
-					{
-						tempSightRadius.visible = false;
-					}
-					*/
 				}
 				
 				if (tempGuard.getAlertLevel() == 0)
@@ -332,6 +307,11 @@ package
 		
 				FlxG.overlap(tempSightRange, Registry.player, tempGuard.seePlayer);
 				//FlxG.overlap(tempGuard, Registry.player, tempGuard.startPunch);		
+				FlxG.overlap(tempGuard, Registry.tranqBulletHandler, tempGuard.tranqReaction);
+				
+				FlxG.overlap(tempGuard, Registry.smokeBombHandler.smokeCloudGroup, tempGuard.smokeBombReaction);
+				FlxG.overlap(tempGuard, Registry.stunGrenadeHandler.stunExplosionGroup, tempGuard.stunGrenadeReaction);
+				
 				FlxG.overlap(tempGuard, Registry.noiseHandler, tempGuard.noiseAlert);
 				
 				if (!tempGuard.onLadder())

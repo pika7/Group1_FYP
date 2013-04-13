@@ -1,4 +1,4 @@
-/* Guard Class
+	/* Guard Class
 * Will be integrated into GuardGroup later
 */
 
@@ -15,6 +15,9 @@ package actors.enemy
 	import actors.enemy.guardBullet;
 	import levels.*;
 	import actors.enemy.invisibleNoiseTile;
+	import weapons.SmokeBomb;
+	import weapons.StunGrenade;
+	import weapons.TranqBullet;
 
 public class Guard extends FlxSprite
 {
@@ -155,6 +158,8 @@ public class Guard extends FlxSprite
 	private var circleDetected:Boolean = false;
 	private var alertLevelTimer:Number = 0;
 	private var alertLevelChangedTo2:Boolean = false;
+	private var tranqCounter:Number = 0;
+	
 			
 	/* constructor */
 	public function Guard(X:int, Y:int, patrolStartX:int, patrolStartY:int, patrolEndX:int, patrolEndY:int)
@@ -361,6 +366,11 @@ public class Guard extends FlxSprite
 
 	/* play alert animation if noise is detected */
 	/* start following the player */
+	/* getNoiseType() = 0 : player
+	 * getNoiseType() = 1 : tranquilizer bullet
+	 * getNoiseType() = 2 : stun grenade
+	 */ 
+	
 	public function noiseAlert(guard:Guard, noise:NoiseRadius):void
 	{
 		/* no need to check for noise if already seen */
@@ -378,12 +388,27 @@ public class Guard extends FlxSprite
 			noiseFace();
 			play("alert");
 
+			
 		//get the path coordinates in array
 		startX = x;
 		startY = y + 100;
-		endX = Registry.player.x;
-		endY = Registry.player.y + 100;	
-
+		
+		if(noise.getNoiseType() == 0)
+		{
+			endX = Registry.player.x;
+			endY = Registry.player.y + 100;	
+		}
+		else if (noise.getNoiseType() == 1)
+		{
+			endX = Registry.noiseCoord.x;
+			endY = Registry.noiseCoord.y + 100;
+		}
+		else if (noise.getNoiseType() == 2)
+		{
+			endX = Registry.stunNoiseCoord.x;
+			endY = Registry.stunNoiseCoord.y + 100;
+		}
+		
 		/* initialize noisetile */
 		noiseTile.x = int(endX / Registry.TILESIZE);
 		noiseTile.y = int(endY / Registry.TILESIZE);
@@ -621,12 +646,43 @@ public class Guard extends FlxSprite
 		}	
 		
 	}
+	////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////// WEAPON REACTION   ///////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////
+	
+	/* tranquilizer reaction */
+	public function tranqReaction(guard:Guard, tranqb:TranqBullet):void
+	{
+		Mode = "Tranq";
+		flicker(2);
+		patrolStatusBeforeNoise = patrolStatus;
+		tranqb.kill();
+	}
+	
+	/* smokeBomb reaction */
+	public function smokeBombReaction(guard:Guard, smokeB:SmokeBomb):void
+	{
+		Mode = "SmokeBomb";
+		flicker(2);
+		
+		patrolStatusBeforeNoise = patrolStatus;
+	}
+	
+	/* stun grenade Reaction */
+	public function stunGrenadeReaction(guard:Guard, stunG:StunGrenade):void
+	{
+		Mode = "StunGrenade";
+		flicker(2);
+		patrolStatusBeforeNoise = patrolStatus;
+		
+	}
+	
 
 	
 
 	public function checkFacing():void
 	{
-		if (Registry.player.x < x)
+		if (endX < x)
 		{
 			facing = LEFT;
 		}
@@ -831,6 +887,23 @@ public class Guard extends FlxSprite
 		else if (Mode == "Punching")
 		{
 			punchingPlayer();
+		}
+		else if (Mode == "Tranq")
+		{
+			velocity.x = 0;
+			velocity.y = 0;
+			tranqCounter += FlxG.elapsed; 
+			
+			if (tranqCounter  > 2)
+			{	
+				goBackPatrol = true;
+				tranqCounter  = 0;	
+				if (alertLevel != 3)
+				{
+					alertLevel = 2;
+				}
+				Mode = "Normal";
+			}	
 		}
 		
 	

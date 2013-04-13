@@ -38,6 +38,8 @@ package weapons
 		private function explode():void
 		{
 			Registry.noiseHandler.makeBigNoise(x, y, 100);
+			Registry.stunNoiseCoord.x = x;
+			Registry.stunNoiseCoord.y = y;
 			Registry.stunGrenadeHandler.explode(x, y);
 			recycleKill();
 		}
