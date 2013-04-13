@@ -217,11 +217,15 @@ package
 		// TODO: set an invulnerability period
 		private function damagePlayerBullet(player:Player, bullet:guardBullet):void
 		{
-			Registry.gameStats.damage(ENEMY_BULLET_DAMAGE);
-			Registry.player.flinch(bullet);
-			
-			/* kill the bullet */
-			bullet.exists = false;
+			/* damage the player if she is vulnerable, else do nothing */
+			if (!Registry.player.isInvulnerable)
+			{
+				Registry.gameStats.damage(ENEMY_BULLET_DAMAGE);
+				Registry.player.flinch(bullet);
+				
+				/* kill the bullet */
+				bullet.exists = false;
+			}
 		}
 		
 		/////////////////////////////////////////

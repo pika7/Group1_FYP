@@ -25,6 +25,7 @@ package actors
 		private const FLINCH_VELOCITY_X:int = 200;
 		private const FLINCH_VELOCITY_Y:int = 200;
 		private const FLINCH_GRAVITY:int = 1000; // higher than normal so the player falls faster
+		private const INVULNERABLE_ALPHA:Number = 0.5; // the opacity of the player when invulnerable
 		
 		/* ladders */
 		private const LADDER_VELOCITY:int = 100;
@@ -50,6 +51,7 @@ package actors
 		private const SWING_BOUNCEBACK_VELOCITY:int = 50; // the speed at which the rope "bounces back" after hitting horizontal
 		private const HOOKSHOT_RELOAD_TIME:int = 500;
 		private const FLINCH_TIME:int = 200; // the amount of time the player flinches
+		private const INVULNERABLE_TIME:int = 2000; // the amount of time the player is invulnerable for
 		
 		/* bombs */
 		private const PREPARE_BOMB_TIME:int = 500;
@@ -68,6 +70,7 @@ package actors
 		private var prepareBombTimer:FlxDelay;
 		private var hookshotReloadTimer:FlxDelay;
 		private var flinchTimer:FlxDelay;
+		private var invulnerableTimer:FlxDelay;
 		
 		/* private booleans */
 		
@@ -142,6 +145,8 @@ package actors
 			prepareBombTimer = new FlxDelay(PREPARE_BOMB_TIME);
 			hookshotReloadTimer = new FlxDelay(HOOKSHOT_RELOAD_TIME);
 			flinchTimer = new FlxDelay(FLINCH_TIME);
+			invulnerableTimer = new FlxDelay(INVULNERABLE_TIME);
+			invulnerableTimer.callback = makeVulnerable;
 			
 			/* instantiate other things */
 			noiseRadius = new NoiseRadius(x, y, false);
@@ -618,8 +623,6 @@ package actors
 			/* just got hit by a bullet, flinching, cannot move */
 			else if (mode == FLINCHING)
 			{
-				isInvulnerable = true;
-
 				/* go to normal mode (while remaining invulnerable) after timeout */
 				if (!flinchTimer.isRunning)
 				{
@@ -828,9 +831,13 @@ package actors
 
 				case FLINCHING:
 					mode = FLINCHING;
+					stopAllMovement();
+					isInvulnerable = true;
 					acceleration.x = 0;
 					acceleration.y = FLINCH_GRAVITY;
+					alpha = INVULNERABLE_ALPHA;
 					flinchTimer.start();
+					invulnerableTimer.start();
 					break;
 					
 				default:
@@ -839,6 +846,7 @@ package actors
 			}
 		}
 		
+
 		/* simply zeroes out all the acceleration and velocity values */
 		private function stopAllMovement():void
 		{
@@ -909,6 +917,14 @@ package actors
 		{
 			return (target.x + target.width)/2;
 		}
+
+		/* ya ha i am stuck with a callback function after all */
+		/* makes the player vulnerable again */
+		private function makeVulnerable():void
+		{
+			isInvulnerable = false;
+			alpha = 1;
+		}
 		
 		/* modified version of distanceBetween in FlxVelocity that returns a Number instead of an int */
 		/* why is this public? */
@@ -971,7 +987,6 @@ package actors
 		 */
 		public function flinch(damageSource:FlxSprite):void
 		{
-			stopAllMovement();
 			setMode(FLINCHING);
 
 			/* if the player is to the left of the damage source */
