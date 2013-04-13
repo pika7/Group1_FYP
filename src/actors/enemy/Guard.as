@@ -16,6 +16,8 @@ package actors.enemy
 	import levels.*;
 	import actors.enemy.invisibleNoiseTile;
 	import weapons.SmokeBomb;
+	import weapons.SmokeCloud;
+	import weapons.StunExplosion;
 	import weapons.StunGrenade;
 	import weapons.TranqBullet;
 
@@ -159,7 +161,8 @@ public class Guard extends FlxSprite
 	private var alertLevelTimer:Number = 0;
 	private var alertLevelChangedTo2:Boolean = false;
 	private var tranqCounter:Number = 0;
-	
+	private var StunGCounter:Number = 0;
+	private var froze:Boolean = false;
 			
 	/* constructor */
 	public function Guard(X:int, Y:int, patrolStartX:int, patrolStartY:int, patrolEndX:int, patrolEndY:int)
@@ -374,8 +377,10 @@ public class Guard extends FlxSprite
 	public function noiseAlert(guard:Guard, noise:NoiseRadius):void
 	{
 		/* no need to check for noise if already seen */
-		(Mode != "seenFar" || Mode != "seenClose"|| Mode!="seenFarCheck" || Mode != "circleFollow" )
+		( (Mode != "seenFar" || Mode != "seenClose"|| Mode!="seenFarCheck" || Mode != "circleFollow" || Mode != "StunG") )
 		{
+			if (froze == false)
+			{
 			newNoiseDetected = true;
 			Mode = "noiseDetected";
 			patrolStatusBeforeNoise = patrolStatus;
@@ -414,6 +419,7 @@ public class Guard extends FlxSprite
 		noiseTile.y = int(endY / Registry.TILESIZE);
 		noiseTile.exists = true;
 
+		}
 		}
 	}
 
@@ -573,8 +579,6 @@ public class Guard extends FlxSprite
 		}
 	}
 	
-	
-
 	/* initiate punching */
 	public function startPunch(g:Guard, p:Player):void
 	{
@@ -593,10 +597,6 @@ public class Guard extends FlxSprite
 	/* If guard detects player on the floor  */
 	public function seePlayer(sightrange:sightRanges, player:Player):void
 	{
-		
-		//pixelCounter += FlxG.elapsed;
-		//if (pixelCounter > 1 && Mode != "circleFollow") //check it every 1 frame
-
 		{
 			if(Mode != "circleFollow") 
 			{
@@ -660,19 +660,19 @@ public class Guard extends FlxSprite
 	}
 	
 	/* smokeBomb reaction */
-	public function smokeBombReaction(guard:Guard, smokeB:SmokeBomb):void
+	public function smokeBombReaction(guard:Guard, smokeC:SmokeCloud):void
 	{
 		Mode = "SmokeBomb";
-		flicker(2);
-		
+		flicker(4);
 		patrolStatusBeforeNoise = patrolStatus;
 	}
 	
 	/* stun grenade Reaction */
-	public function stunGrenadeReaction(guard:Guard, stunG:StunGrenade):void
+	public function stunGrenadeReaction(guard:Guard, stunE:StunExplosion):void
 	{
-		Mode = "StunGrenade";
-		flicker(2);
+		froze = true;
+		Mode = "StunG";
+		flicker(4);
 		patrolStatusBeforeNoise = patrolStatus;
 		
 	}
@@ -701,6 +701,7 @@ public class Guard extends FlxSprite
 
 		if (Mode == "Normal")
 		{	
+			froze = false;
 			play("walk");
 			var patrolEndPointXInTiles:int = patrolEndPointX / 32;
 			var patrolEndPointYInTiles:int = patrolEndPointY / 32;
@@ -882,7 +883,10 @@ public class Guard extends FlxSprite
 		}
 		else if (Mode == "Shooting")
 		{
-			shootPlayer();
+			if (froze == false)
+			{
+				shootPlayer();
+			}
 		}
 		else if (Mode == "Punching")
 		{
@@ -902,10 +906,34 @@ public class Guard extends FlxSprite
 				{
 					alertLevel = 2;
 				}
+				froze = false;
 				Mode = "Normal";
 			}	
 		}
-		
+		else if (Mode == "StunG")
+		{
+			velocity.x = 0;
+			velocity.y = 0;
+			StunGCounter += FlxG.elapsed; 
+			froze = true;
+			if (StunGCounter  > 4)
+			{	
+				goBackPatrol = true;
+				StunGCounter = 0;	
+				if (alertLevel != 3)
+				{
+					alertLevel = 2;
+				}
+				froze = false;
+				Mode = "Normal";
+			}	
+		}
+		else if (Mode == "SmokeBomb")
+		{
+			velocity.x = 0;
+			velocity.y = 0;
+			
+		}
 	
 	}
 	
