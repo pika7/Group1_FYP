@@ -323,7 +323,6 @@ package
 				FlxG.overlap(tempSightRange, Registry.player, tempGuard.seePlayer);
 				//FlxG.overlap(tempGuard, Registry.player, tempGuard.startPunch);		
 				FlxG.overlap(tempGuard, Registry.tranqBulletHandler, tempGuard.tranqReaction);
-				
 				FlxG.overlap(tempGuard, Registry.smokeBombHandler.smokeCloudGroup, tempGuard.smokeBombReaction);
 				FlxG.overlap(tempGuard, Registry.stunGrenadeHandler.stunExplosionGroup, tempGuard.stunGrenadeReaction);
 				

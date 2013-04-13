@@ -162,7 +162,11 @@ public class Guard extends FlxSprite
 	private var alertLevelChangedTo2:Boolean = false;
 	private var tranqCounter:Number = 0;
 	private var StunGCounter:Number = 0;
+	private var SmokeBombOverallCounter:Number = 0;
+	private var SmokeBombLeftCounter:Number = 0;
+	private var SmokeBombRightCounter:Number = 0;
 	private var froze:Boolean = false;
+	private var confused:Boolean = false;
 			
 	/* constructor */
 	public function Guard(X:int, Y:int, patrolStartX:int, patrolStartY:int, patrolEndX:int, patrolEndY:int)
@@ -377,7 +381,7 @@ public class Guard extends FlxSprite
 	public function noiseAlert(guard:Guard, noise:NoiseRadius):void
 	{
 		/* no need to check for noise if already seen */
-		( (Mode != "seenFar" || Mode != "seenClose"|| Mode!="seenFarCheck" || Mode != "circleFollow" || Mode != "StunG") )
+		( (Mode != "seenFar" || Mode != "seenClose"|| Mode!="seenFarCheck" || Mode != "circleFollow" || Mode != "StunG" || Mode!= "SmokeBomb") )
 		{
 			if (froze == false)
 			{
@@ -598,7 +602,7 @@ public class Guard extends FlxSprite
 	public function seePlayer(sightrange:sightRanges, player:Player):void
 	{
 		{
-			if(Mode != "circleFollow") 
+			if(Mode != "circleFollow" && Mode!= "SmokeBomb") 
 			{
 				if (FlxCollision.pixelPerfectCheck(sightrange, player))	
 				{
@@ -662,8 +666,8 @@ public class Guard extends FlxSprite
 	/* smokeBomb reaction */
 	public function smokeBombReaction(guard:Guard, smokeC:SmokeCloud):void
 	{
+		confused = true;
 		Mode = "SmokeBomb";
-		flicker(4);
 		patrolStatusBeforeNoise = patrolStatus;
 	}
 	
@@ -930,11 +934,51 @@ public class Guard extends FlxSprite
 		}
 		else if (Mode == "SmokeBomb")
 		{
-			velocity.x = 0;
+	
 			velocity.y = 0;
+			SmokeBombOverallCounter += FlxG.elapsed; 
+			SmokeBombLeftCounter += FlxG.elapsed;
+			if (SmokeBombLeftCounter > 1)
+			{
+				velocity.x = -velocity.x;
+				checkSmokeFacing();
+				SmokeBombRightCounter += FlxG.elapsed;
+				SmokeBombLeftCounter = 0;
+			}
+			if (SmokeBombRightCounter > 1)
+			{
+				velocity.x = -velocity.x;
+				checkSmokeFacing();
+				SmokeBombLeftCounter = FlxG.elapsed;
+				SmokeBombRightCounter = 0;
+			}
+			if (SmokeBombOverallCounter  > 4)
+			{	
+				goBackPatrol = true;
+				SmokeBombOverallCounter = 0;	
+				if (alertLevel != 3)
+				{
+					alertLevel = 2;
+				}
+				confused = false; 
+				Mode = "Normal";
+			}	
 			
 		}
 	
+	}
+	
+	public function checkSmokeFacing():void
+	{
+		
+		if (velocity.x < 0)
+		{
+			facing = LEFT;
+		}
+		else
+		{
+			facing = RIGHT;
+		}
 	}
 	
 
