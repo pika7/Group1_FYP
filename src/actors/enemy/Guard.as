@@ -1004,7 +1004,10 @@ public class Guard extends FlxSprite
 		super.update();	
 	}
 	
-
+	public function setAlertLevel(level:int):void
+	{
+		alertLevel = level;
+	}
 
 
 

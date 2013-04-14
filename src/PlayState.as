@@ -3,12 +3,16 @@
 
 package  
 {
+	import actors.enemy.Cameras;
+	import actors.enemy.CameraSightRange;
+	import actors.enemy.CameraSightRanges;
 	import actors.enemy.Guard;
 	import actors.enemy.guardBullet;
 	import actors.enemy.guardSightRadiusGroup;
 	import actors.enemy.sightRanges;
 	import actors.enemy.guardSightRadius;
 	import actors.enemy.sightRangesGroup;
+	import actors.enemy.Camera;
 	import actors.Player;
 	import levels.TestLevel;
 	import org.flixel.*;
@@ -32,6 +36,8 @@ package
 		public var guards:Guards;
 		public var guardSightRanges:sightRangesGroup;
 		public var guardSightRadii:guardSightRadiusGroup;
+		public var cameraGroup:Cameras;
+		public var cameraSRGroup:CameraSightRanges;
 		
 		override public function create():void
 		{
@@ -86,13 +92,7 @@ package
 		
 			
 			/* FOR TESTING GUARDS*/
-		
-			
-		//	Registry.sightranges = new sightRanges(160, 20);
-		//	Registry.gSightRadius = new guardSightRadius(160, 20);
-			
-			
-			
+												
 			/* put guards in different positions according to differnet levels */		
 			guards = new Guards;
 			guards.addGuard(32, 493, 48, 657, 1490, 499);
@@ -106,6 +106,16 @@ package
 			guardSightRanges.addSightRange(628, 20);
 			guardSightRanges.addSightRange(1128, 20);
 			add(guardSightRanges);
+			
+			/* put cameras in different positions according to different levels */
+			cameraGroup = new Cameras;
+			cameraGroup.addCamera(876, 106);
+			add(cameraGroup);
+			
+			/* put camera sight ranges in different places according to different levels */
+			cameraSRGroup = new CameraSightRanges;
+			cameraSRGroup.addCameraSightRange(880, 138);
+			add(cameraSRGroup);
 			
 			/* put circle sight ranges here according to different levels */
 			guardSightRadii = new guardSightRadiusGroup;
@@ -142,6 +152,10 @@ package
 			// ENEMY COLLISION CONTROLS 
 			//////////////////////////////////////
 			enemyCollisionControl();
+			
+			/* ENEMY CAMERA OVERLAP CONTROL */
+			FlxG.overlap(cameraSRGroup, Registry.player,cameraOverlapControl);
+			
 			
 			FlxG.collide(Registry.level, Registry.tranqBulletHandler, TranqBullet.ping_callback);
 			FlxG.collide(Registry.level, Registry.smokeBombHandler, ThrowableWeapon.bounce);	
@@ -284,6 +298,10 @@ package
 			FlxG.switchState(new EndState());
 		}
 		
+		//////////////////////////////////////////////////
+		////// ENEMY COLLISION CONTROL ///////////////////
+		//////////////////////////////////////////////////
+		
 		private function enemyCollisionControl():void
 		{
 		//have a variable that points to each guard (needed for collision control)
@@ -333,6 +351,15 @@ package
 					FlxG.collide(Registry.level, tempGuard);
 				}
 			}
+		}
+		
+		private function cameraOverlapControl(sr:CameraSightRange, player:Player):void
+		{
+			for (var i:int = 0; i < guards.length; i++)
+			{
+				var tempGuard:Guard = guards.members[i];
+				tempGuard.setAlertLevel(1);
+			}	
 		}
 			
 	}

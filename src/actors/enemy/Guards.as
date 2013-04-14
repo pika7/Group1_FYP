@@ -19,6 +19,7 @@ package actors.enemy
 		}
 		
 		
+		
 		override public function update():void
 		{
 			super.update();
