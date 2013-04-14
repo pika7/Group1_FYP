@@ -1,5 +1,7 @@
 package actors 
 {
+	import flash.display.InteractiveObject;
+	import flash.errors.InvalidSWFError;
 	import mx.core.FlexSprite;
 	import org.flixel.*;
 	import objs.Marker;
@@ -879,6 +881,7 @@ package actors
 				case HIDING:
 					mode = HIDING;
 					stopAllMovement();
+					isInvulnerable = true;
 					noiseRadius.off();
 					frame = 1; // TEMPORARY
 					aimArms.setAll("exists", false);
