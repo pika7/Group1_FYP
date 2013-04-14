@@ -338,7 +338,11 @@ package
 					tempSightRange.alertLevel = 2;
 				}
 		
-				FlxG.overlap(tempSightRange, Registry.player, tempGuard.seePlayer);
+				//if the player ISN"T hiding, can SEE the player
+				if (!Registry.player.isHiding())
+				{
+					FlxG.overlap(tempSightRange, Registry.player, tempGuard.seePlayer);
+				}
 				//FlxG.overlap(tempGuard, Registry.player, tempGuard.startPunch);		
 				FlxG.overlap(tempGuard, Registry.tranqBulletHandler, tempGuard.tranqReaction);
 				FlxG.overlap(tempGuard, Registry.smokeBombHandler.smokeCloudGroup, tempGuard.smokeBombReaction);
