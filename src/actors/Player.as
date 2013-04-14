@@ -1,18 +1,25 @@
 package actors 
 {
+	import mx.core.FlexSprite;
 	import org.flixel.*;
 	import objs.Marker;
 	import org.flixel.plugin.photonstorm.FlxDelay;
 	import org.flixel.plugin.photonstorm.FlxVelocity;
 	import util.Registry;
 	import org.flixel.plugin.photonstorm.FlxMath;
+	import actors.AimArm;
 	
 	public class Player extends FlxSprite
 	{	
-		[Embed(source = '../../assets/img/player/test_player.png')] private var playerPNG:Class;
+		[Embed(source = '../../assets/img/player/player.png')] private var playerPNG:Class;
 		
 		/* dummy sprite located at the firing location of the sprite used for FlxVelocity */
 		public var firePoint:FlxSprite;
+		
+		/* arm sprites, added in PlayState for correct stacking */
+		public var aimLeftArm:AimArm;
+		public var aimRightArm:AimArm;
+		private var aimArms:FlxGroup;
 		
 		/* general constants */
 		private const FRICTION:int = 900;
@@ -33,10 +40,16 @@ package actors
 		
 		/* tranq */
 		private const RELOAD_TIME:int = 600;
+
+		/* arm aiming offsets */
+		private const NORMAL_AIM_LEFT_ARM_OFFSET_X:int = 0;
+		private const NORMAL_AIM_LEFT_ARM_OFFSET_Y:int = 28;
+		private const NORMAL_AIM_RIGHT_ARM_OFFSET_X:int = -25;
+		private const NORMAL_AIM_RIGHT_ARM_OFFSET_Y:int = 28;
 		
 		/* hookshot */
 		private const HOOKSHOT_PULL_SPEED:int = 400;
-		private const HOOKSHOT_DANGLE_DISTANCE:int = 100;
+		private const HOOKSHOT_DANGLE_DISTANCE:int = 150;
 		private const BASE_ANGULAR_ACCELERATION:Number = -10;
 		private const DAMPING:Number = 0.99;
 		private const SWING_CONVERSION:Number = 0.6; // this is just to transition the normal movement to swing movement smoothly
@@ -128,10 +141,11 @@ package actors
 		public function Player(X:int, Y:int) 
 		{
 			super(X, Y);
-			loadGraphic(playerPNG, true, true, 128, 128, true);
+			loadGraphic(playerPNG, true, true, 128, 256, true);
 			width = 64;
 			height = 128;
 			centerOffsets();
+			offset.y  = 128;
 			
 			drag.x = FRICTION;
 			acceleration.y = GRAVITY;
@@ -153,6 +167,11 @@ package actors
 			Registry.noiseHandler.add(noiseRadius);
 			tempPoint = new FlxPoint(0, 0);
 			firePoint = new FlxSprite(x + width / 2, y + height / 2);
+			aimLeftArm = new LeftArm();
+			aimRightArm = new RightArm();
+			aimArms = new FlxGroup();
+			aimArms.add(aimLeftArm);
+			aimArms.add(aimRightArm);
 		}
 		
 		override public function update():void
@@ -272,6 +291,7 @@ package actors
 				if (!reloadTimer.isRunning)
 				{
 					setMode(NORMAL);
+					/* hide the aiming arms again */
 				}
 				
 			}
@@ -554,6 +574,23 @@ package actors
 				/* make a red line follow the mouse around */
 				Registry.uiHandler.showAimline(firePoint.x, firePoint.y);
 				
+				/* make the arms in the correct place */
+				aimLeftArm.x = x + NORMAL_AIM_LEFT_ARM_OFFSET_X;
+				aimLeftArm.y = y + NORMAL_AIM_LEFT_ARM_OFFSET_Y;
+				aimRightArm.x = x + NORMAL_AIM_RIGHT_ARM_OFFSET_X;
+				aimRightArm.y = y + NORMAL_AIM_RIGHT_ARM_OFFSET_Y;
+				
+				/* make the player change facing, depending on where they are aiming */
+				var tempAngle:int = FlxVelocity.angleBetweenMouse(Registry.player.firePoint, true);
+				if ( (tempAngle <= 90 && tempAngle >= 0) || tempAngle >= -90 && tempAngle <= 0)
+				{
+					facing = FlxObject.RIGHT;
+				}
+				else
+				{
+					facing = FlxObject.LEFT;
+				}
+
 				/* on mouse release, actually fire the bullet and return to normal mode */
 				if (!FlxG.mouse.pressed())
 				{
@@ -673,6 +710,7 @@ package actors
 					maxVelocity.x = MAX_RUNNING_VELOCITY_X;
 					acceleration.y = GRAVITY;
 					drag.x = FRICTION;
+					aimArms.setAll("exists", false);
 					break;
 					
 				case SNEAKING:
@@ -681,6 +719,7 @@ package actors
 					noiseRadius.off();
 					maxVelocity.x = MAX_SNEAKING_VELOCITY_X;
 					acceleration.y = GRAVITY;
+					aimArms.setAll("exists", false);
 					break;
 				
 				case RELOADING_NORMAL:
@@ -703,6 +742,7 @@ package actors
 					mode = LADDER;
 					noiseRadius.off();
 					stopAllMovement();
+					aimArms.setAll("exists", false);
 					break;
 					
 				case REACHING_LADDER_TOP:
@@ -713,12 +753,14 @@ package actors
 					
 					/* booleans */
 					doneClimbingUpLadder = true;
+					aimArms.setAll("exists", false);
 					break;
 					
 				case PREPARE_LADDER:
 					mode = PREPARE_LADDER;
 					noiseRadius.on();
 					stopAllMovement();
+					aimArms.setAll("exists", false);
 					break;
 					
 				case INITIAL_LADDER_ASCENT:
@@ -729,6 +771,7 @@ package actors
 					
 					/* booleans */
 					isClimbingUpLadder = true;
+					aimArms.setAll("exists", false);
 					break;
 					
 				case INITIAL_LADDER_DESCENT:
@@ -739,12 +782,14 @@ package actors
 					
 					/* booleans */
 					isClimbingDownLadder = true;
+					aimArms.setAll("exists", false);
 					break;
 					
 				case HOOKSHOT_PULLING:
 					stopAllMovement();
 					mode = HOOKSHOT_PULLING;
 					noiseRadius.off();
+					aimArms.setAll("exists", false);
 					break;
 					
 				case HOOKSHOT_DANGLING:
@@ -757,6 +802,7 @@ package actors
 					swingAngularVelocity = velocity.x * SWING_CONVERSION;
 					stopAllMovement();
 					noiseRadius.off();
+					aimArms.setAll("exists", false);
 					break;
 					
 				case HOOKSHOT_FLY:
@@ -771,6 +817,7 @@ package actors
 					}
 					acceleration.y = HOOKSHOT_FLY_GRAVITY;
 					noiseRadius.off();
+					aimArms.setAll("exists", false);
 					break;
 					
 				case IN_AIR:
@@ -780,30 +827,37 @@ package actors
 					velocity.x = 0;
 					acceleration.y = GRAVITY;
 					noiseRadius.off();
+					frame = 2; // TEMPORARY
+					aimArms.setAll("exists", false);
 					break;
 					
 				case PREPARE_BOMB_NORMAL:
 					mode  = PREPARE_BOMB_NORMAL;
 					stopAllMovement();
 					noiseRadius.off();
+					aimArms.setAll("exists", false);
 					break;
 					
 				case PREPARE_BOMB_SNEAKING:
 					mode = PREPARE_BOMB_NORMAL;
 					stopAllMovement();
 					noiseRadius.off();
+					aimArms.setAll("exists", false);
 					break;
 					
 				case AIMING_NORMAL:
 					mode = AIMING_NORMAL;
+					frame = 3; // TEMPORARY
 					stopAllMovement();
 					noiseRadius.off();
+					aimArms.setAll("exists", true);
 					break;
 					
 				case AIMING_SNEAKING:
 					mode = AIMING_SNEAKING;
 					stopAllMovement();
 					noiseRadius.off();
+					aimArms.setAll("exists", false);
 					break;
 					
 				case HOOKSHOT_RELOADING_NORMAL:
@@ -827,6 +881,7 @@ package actors
 					stopAllMovement();
 					noiseRadius.off();
 					frame = 1; // TEMPORARY
+					aimArms.setAll("exists", false);
 					break;
 
 				case FLINCHING:
@@ -838,6 +893,7 @@ package actors
 					alpha = INVULNERABLE_ALPHA;
 					flinchTimer.start();
 					invulnerableTimer.start();
+					aimArms.setAll("exists", false);
 					break;
 					
 				default:

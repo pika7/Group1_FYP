@@ -72,7 +72,11 @@ package
 			add(Registry.hookshotChain = new HookshotChain());
 			add(Registry.hookshot.rope); //yup, have to add the hookshot and the rope as well
 			add(Registry.noiseHandler);
+			
+			/* add the arms separately so that they stack correctly */
+			add(Registry.player.aimLeftArm);
 			add(Registry.player);
+			add(Registry.player.aimRightArm);
 			
 			/* add markers */
 			add(Registry.markers_ladderBottom);

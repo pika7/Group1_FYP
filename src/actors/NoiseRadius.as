@@ -29,7 +29,7 @@ package actors
 			x = x - width / 2;
 			y = y - height / 2;
 			
-			alpha = 0.2;
+			alpha = 0;
 			exists = doesExist;
 			
 			/* initialise the timer */
