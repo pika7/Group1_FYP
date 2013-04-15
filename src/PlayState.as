@@ -234,7 +234,7 @@ package
 		/* damage the player if she overlaps with a bullet */
 		// TODO: set an invulnerability period
 		private function damagePlayerBullet(player:Player, bullet:guardBullet):void
-		{
+		{	
 			/* damage the player if she is vulnerable, else do nothing */
 			if (!Registry.player.isInvulnerable)
 			{

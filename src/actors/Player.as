@@ -657,6 +657,7 @@ package actors
 				if (FlxG.keys.justPressed("E"))
 				{
 					setMode(NORMAL);
+					isInvulnerable = false;
 				}
 			}
 			/* just got hit by a bullet, flinching, cannot move */
