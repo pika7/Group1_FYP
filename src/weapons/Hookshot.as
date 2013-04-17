@@ -18,6 +18,8 @@ package weapons
 		/* this sprite is used to draw the rope between the hook and the player */
 		public var rope:FlxSprite;
 		
+		private var hasPulled:Boolean = false; // true if you have called stopHookshot() already
+		
 		/* this is only called in the beginning somewhere. */
 		public function Hookshot() 
 		{
@@ -72,8 +74,13 @@ package weapons
 			velocity.x = 0;
 			velocity.y = 0;
 			
-			/* pull the player to the hookshot */
-			Registry.player.pullToHookshot();
+			if (!hasPulled)
+			{
+				/* pull the player to the hookshot */
+				/* only call this once!! */
+				Registry.player.pullToHookshot();
+				hasPulled = true;
+			}
 		}
 		
 		/////////////////////////////////////////////////////
@@ -91,6 +98,7 @@ package weapons
 			
 			/* hide the chain */
 			Registry.hookshotChain.hide();
+			hasPulled = false;
 		}
 	}
 

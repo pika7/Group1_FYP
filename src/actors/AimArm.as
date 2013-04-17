@@ -8,6 +8,8 @@ package actors
 	
 	public class AimArm extends FlxSprite
 	{
+		public var followMouse:Boolean = true; // whether or not the arm follows the mouse around
+
 		/**
 		 * Create a new arm and shit.
 		 * 
@@ -21,20 +23,21 @@ package actors
 		
 		override public function update():void
 		{
-			/* match the facing of the player */
-			facing = Registry.player.facing;
-			
-			/* adjust for facing */
-			if (Registry.player.facing == FlxObject.RIGHT)
+			if (followMouse)
 			{
-				angle = FlxVelocity.angleBetweenMouse(Registry.player.firePoint, true);
+				/* match the facing of the player */
+				facing = Registry.player.facing;
+				
+				/* adjust for facing */
+				if (Registry.player.facing == FlxObject.RIGHT)
+				{
+					angle = FlxVelocity.angleBetweenMouse(Registry.player.firePoint, true);
+				}
+				else
+				{
+					angle = FlxVelocity.angleBetweenMouse(Registry.player.firePoint, true) + 180;
+				}	
 			}
-			else
-			{
-				angle = FlxVelocity.angleBetweenMouse(Registry.player.firePoint, true) + 180;
-			}
-			
-			
 		}
 	}
 }

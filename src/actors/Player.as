@@ -2,14 +2,13 @@ package actors
 {
 	import flash.display.InteractiveObject;
 	import flash.errors.InvalidSWFError;
-	import mx.core.FlexSprite;
 	import org.flixel.*;
 	import objs.Marker;
 	import org.flixel.plugin.photonstorm.FlxDelay;
 	import org.flixel.plugin.photonstorm.FlxVelocity;
 	import util.Registry;
-	import org.flixel.plugin.photonstorm.FlxMath;
 	import actors.AimArm;
+	import org.flixel.plugin.photonstorm.FlxMath;
 	
 	public class Player extends FlxSprite
 	{	
@@ -17,6 +16,9 @@ package actors
 		
 		/* dummy sprite located at the firing location of the sprite used for FlxVelocity */
 		public var firePoint:FlxSprite;
+
+		/* dummy sprite located at the rotational axis of the right arm */
+		public var armPoint:FlxSprite;
 		
 		/* arm sprites, added in PlayState for correct stacking */
 		public var aimLeftArm:AimArm;
@@ -46,8 +48,12 @@ package actors
 		/* arm aiming offsets */
 		private const NORMAL_AIM_LEFT_ARM_OFFSET_X:int = 0;
 		private const NORMAL_AIM_LEFT_ARM_OFFSET_Y:int = 28;
-		private const NORMAL_AIM_RIGHT_ARM_OFFSET_X:int = -25;
+		private const NORMAL_AIM_RIGHT_ARM_OFFSET_X:int = -25
 		private const NORMAL_AIM_RIGHT_ARM_OFFSET_Y:int = 28;
+		private const SNEAKING_AIM_LEFT_ARM_OFFSET_X:int = 15;
+		private const SNEAKING_AIM_LEFT_ARM_OFFSET_Y:int = 63;
+		private const SNEAKING_AIM_RIGHT_ARM_OFFSET_X:int = -10;
+		private const SNEAKING_AIM_RIGHT_ARM_OFFSET_Y:int = 63;
 		
 		/* hookshot */
 		private const HOOKSHOT_PULL_SPEED:int = 400;
@@ -67,6 +73,7 @@ package actors
 		private const HOOKSHOT_RELOAD_TIME:int = 500;
 		private const FLINCH_TIME:int = 200; // the amount of time the player flinches
 		private const INVULNERABLE_TIME:int = 2000; // the amount of time the player is invulnerable for
+		private const PULLING_TIME:int = 2500; // the amount of time the player is pulled before timeout
 		
 		/* bombs */
 		private const PREPARE_BOMB_TIME:int = 500;
@@ -86,6 +93,7 @@ package actors
 		private var hookshotReloadTimer:FlxDelay;
 		private var flinchTimer:FlxDelay;
 		private var invulnerableTimer:FlxDelay;
+		private var pullingTimer:FlxDelay;
 		
 		/* private booleans */
 		
@@ -163,12 +171,14 @@ package actors
 			flinchTimer = new FlxDelay(FLINCH_TIME);
 			invulnerableTimer = new FlxDelay(INVULNERABLE_TIME);
 			invulnerableTimer.callback = makeVulnerable;
+			pullingTimer = new FlxDelay(PULLING_TIME);
 			
 			/* instantiate other things */
 			noiseRadius = new NoiseRadius(x, y, false);
 			Registry.noiseHandler.add(noiseRadius);
 			tempPoint = new FlxPoint(0, 0);
 			firePoint = new FlxSprite(x + width / 2, y + height / 2);
+			armPoint = new FlxSprite(0, 0);
 			aimLeftArm = new LeftArm();
 			aimRightArm = new RightArm();
 			aimArms = new FlxGroup();
@@ -395,7 +405,7 @@ package actors
 			}
 			/* get pulled to the hookshot */
 			else if (mode == HOOKSHOT_PULLING)
-			{
+			{	
 				/* reset the angular velocities */
 				swingAngularAcceleration = 0;
 				swingAngularVelocity = 0;
@@ -405,15 +415,31 @@ package actors
 				tempPoint.y = Registry.hookshot.y + HOOKSHOT_DANGLE_DISTANCE;
 				FlxVelocity.moveTowardsPoint(this, tempPoint, HOOKSHOT_PULL_SPEED);
 				
+				/* set the firepoint to the top of the player */
+				firePoint.x = x + width/2;
+				firePoint.y = y;
+				
+				/* add a timeout in case the player gets "stuck" lol this is such a copout but i dont give a fuck */
+				if (pullingTimer.hasExpired)
+				{
+					Registry.hookshot.remove();
+					setMode(IN_AIR);
+				}
+
 				/* change to dangling mode if within a certain length */
 				if (FlxVelocity.distanceBetween(this, Registry.hookshot) <= HOOKSHOT_DANGLE_DISTANCE)
 				{
+					pullingTimer.abort();
 					setMode(HOOKSHOT_DANGLING);
 				}
 			}
 			/* dangling from the hookshot, can swing */
 			else if (mode == HOOKSHOT_DANGLING)
 			{	
+				/* set the firepoint to the top of the player */
+				firePoint.x = x + width/2;
+				firePoint.y = y;
+
 				/* set the ishangingonhookshot value to true */
 				isHangingOnHookshot = true;
 				
@@ -548,6 +574,10 @@ package actors
 			/* preparing to throw a bomb in normal mode */
 			else if (mode == PREPARE_BOMB_NORMAL)
 			{
+				/* move the firepoint to the correct place */
+				firePoint.x = x;
+				firePoint.y = y;
+				
 				if (!prepareBombTimer.isRunning)
 				{
 					if (weapon == SMOKEBOMB)
@@ -564,6 +594,10 @@ package actors
 			/*preparing to throw a bomb in sneaking mode */
 			else if (mode == PREPARE_BOMB_SNEAKING)
 			{
+				/* move the firepoint to the correct place */
+				firePoint.x = x;
+				firePoint.y = y;
+				
 				if (!prepareBombTimer.isRunning)
 				{
 					Registry.smokeBombHandler.fire(x, y, tempAngle);
@@ -573,25 +607,36 @@ package actors
 			/* aiming in normal mode */
 			else if (mode == AIMING_NORMAL)
 			{
-				/* make a red line follow the mouse around */
-				Registry.uiHandler.showAimline(firePoint.x, firePoint.y);
 				
-				/* make the arms in the correct place */
-				aimLeftArm.x = x + NORMAL_AIM_LEFT_ARM_OFFSET_X;
+				/* make the arms in the correct place, depending on facing */
 				aimLeftArm.y = y + NORMAL_AIM_LEFT_ARM_OFFSET_Y;
-				aimRightArm.x = x + NORMAL_AIM_RIGHT_ARM_OFFSET_X;
 				aimRightArm.y = y + NORMAL_AIM_RIGHT_ARM_OFFSET_Y;
 				
 				/* make the player change facing, depending on where they are aiming */
-				var tempAngle:int = FlxVelocity.angleBetweenMouse(Registry.player.firePoint, true);
+				tempAngle = FlxVelocity.angleBetweenMouse(Registry.player.firePoint, true);
 				if ( (tempAngle <= 90 && tempAngle >= 0) || tempAngle >= -90 && tempAngle <= 0)
 				{
 					facing = FlxObject.RIGHT;
+					aimLeftArm.x = x + NORMAL_AIM_LEFT_ARM_OFFSET_X;
+					aimRightArm.x = x + NORMAL_AIM_RIGHT_ARM_OFFSET_X;		
 				}
 				else
 				{
 					facing = FlxObject.LEFT;
+					aimLeftArm.x = x + width - NORMAL_AIM_LEFT_ARM_OFFSET_X - aimLeftArm.width;
+					aimRightArm.x = x + width - NORMAL_AIM_RIGHT_ARM_OFFSET_X - aimRightArm.width;
 				}
+
+				/* move the armpoint to the correct place */
+				armPoint.y = aimRightArm.y + aimRightArm.height/2;
+				armPoint.x = aimRightArm.x + aimRightArm.width/2;
+
+				/* move the firepoint to the correct place */
+				firePoint.x = armPoint.x + Math.cos(FlxVelocity.angleBetweenMouse(armPoint, false)) * aimRightArm.width/2;
+				firePoint.y = armPoint.y + Math.sin(FlxVelocity.angleBetweenMouse(armPoint, false)) * aimRightArm.width/2;
+
+				/* make a red line follow the mouse around */
+				Registry.uiHandler.showAimline(firePoint.x, firePoint.y);
 
 				/* on mouse release, actually fire the bullet and return to normal mode */
 				if (!FlxG.mouse.pressed())
@@ -612,9 +657,36 @@ package actors
 			/* aiming in sneaking mode */
 			else if (mode == AIMING_SNEAKING)
 			{
+				/* make the arms in the correct place, depending on facing */
+				aimLeftArm.y = y + SNEAKING_AIM_LEFT_ARM_OFFSET_Y;
+				aimRightArm.y = y + SNEAKING_AIM_RIGHT_ARM_OFFSET_Y;
+				
+				/* make the player change facing, depending on where they are aiming */
+				tempAngle = FlxVelocity.angleBetweenMouse(Registry.player.firePoint, true);
+				if ( (tempAngle <= 90 && tempAngle >= 0) || tempAngle >= -90 && tempAngle <= 0)
+				{
+					facing = FlxObject.RIGHT;
+					aimLeftArm.x = x + SNEAKING_AIM_LEFT_ARM_OFFSET_X;
+					aimRightArm.x = x + SNEAKING_AIM_RIGHT_ARM_OFFSET_X;
+				}
+				else
+				{
+					facing = FlxObject.LEFT;
+					aimLeftArm.x = x + width - SNEAKING_AIM_LEFT_ARM_OFFSET_X - aimLeftArm.width;
+					aimRightArm.x = x + width - SNEAKING_AIM_RIGHT_ARM_OFFSET_X - aimRightArm.width;
+				}
+
+				/* move the armpoint to the correct place */
+				armPoint.y = aimRightArm.y + aimRightArm.height/2;
+				armPoint.x = aimRightArm.x + aimRightArm.width/2;
+
+				/* move the firepoint to the correct place */
+				firePoint.x = armPoint.x + Math.cos(FlxVelocity.angleBetweenMouse(armPoint, false)) * aimRightArm.width/2;
+				firePoint.y = armPoint.y + Math.sin(FlxVelocity.angleBetweenMouse(armPoint, false)) * aimRightArm.width/2;
+
 				/* make a red line follow the mouse around */
 				Registry.uiHandler.showAimline(firePoint.x, firePoint.y);
-				
+
 				/* on mouse release, actually fire the bullet and return to sneaking mode */
 				if (!FlxG.mouse.pressed())
 				{
@@ -635,6 +707,8 @@ package actors
 			/* reloading the hookshot in normal mode after missing */
 			else if (mode == HOOKSHOT_RELOADING_NORMAL)
 			{
+				/* the arms stop following the mouse */
+
 				/* go back to normal mode after finished reloading */
 				if (!hookshotReloadTimer.isRunning)
 				{
@@ -674,9 +748,11 @@ package actors
 			noiseRadius.follow(this);
 			
 			/* move the firepoint to the right place */
+			/*
 			firePoint.x = x + width / 2;
 			firePoint.y = y + height / 2;
-			
+			*/
+
 			/* TEMP: switching weapons, maybe need a delay later? */
 			if (FlxG.keys.pressed("ONE"))
 			{
@@ -731,6 +807,7 @@ package actors
 					velocity.x = 0;
 					acceleration.x = 0;
 					reloadTimer.start();
+					aimArms.setAll("followMouse", false);
 					break;
 					
 				case RELOADING_SNEAKING:
@@ -739,6 +816,7 @@ package actors
 					velocity.x = 0;
 					acceleration.x = 0;
 					reloadTimer.start();
+					aimArms.setAll("followMouse", false);
 					break;
 					
 				case LADDER:
@@ -792,6 +870,7 @@ package actors
 					stopAllMovement();
 					mode = HOOKSHOT_PULLING;
 					noiseRadius.off();
+					pullingTimer.start();
 					aimArms.setAll("exists", false);
 					break;
 					
@@ -854,13 +933,16 @@ package actors
 					stopAllMovement();
 					noiseRadius.off();
 					aimArms.setAll("exists", true);
+					aimArms.setAll("followMouse", true);
 					break;
 					
 				case AIMING_SNEAKING:
 					mode = AIMING_SNEAKING;
+					frame = 4; // TEMPORARY
 					stopAllMovement();
 					noiseRadius.off();
-					aimArms.setAll("exists", false);
+					aimArms.setAll("exists", true);
+					aimArms.setAll("followMouse", true);
 					break;
 					
 				case HOOKSHOT_RELOADING_NORMAL:
@@ -895,6 +977,7 @@ package actors
 					acceleration.x = 0;
 					acceleration.y = FLINCH_GRAVITY;
 					alpha = INVULNERABLE_ALPHA;
+					Registry.hookshot.remove(); // knocks player off hookshot
 					flinchTimer.start();
 					invulnerableTimer.start();
 					aimArms.setAll("exists", false);
