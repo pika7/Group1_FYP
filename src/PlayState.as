@@ -233,6 +233,7 @@ package
 			if (player.gotGoalItem)
 			{
 				clearRegistry();
+				FlxG.music.fadeOut(1);
 				FlxG.switchState(new EndState());
 			}
 		}
