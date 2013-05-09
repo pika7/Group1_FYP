@@ -180,12 +180,13 @@ public class Guard extends FlxSprite
 		acceleration.y = GRAVITY;
 
 		/* sprite animations */
-		addAnimation("walk", [0,1], 2, true);
+		addAnimation("walk", [0,1], 10, true);
 		addAnimation("shoot", [2], 0, false);
 		addAnimation("alert", [3], 0, false);
 		addAnimation("alertWalk", [4, 5], 2, true);
 		addAnimation("search", [6], 0, false);
-		addAnimation("Punch", [7], 1, false);
+		addAnimation("Punch", [7], 5, false);
+		addAnimation("climb", [8, 9], 2, true);
 
 		/*other sprite properties*/
 		facing = RIGHT;	
@@ -305,6 +306,7 @@ public class Guard extends FlxSprite
 			movingLeft = false;
 			if (climbing == true)
 			{
+				play("walk");
 				y = y - 30;
 				climbing = false;	
 				acceleration.y = GRAVITY;
@@ -318,6 +320,7 @@ public class Guard extends FlxSprite
 			movingLeft = true;
 			if (climbing == true)
 			{
+				play("walk");
 				y = y - 30;
 				climbing = false;
 				acceleration.y = GRAVITY;
@@ -331,6 +334,7 @@ public class Guard extends FlxSprite
 			{
 				if (climbing == false)
 				{
+					play("walk");
 					x = x - 32;
 					facing = RIGHT;
 					velocity.x = xVelocity;
@@ -339,6 +343,7 @@ public class Guard extends FlxSprite
 			}
 			else
 			{
+				play("climb");
 				velocity.x = 0;
 				velocity.y = xVelocity / 2;
 				climbing = true;
@@ -358,6 +363,7 @@ public class Guard extends FlxSprite
 		}
 		else 
 		{		
+			play("climb");
 			velocity.x = 0;
 			velocity.y = - xVelocity / 2;
 			climbing = true;
@@ -567,13 +573,18 @@ public class Guard extends FlxSprite
 			punchingNow = true;
 		}
 	}	
-
+	public function punchAnimation(g:Guard, p:Player):void
+	{
+		
+		play("Punch");
+	}
+	
 	/*check bullet counter */
 	public function punchCounterCheck():void
 	{
 		if (punchingNow == true && (!Registry.player.isHiding()))
 		{
-			play("Punch");
+			
 			punchStopCounter += FlxG.elapsed; 
 			if (punchStopCounter > 2)
 			{

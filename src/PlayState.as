@@ -30,6 +30,9 @@ package
 	
 	public class PlayState extends FlxState
 	{
+		
+		[Embed(source = '../assets/music/Stage.mp3')] private var SoundEffect:Class;
+		
 		// TODO: put this somewhere better, ask cathy
 		private const ENEMY_BULLET_DAMAGE:int = 10;
 		
@@ -133,6 +136,9 @@ package
 		
 			/* show the mouse */
 			FlxG.mouse.show();
+			
+			/* Music stuff */
+			FlxG.playMusic(SoundEffect, 1);
 		}
 		
 		override public function update():void
@@ -346,7 +352,8 @@ package
 				if (!Registry.player.isHiding())
 				{
 						FlxG.overlap(tempSightRange, Registry.player, tempGuard.seePlayer);
-								FlxG.overlap(tempGuard, Registry.player, tempGuard.startPunch);	
+						FlxG.overlap(tempGuard, Registry.player, tempGuard.punchAnimation);	
+						FlxG.overlap(tempGuard, Registry.player, tempGuard.startPunch);	
 				}
 			
 				FlxG.overlap(tempGuard, Registry.tranqBulletHandler, tempGuard.tranqReaction);

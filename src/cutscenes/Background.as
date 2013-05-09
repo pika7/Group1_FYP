@@ -10,7 +10,7 @@ package cutscenes
 
 		/**
 		 * Create a new background.  Default is a blank black background.
-		 */
+		 */	
 		public function Background() 
 		{
 			super(0, 0);
