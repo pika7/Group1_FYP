@@ -16,7 +16,7 @@ package actors.enemy
 			width = 192;
 			height = 128;
 			facing = RIGHT;
-			visible = true;
+			visible = false;
 			loadGraphic(cameraSightRangePNG, false, true, 192, 128);
 			
 			originalPos = new FlxPoint(X, Y);

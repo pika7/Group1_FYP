@@ -29,9 +29,9 @@ package actors
 			x = x - width / 2;
 			y = y - height / 2;
 			
-			alpha = 0.2;
+			alpha = 0;
 			exists = doesExist;
-			
+	
 			/* initialise the timer */
 			noiseTimer = new FlxDelay(0);
 		}
@@ -44,6 +44,7 @@ package actors
 		public function on(timeToRun:int = 0):void
 		{
 			exists = true;
+			//visible = true;
 			
 			if (timeToRun > 0)
 			{

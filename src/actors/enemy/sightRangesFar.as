@@ -15,7 +15,7 @@ package actors.enemy
 			width = 30;
 			height = 128;
 			facing = RIGHT;
-			visible = true;
+			visible =false;
 			loadGraphic(sightRangeFarPNG, false, true, 30, 128);
 			addAnimation("sightRangeFar", [0], 0, false);
 		}

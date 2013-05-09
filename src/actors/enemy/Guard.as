@@ -23,7 +23,7 @@ package actors.enemy
 
 public class Guard extends FlxSprite
 {
-	[Embed(source = '../../../assets/img/enemies/guardtemp.png')] private var guardPNG:Class;
+	[Embed(source = '../../../assets/img/enemies/guard.png')] private var guardPNG:Class;
 
 	/* initialization of GUARD variables */
 	private const GRAVITY:int = 600;
@@ -85,7 +85,7 @@ public class Guard extends FlxSprite
 
 	private var XinTile:int = 0;
 	private var YinTile:int = 0;
-
+	private var tempPlayerPoint: FlxPoint = new FlxPoint(0, 0);
 	private var bottomMarkerInPath:Boolean = false;
 	private var topMarkerInPath:Boolean = false;
 	private var minimumMarkerDistance:Number = 0;
@@ -180,10 +180,12 @@ public class Guard extends FlxSprite
 		acceleration.y = GRAVITY;
 
 		/* sprite animations */
-		addAnimation("walk", [0], 0, false);
-		addAnimation("shoot", [0], 0, false);
-		addAnimation("alert", [0], 0, false);
-		addAnimation("search", [0], 0, false);
+		addAnimation("walk", [0,1], 2, true);
+		addAnimation("shoot", [2], 0, false);
+		addAnimation("alert", [3], 0, false);
+		addAnimation("alertWalk", [4, 5], 2, true);
+		addAnimation("search", [6], 0, false);
+		addAnimation("Punch", [7], 1, false);
 
 		/*other sprite properties*/
 		facing = RIGHT;	
@@ -285,6 +287,7 @@ public class Guard extends FlxSprite
 
 	public function startFollowing():void
 	{
+	
 		var xInTiles:int = int(x / 32);
 		var yInTiles:int = int((y + 100) / 32);
 
@@ -395,7 +398,7 @@ public class Guard extends FlxSprite
 				noiseDetectedFirstTime = true;
 			}
 			noiseFace();
-			play("alert");
+			play("alertWalk");
 
 			
 		//get the path coordinates in array
@@ -519,10 +522,13 @@ public class Guard extends FlxSprite
 			currentBullet = Registry.bulletGroup.getFirstAvailable() as FlxSprite;	
 			play("shoot");	
 			shootingNow = true;
-			currentBullet.x = x + 100;
-			currentBullet.y = y + 50;
+			currentBullet.x = x;
+			currentBullet.y = y;
 			currentBullet.exists = true;
-			FlxVelocity.moveTowardsObject(currentBullet, Registry.player, xVelocity);	
+			tempPlayerPoint.x = Registry.player.x;
+			tempPlayerPoint.y = Registry.player.y + 50;
+			//FlxVelocity.moveTowardsObject(currentBullet, Registry.player, 200);	
+			FlxVelocity.moveTowardsPoint(currentBullet, tempPlayerPoint, 200, 0);
 		}
 	}	
 
@@ -552,11 +558,12 @@ public class Guard extends FlxSprite
 	{	
 		if (Mode == "Punching" && punchingNow == false)
 		{
+			
 			velocity.x = 0;
 			velocity.y = 0;
 			checkFacing();
 			tempVelocity = velocity.x;
-			play("shoot");	
+			
 			punchingNow = true;
 		}
 	}	
@@ -564,9 +571,10 @@ public class Guard extends FlxSprite
 	/*check bullet counter */
 	public function punchCounterCheck():void
 	{
-		if (punchingNow == true)
+		if (punchingNow == true && (!Registry.player.isHiding()))
 		{
-			punchStopCounter += FlxG.elapsed;
+			play("Punch");
+			punchStopCounter += FlxG.elapsed; 
 			if (punchStopCounter > 2)
 			{
 				Registry.gameStats.damage(10);
@@ -588,12 +596,12 @@ public class Guard extends FlxSprite
 	{
 		punchStopCounter += FlxG.elapsed;
 		if (punchStopCounter > 2)
-			{
-
-				Registry.gameStats.damage(5);
-				checkFacing();
-				punchStopCounter = 0;
-			}
+		{
+			play("Punch");
+			Registry.gameStats.damage(5);
+			checkFacing();
+			punchStopCounter = 0;
+		}
 		
 	}
 
@@ -686,7 +694,7 @@ public class Guard extends FlxSprite
 
 	public function checkFacing():void
 	{
-		if (endX < x)
+		if (Registry.player.x< x)
 		{
 			facing = LEFT;
 		}
@@ -772,9 +780,7 @@ public class Guard extends FlxSprite
 					followThePath();
 					facing = LEFT;
 					Mode = "Patrolling";
-				}
-	
-
+				}	
 			}
 		}
 		else if (Mode == "Patrolling")
@@ -799,6 +805,7 @@ public class Guard extends FlxSprite
 		{
 			if (pointsToFollow.length > 0)
 			{
+				
 				startFollowing();
 			}
 			if (pointsToFollow.length == 0)
@@ -869,7 +876,7 @@ public class Guard extends FlxSprite
 				}
 				if (pointsToFollow.length == 0)
 				{
-					play("search");
+				//	play("search");
 					checkFacing();
 					stopCounter += FlxG.elapsed;
 		
@@ -894,6 +901,7 @@ public class Guard extends FlxSprite
 		}
 		else if (Mode == "Punching")
 		{
+			
 			punchingPlayer();
 		}
 		else if (Mode == "Tranq")
@@ -962,16 +970,14 @@ public class Guard extends FlxSprite
 				}
 				confused = false; 
 				Mode = "Normal";
-			}	
-			
+			}		
 		}
-	
 	}
 	
 	public function checkSmokeFacing():void
 	{
 		
-		if (velocity.x < 0)
+		if (Registry.player.x < x)
 		{
 			facing = LEFT;
 		}

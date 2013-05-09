@@ -15,7 +15,7 @@ public class sightRanges extends FlxSprite
 		width = 341;
 		height = 128;
 		facing = RIGHT;
-		visible = true;
+		visible = false;
 
 		loadGraphic(sightRangePNG, false, true, 321, 128);
 		addAnimation("alert0", [0], 0, false);

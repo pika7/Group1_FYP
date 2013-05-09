@@ -72,7 +72,11 @@ package
 			add(Registry.hookshotChain = new HookshotChain());
 			add(Registry.hookshot.rope); //yup, have to add the hookshot and the rope as well
 			add(Registry.noiseHandler);
+			
+			/* add the arms separately so that they stack correctly */
+			add(Registry.player.aimLeftArm);
 			add(Registry.player);
+			add(Registry.player.aimRightArm);
 			
 			/* add markers */
 			add(Registry.markers_ladderBottom);
@@ -230,7 +234,7 @@ package
 		/* damage the player if she overlaps with a bullet */
 		// TODO: set an invulnerability period
 		private function damagePlayerBullet(player:Player, bullet:guardBullet):void
-		{
+		{	
 			/* damage the player if she is vulnerable, else do nothing */
 			if (!Registry.player.isInvulnerable)
 			{
@@ -341,9 +345,10 @@ package
 				//if the player ISN"T hiding, can SEE the player
 				if (!Registry.player.isHiding())
 				{
-					FlxG.overlap(tempSightRange, Registry.player, tempGuard.seePlayer);
+						FlxG.overlap(tempSightRange, Registry.player, tempGuard.seePlayer);
+								FlxG.overlap(tempGuard, Registry.player, tempGuard.startPunch);	
 				}
-				//FlxG.overlap(tempGuard, Registry.player, tempGuard.startPunch);		
+			
 				FlxG.overlap(tempGuard, Registry.tranqBulletHandler, tempGuard.tranqReaction);
 				FlxG.overlap(tempGuard, Registry.smokeBombHandler.smokeCloudGroup, tempGuard.smokeBombReaction);
 				FlxG.overlap(tempGuard, Registry.stunGrenadeHandler.stunExplosionGroup, tempGuard.stunGrenadeReaction);

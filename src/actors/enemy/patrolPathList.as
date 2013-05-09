@@ -99,40 +99,53 @@ package actors.enemy
 			
 			Registry.guardLadderDirection = ladderDirection;
 			
+			//tileGroup = parse all the nodes from the map
+			//initialize all the prev pointer of each node	 to null
 			for (var i:int = 0; i < tileGroup.length; i++)
 			{
 				tempNode = tileGroup[i];
 				tempNode.prev = null;
 			}
 			
+			//put startNode into open list
 			notVisited.push(startNode);
+			
+			//initial node - g cost 0
 			startNode.g = 0;
 			startNode.h = Math.abs((startNode.x - endNode.x) + (startNode.y - endNode.y));
 			startNode.f = startNode.h;
 			
+			//we have an open list
+			//until 
 			while (notVisited.length > 0)
 			{
 				currentF = int.MAX_VALUE;
+				
 				for (var j:int = 0; j < notVisited.length; j++)
 				{
 					tempNode = notVisited[j];
+					
 					if (tempNode.f < currentF)
 					{
 						currentNode = notVisited[j];
 						currentF = currentNode.f;
 					}
 				}
-				
-				
+					
+				//if we have reached the destination node
+				//traverse the node backwards
 				if (currentNode == endNode)
 				{
 					return createPath(currentNode);
 				}
 				
 				//put the already visted node in visited
+				//take out the current node
 				notVisited.splice(notVisited.indexOf(currentNode), 1);
+				
 				visited.push(currentNode);
 				
+				//get adjacent nodes to the current node
 				for each(var node:patrolPathNode in getAdjacentTiles(currentNode))
 				{
 					//skip already visited nodes
@@ -140,10 +153,13 @@ package actors.enemy
 					{
 						continue;
 					}
+					
+					//G cost = current node + 
 					currentG = currentNode.g + node.cost;
 					
-					//node doesn't exist in not visited group
-					if (notVisited.indexOf(node) == -1)
+					//node doesn't exist in open list
+					//put it in open list
+					if ( notVisited.indexOf(node) == -1 )	
 					{
 						node.prev = currentNode;
 						notVisited.push(node);
@@ -255,13 +271,13 @@ package actors.enemy
 				if (i == 0) //starting node 
 				{
 					tempTile = tileGroup[i]; //in TILE coordinates
-					minimumDistance = Math.abs(Math.sqrt(((tempTile.x - enemyPoint.x)*(tempTile.x - enemyPoint.x)) + ((tempTile.y - enemyPoint.y)*(tempTile.y - enemyPoint.y))));
+					minimumDistance = Math.abs(Math.sqrt(((tempTile.x - enemyPoint.x)*(tempTile.x - enemyPoint.x)) + ((tempTile.y - enemyPoint.y) * (tempTile.y - enemyPoint.y))));
 					tempDistance = minimumDistance;
 				}
 				else //from the 2nd node
 				{
 					tempTile = tileGroup[i];
-					tempDistance = Math.abs(Math.sqrt(((tempTile.x - enemyPoint.x)*(tempTile.x - enemyPoint.x)) + ((tempTile.y - enemyPoint.y)*(tempTile.y - enemyPoint.y))));
+					tempDistance = Math.abs(Math.sqrt(((tempTile.x - enemyPoint.x) * (tempTile.x - enemyPoint.x)) + ((tempTile.y - enemyPoint.y) * (tempTile.y - enemyPoint.y))));
 					
 				}
 				if (tempDistance < minimumDistance || tempDistance == minimumDistance) //compare the new distances
