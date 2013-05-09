@@ -689,9 +689,6 @@ public class Guard extends FlxSprite
 		
 	}
 	
-
-	
-
 	public function checkFacing():void
 	{
 		if (Registry.player.x< x)
