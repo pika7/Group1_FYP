@@ -10,7 +10,9 @@ package actors
 		public function LeftArm() 
 		{
 			super();
-			loadGraphic(aimLeftArmPNG, false, true); // maybe change this to change the graphic for hookshot later
+			loadGraphic(aimLeftArmPNG, true, true, 68, 25); // maybe change this to change the graphic for hookshot later
+			
+			addAnimation("fire", [1, 0], 10, false);
 		}
 		
 	}

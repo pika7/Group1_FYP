@@ -74,6 +74,7 @@ package actors
 		private const FLINCH_TIME:int = 200; // the amount of time the player flinches
 		private const INVULNERABLE_TIME:int = 2000; // the amount of time the player is invulnerable for
 		private const PULLING_TIME:int = 2500; // the amount of time the player is pulled before timeout
+		private const MAX_DANGLE_VELOCITY:int = 70; // the max velocity the player moves at before showing dangling animation
 		
 		/* bombs */
 		private const PREPARE_BOMB_TIME:int = 500;
@@ -184,6 +185,22 @@ package actors
 			aimArms = new FlxGroup();
 			aimArms.add(aimLeftArm);
 			aimArms.add(aimRightArm);
+
+			/* add the animations*/
+			addAnimation("stand", [0], 10, false);
+			addAnimation("crouch", [1], 10, false);
+			addAnimation("aiming_normal", [2], 10, false);
+			addAnimation("aiming_sneaking", [3], 10, false);
+			addAnimation("walking", [4, 5, 6, 7, 8, 9], 15, true);
+			addAnimation("sneaking", [10, 11, 12, 13, 14, 15], 10, true);
+			addAnimation("falling", [16, 17, 18, 19, 20, 21], 10, true);
+			addAnimation("flying_forward", [22, 23, 24, 25, 26], 10, true);
+			addAnimation("flying_backward", [27, 28, 29, 30], 10, true);
+			addAnimation("swinging_forward", [31, 32, 33, 34, 35], 10, true);
+			addAnimation("dangling", [36], 10, false);
+			addAnimation("swinging_backward", [37, 38, 39, 40], 10, true);
+			addAnimation("ladder", [42], 10, false);
+			addAnimation("climbing_ladder", [41, 42, 43, 44], 10, true);
 		}
 		
 		override public function update():void
@@ -199,6 +216,7 @@ package actors
 				{
 					facing = FlxObject.LEFT;
 					acceleration.x = -RUNNING_ACCELERATION;
+					play("walking");
 
 					noiseRadius.on();
 				}
@@ -206,6 +224,7 @@ package actors
 				{
 					facing = FlxObject.RIGHT;
 					acceleration.x = RUNNING_ACCELERATION;
+					play("walking");
 					
 					noiseRadius.on();
 				}
@@ -213,6 +232,7 @@ package actors
 				{
 					acceleration.x = 0;
 					noiseRadius.off();
+					play("stand");
 				}
 				
 				/* use equipped weapon only if player not clicking on UI */
@@ -254,15 +274,18 @@ package actors
 				{
 					facing = FlxObject.LEFT;
 					acceleration.x = -SNEAKING_ACCELERATION;
+					play("sneaking");
 				}
 				else if (FlxG.keys.pressed("D"))
 				{
 					facing = FlxObject.RIGHT;
 					acceleration.x = SNEAKING_ACCELERATION;
+					play("sneaking");
 				}
 				else
 				{
 					acceleration.x = 0;
+					play("crouch");
 				}
 				
 				/* use equipped weapon if player not pressing on UI */
@@ -327,16 +350,19 @@ package actors
 				{
 					velocity.y = -LADDER_VELOCITY;
 					noiseRadius.on();
+					play("climbing_ladder");
 				}
 				else if (FlxG.keys.pressed("S"))
 				{
 					velocity.y = LADDER_VELOCITY;
 					noiseRadius.on();
+					play("climbing_ladder");
 				}
 				else
 				{
 					velocity.y = 0;
 					noiseRadius.off();
+					play("ladder");
 				}
 			}
 			/* reaching the top of the ladder */
@@ -358,7 +384,7 @@ package actors
 				velocity.x = 0;
 
 				/* move the player so it is centered on the ladder */
-				if (Math.abs(x - (tempMarker.x)) < 5)
+				if (Math.abs(x - (tempMarker.x)) < 10)
 				{
 					x = (tempMarker.x);
 					
@@ -419,6 +445,20 @@ package actors
 				firePoint.x = x + width/2;
 				firePoint.y = y;
 				
+				/* play animations */
+				if ((velocity.x > MAX_DANGLE_VELOCITY && facing == FlxObject.RIGHT) || (velocity.x < -MAX_DANGLE_VELOCITY && facing == FlxObject.LEFT))
+				{
+					play("swinging_forward");
+				}
+				else if ((velocity.x < -MAX_DANGLE_VELOCITY && facing == FlxObject.RIGHT || velocity.x > MAX_DANGLE_VELOCITY && facing == FlxObject.LEFT))
+				{
+					play("swinging_backward");
+				}
+				else
+				{
+					play("dangling");
+				}
+
 				/* add a timeout in case the player gets "stuck" lol this is such a copout but i dont give a fuck */
 				if (pullingTimer.hasExpired)
 				{
@@ -524,7 +564,20 @@ package actors
 				velocity.x += Math.sin(ropeAngle) * ropeDifference;
 				velocity.y += Math.cos(ropeAngle) * ropeDifference;
 
-				
+				// [TEMP]: change frame
+				if ((velocity.x > MAX_DANGLE_VELOCITY && facing == FlxObject.RIGHT) || (velocity.x < -MAX_DANGLE_VELOCITY && facing == FlxObject.LEFT))
+				{
+					play("swinging_forward");
+				}
+				else if ((velocity.x < -MAX_DANGLE_VELOCITY && facing == FlxObject.RIGHT || velocity.x > MAX_DANGLE_VELOCITY && facing == FlxObject.LEFT))
+				{
+					play("swinging_backward");
+				}
+				else
+				{
+					play("dangling");
+				}
+
 				/* if click the mouse, then drop back to the ground */
 				if (FlxG.mouse.pressed())
 				{
@@ -542,8 +595,6 @@ package actors
 			/* released the hookshot, amplify the horizontal and vertical motion so that it feels better */
 			else if (mode == HOOKSHOT_FLY)
 			{	
-				
-				
 				/* allow very limited air control */
 				if (FlxG.keys.pressed("A"))
 				{
@@ -554,11 +605,26 @@ package actors
 					acceleration.x = HOOKSHOT_FLY_ACCELERATION;
 				}
 				
+				// [TEMP]: change frame
+				if ((velocity.x > MAX_DANGLE_VELOCITY && facing == FlxObject.RIGHT) || (velocity.x < -MAX_DANGLE_VELOCITY && facing == FlxObject.LEFT))
+				{
+					play("flying_forward");
+				}
+				else if ((velocity.x < -MAX_DANGLE_VELOCITY && facing == FlxObject.RIGHT || velocity.x > MAX_DANGLE_VELOCITY && facing == FlxObject.LEFT))
+				{
+					play("flying_backward");
+				}
+				else
+				{
+					play("falling");
+				}
+
 				/* go back to normal mode on ground */
 				if (isTouching(FlxObject.FLOOR))
 				{
 					setMode(NORMAL);
 				}
+				
 			}
 			/* just in air after stepping off a platform or something */
 			else if (mode == IN_AIR)
@@ -727,11 +793,17 @@ package actors
 			/* hiding in a hiding spot */
 			else if (mode == HIDING)
 			{
+				//TEMP
+				color = 0x222222;
+
 				/* go back to normal mode after pressing E */
 				if (FlxG.keys.justPressed("E"))
 				{
 					setMode(NORMAL);
 					isInvulnerable = false;
+
+					//TEMP
+					color = 0xFFFFFF;
 				}
 			}
 			/* just got hit by a bullet, flinching, cannot move */
@@ -776,7 +848,7 @@ package actors
 		
 		////////////////////////////////////////////////////////////
 		// HELPER FUNCTIONS
-		////////////////////////////////////////////////////////////
+		///////	/////////////////////////////////////////////////////
 		
 		/* set the mode of the player */
 		private function setMode(m:int):void
@@ -785,7 +857,7 @@ package actors
 			{
 				case NORMAL:
 					mode = NORMAL;
-					frame = 0; // TEMPORARY
+					play("stand");
 					maxVelocity.x = MAX_RUNNING_VELOCITY_X;
 					acceleration.y = GRAVITY;
 					drag.x = FRICTION;
@@ -794,7 +866,7 @@ package actors
 					
 				case SNEAKING:
 					mode = SNEAKING;
-					frame = 1; // TEMPORARY
+					play("crouch");
 					noiseRadius.off();
 					maxVelocity.x = MAX_SNEAKING_VELOCITY_X;
 					acceleration.y = GRAVITY;
@@ -808,6 +880,8 @@ package actors
 					acceleration.x = 0;
 					reloadTimer.start();
 					aimArms.setAll("followMouse", false);
+					aimLeftArm.play("fire");
+					aimRightArm.play("fire");
 					break;
 					
 				case RELOADING_SNEAKING:
@@ -817,6 +891,8 @@ package actors
 					acceleration.x = 0;
 					reloadTimer.start();
 					aimArms.setAll("followMouse", false);
+					aimLeftArm.play("fire");
+					aimRightArm.play("fire");
 					break;
 					
 				case LADDER:
@@ -824,6 +900,7 @@ package actors
 					noiseRadius.off();
 					stopAllMovement();
 					aimArms.setAll("exists", false);
+					play("ladder");
 					break;
 					
 				case REACHING_LADDER_TOP:
@@ -831,6 +908,7 @@ package actors
 					noiseRadius.on();
 					tempPoint.x = x;
 					tempPoint.y = y - 60;
+					play("climbing_ladder"); // TEMP: change to a climbing up anim later
 					
 					/* booleans */
 					doneClimbingUpLadder = true;
@@ -849,6 +927,7 @@ package actors
 					noiseRadius.on();
 					tempPoint.x = x;
 					tempPoint.y = y - 10;
+					play("climbing_ladder");
 					
 					/* booleans */
 					isClimbingUpLadder = true;
@@ -860,6 +939,7 @@ package actors
 					noiseRadius.on();
 					tempPoint.x = x;
 					tempPoint.y = y + 70;
+					play("climbing_ladder");
 					
 					/* booleans */
 					isClimbingDownLadder = true;
@@ -909,7 +989,7 @@ package actors
 					velocity.x = 0;
 					acceleration.y = GRAVITY;
 					noiseRadius.off();
-					frame = 2; // TEMPORARY
+					play("falling");
 					aimArms.setAll("exists", false);
 					break;
 					
@@ -929,7 +1009,7 @@ package actors
 					
 				case AIMING_NORMAL:
 					mode = AIMING_NORMAL;
-					frame = 3; // TEMPORARY
+					play("aiming_normal");
 					stopAllMovement();
 					noiseRadius.off();
 					aimArms.setAll("exists", true);
@@ -938,7 +1018,7 @@ package actors
 					
 				case AIMING_SNEAKING:
 					mode = AIMING_SNEAKING;
-					frame = 4; // TEMPORARY
+					play("aiming_sneaking");
 					stopAllMovement();
 					noiseRadius.off();
 					aimArms.setAll("exists", true);
@@ -966,7 +1046,7 @@ package actors
 					stopAllMovement();
 					isInvulnerable = true;
 					noiseRadius.off();
-					frame = 1; // TEMPORARY
+					play("crouch");
 					aimArms.setAll("exists", false);
 					break;
 
