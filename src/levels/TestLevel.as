@@ -7,20 +7,20 @@ package levels
 	
 	public class TestLevel extends Level
 	{
-		[Embed(source = "../../assets/csv/test_level/mapCSV_test_level_map.csv", mimeType = "application/octet-stream")] public var mapCSV:Class;
+		[Embed(source = "../../assets/csv/demo_level/mapCSV_demo_level_map.csv", mimeType = "application/octet-stream")] public var mapCSV:Class;
 		[Embed(source = "../../assets/img/tilemaps/blackwhite_map.png")] public var mapTilesPNG:Class;
 		
-		[Embed(source = "../../assets/csv/test_level/mapCSV_test_level_background.csv", mimeType = "application/octet-stream")] public var backgroundCSV:Class;
+		[Embed(source = "../../assets/csv/demo_level/mapCSV_demo_level_background.csv", mimeType = "application/octet-stream")] public var backgroundCSV:Class;
 		[Embed(source = "../../assets/img/tilemaps/striped_bg.png")] public var backgroundTilesPNG:Class;
 		
-		[Embed(source = "../../assets/csv/test_level/mapCSV_test_level_over.csv", mimeType = "application/octet-stream")] public var overCSV:Class;
+		[Embed(source = "../../assets/csv/demo_level/mapCSV_demo_level_over.csv", mimeType = "application/octet-stream")] public var overCSV:Class;
 		[Embed(source = "../../assets/img/tilemaps/over_map.png")] public var overTilesPNG:Class;
 		
-		[Embed(source = "../../assets/csv/test_level/mapCSV_test_level_markers.csv", mimeType = "application/octet-stream")] public var markersCSV:Class;
+		[Embed(source = "../../assets/csv/demo_level/mapCSV_demo_level_markers.csv", mimeType = "application/octet-stream")] public var markersCSV:Class;
 		[Embed(source = "../../assets/img/tilemaps/marker_map.png")] public var markerTilesPNG:Class;
 		
 		/* parsing */
-		[Embed(source = "../../assets/csv/test_level/mapCSV_test_level_checkpoints.csv", mimeType = "application/octet-stream")] public var itemsCSV:Class;
+		[Embed(source = "../../assets/csv/demo_level/mapCSV_demo_level_checkpoints.csv", mimeType = "application/octet-stream")] public var itemsCSV:Class;
 		[Embed(source = "../../assets/img/tilemaps/checkpoint_map.png")] public var itemTilesPNG:Class;
 		
 		/* enemies */
