@@ -32,6 +32,7 @@ package
 	{
 		
 		[Embed(source = '../assets/music/Stage.mp3')] private var SoundEffect:Class;
+		[Embed(source = '../assets/soundeffect/enemies/goalitem.mp3')] private var goalitemEffect:Class;
 		
 		// TODO: put this somewhere better, ask cathy
 		private const ENEMY_BULLET_DAMAGE:int = 10;
@@ -232,6 +233,7 @@ package
 		{
 			if (player.gotGoalItem)
 			{
+				FlxG.play(goalitemEffect, 0.5, false, true);
 				clearRegistry();
 				FlxG.music.fadeOut(1);
 				FlxG.switchState(new EndState());
@@ -306,6 +308,7 @@ package
 			// TODO: do something else as well
 			Registry.gameStats.health = Registry.gameStats.STARTING_LIFE;
 			clearRegistry();
+			FlxG.music.fadeOut(1);
 			FlxG.switchState(new EndState());
 		}
 		

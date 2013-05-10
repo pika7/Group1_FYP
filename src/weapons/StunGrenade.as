@@ -7,6 +7,7 @@ package weapons
 	public class StunGrenade extends ThrowableWeapon
 	{
 		[Embed(source = '../../assets/img/player/weapons/stun_grenade.png')] private var grenadePNG:Class;
+		[Embed(source = '../../assets/soundeffect/player/stungrenade.mp3')] private var grenadeSound:Class;
 		
 		private const EXPLODE_DELAY:int = 2000; // time it takes before a stun grenade explodes
 		
@@ -37,6 +38,7 @@ package weapons
 		
 		private function explode():void
 		{
+			FlxG.play( grenadeSound, 0.5, false, true);
 			Registry.noiseHandler.makeBigNoise(x, y, 100);
 			Registry.stunNoiseCoord.x = x;
 			Registry.stunNoiseCoord.y = y;
