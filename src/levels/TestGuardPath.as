@@ -6,7 +6,7 @@ package levels
 	
 	public class TestGuardPath extends LevelGuardPath 
 	{
-		[Embed(source = "../../assets/csv/test_level/mapCSV_test_level_patrol.csv", mimeType = "application/octet-stream")] public var patrolCSV:Class;
+		[Embed(source = "../../assets/csv/demo_level/mapCSV_demo_level_patrol.csv", mimeType = "application/octet-stream")] public var patrolCSV:Class;
 		[Embed(source = "../../assets/img/tilemaps/patrolpath_map.png")] public var patrolPNG:Class;
 		public function TestGuardPath() 
 		{
