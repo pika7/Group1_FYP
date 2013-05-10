@@ -59,7 +59,7 @@ package
 			Registry.tranqBulletHandler = new TranqBulletHandler();
 			Registry.smokeBombHandler = new SmokeBombHandler();
 			Registry.stunGrenadeHandler = new StunGrenadeHandler();
-			Registry.player = new Player(20, 20);
+			Registry.player = new Player(20, 510); // TODO make it so that it can start at different places
 			
 			/* TODO: allow selection of different levels */
 			Registry.level = new TestLevel();

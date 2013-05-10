@@ -11,7 +11,7 @@ package levels
 		[Embed(source = "../../assets/img/tilemaps/blackwhite_map.png")] public var mapTilesPNG:Class;
 		
 		[Embed(source = "../../assets/csv/demo_level/mapCSV_demo_level_background.csv", mimeType = "application/octet-stream")] public var backgroundCSV:Class;
-		[Embed(source = "../../assets/img/tilemaps/striped_bg.png")] public var backgroundTilesPNG:Class;
+		[Embed(source = "../../assets/img/tilemaps/demo_bg.png")] public var backgroundTilesPNG:Class;
 		
 		[Embed(source = "../../assets/csv/demo_level/mapCSV_demo_level_over.csv", mimeType = "application/octet-stream")] public var overCSV:Class;
 		[Embed(source = "../../assets/img/tilemaps/over_map.png")] public var overTilesPNG:Class;
@@ -32,9 +32,7 @@ package levels
 			map.loadMap(new mapCSV, mapTilesPNG, 32, 32, 0, 0, 1, 1);
 			
 			background = new FlxTilemap();
-			background.loadMap(new backgroundCSV, backgroundTilesPNG, 32, 32, 0, 0, 0, 1);
-			background.scrollFactor.x = 0.5;
-			background.scrollFactor.y = 0.5;
+			background.loadMap(new backgroundCSV, backgroundTilesPNG, 32, 32, 0, 0, 0, 4);
 			
 			over = new FlxTilemap();
 			over.loadMap(new overCSV, overTilesPNG, 32, 32, 0, 0, 0, 2);
