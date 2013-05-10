@@ -248,7 +248,7 @@ package actors
 				/* hiding mode, if overlapping with a hiding spot */
 				if (FlxG.keys.justPressed("E") && overlaps(Registry.hidingSpots)) // no need to put this into PlayState because not called every frame
 				{
-					
+					FlxG.play( hideSound, 0.5, false, true);
 					setMode(HIDING);
 				}
 			}

@@ -700,6 +700,13 @@ public class Guard extends FlxSprite
 		patrolStatusBeforeNoise = patrolStatus;
 	}
 	
+	public function alertAnimation():void
+	{
+		play("Alert");
+	
+	}
+	
+	
 	/* stun grenade Reaction */
 	public function stunGrenadeReaction(guard:Guard, stunE:StunExplosion):void
 	{
