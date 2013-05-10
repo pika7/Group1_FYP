@@ -179,6 +179,15 @@ package
 			FlxG.overlap(Registry.player, Registry.goalItem, getGoalItem);
 			FlxG.overlap(Registry.player, Registry.exit, completeLevel);
 				
+			if (FlxG.overlap(Registry.player, Registry.hidingSpots))
+			{
+				Registry.player.canHide = true;
+			}
+			else
+			{
+				Registry.player.canHide = false;
+			}
+			
 			
 			if (!(FlxG.overlap(Registry.player, Registry.markers_ladderBottom, Registry.player.handleLadderBottom) || FlxG.overlap(Registry.player, Registry.markers_ladderTop, Registry.player.handleLadderTop)))
 			{

@@ -12,6 +12,7 @@ package levels
 	import org.flixel.*;
 	import objs.Marker;
 	import objs.Exit;
+	import util.Registry;
 	
 	public class Level extends FlxGroup
 	{
