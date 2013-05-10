@@ -13,7 +13,12 @@ package actors
 	public class Player extends FlxSprite
 	{	
 		[Embed(source = '../../assets/img/player/player.png')] private var playerPNG:Class;
-		
+		[Embed(source = '../../assets/soundeffect/player/hurt.mp3')] private var hurtSound:Class;
+		[Embed(source = '../../assets/soundeffect/player/hookshotstart.mp3')] private var hookshotstartSound:Class;
+		[Embed(source = '../../assets/soundeffect/player/hookshotshoot.mp3')] private var hookshotshootSound:Class;
+		[Embed(source = '../../assets/soundeffect/player/hookshotfall.mp3')] private var hookshotfallSound:Class;
+		[Embed(source = '../../assets/soundeffect/player/tranq.mp3')] private var playerShootSound:Class;
+		[Embed(source = '../../assets/soundeffect/player/hide.mp3')] private var hideSound:Class;
 		/* dummy sprite located at the firing location of the sprite used for FlxVelocity */
 		public var firePoint:FlxSprite;
 
@@ -263,6 +268,7 @@ package actors
 				/* hiding mode, if overlapping with a hiding spot */
 				if (FlxG.keys.justPressed("E") && overlaps(Registry.hidingSpots)) // no need to put this into PlayState because not called every frame
 				{
+					FlxG.play( hideSound, 0.5, false, true);
 					setMode(HIDING);
 				}
 			}
@@ -316,6 +322,7 @@ package actors
 				/* hiding mode, if overlapping with a hiding spot */
 				if (FlxG.keys.justPressed("E") && overlaps(Registry.hidingSpots)) // no need to put this into PlayState because not called every frame
 				{
+					FlxG.play( hideSound, 0.5, false, true);
 					setMode(HIDING);
 				}
 			}
@@ -581,6 +588,7 @@ package actors
 				/* if click the mouse, then drop back to the ground */
 				if (FlxG.mouse.pressed())
 				{
+					FlxG.play( hookshotfallSound, 0.5, false, true);
 					Registry.hookshot.remove();
 					setMode(HOOKSHOT_FLY);
 				}
@@ -588,6 +596,7 @@ package actors
 				/* if you hit the floor or a wall, stop hookshotting and just drop to the ground */
 				if (isTouching(FlxObject.FLOOR) || isTouching(FlxObject.LEFT) || isTouching(FlxObject.RIGHT))
 				{
+					FlxG.play( hookshotfallSound, 0.5, false, true);
 					Registry.hookshot.remove();
 					setMode(IN_AIR);
 				}
@@ -712,6 +721,7 @@ package actors
 					
 					if (weapon == TRANQ)
 					{
+						FlxG.play( playerShootSound, 0.5, false, true);
 						setMode(RELOADING_NORMAL);
 					}
 					else if (weapon == HOOKSHOT)
@@ -947,6 +957,8 @@ package actors
 					break;
 					
 				case HOOKSHOT_PULLING:
+					
+					FlxG.play(hookshotstartSound, 0.5, false, true);
 					stopAllMovement();
 					mode = HOOKSHOT_PULLING;
 					noiseRadius.off();
@@ -1101,6 +1113,7 @@ package actors
 				
 				case HOOKSHOT:
 					Registry.hookshot.fire(firePoint.x, firePoint.y, FlxVelocity.angleBetweenMouse(firePoint, false));
+					FlxG.play(hookshotshootSound, 0.5, false, true);
 					break;
 					
 				case SMOKEBOMB:
@@ -1113,7 +1126,7 @@ package actors
 					{
 						setMode(PREPARE_BOMB_SNEAKING);
 					}
-					
+					FlxG.play( playerShootSound, 0.5, false, true);
 					tempAngle = FlxVelocity.angleBetweenMouse(firePoint, false);
 					
 					break;
@@ -1128,7 +1141,7 @@ package actors
 					{
 						setMode(PREPARE_BOMB_SNEAKING);
 					}
-					
+					FlxG.play( playerShootSound, 0.5, false, true);
 					tempAngle = FlxVelocity.angleBetweenMouse(firePoint, false);
 					break;
 					
@@ -1212,6 +1225,7 @@ package actors
 		{
 			setMode(FLINCHING);
 
+				FlxG.play(hurtSound, 0.5, false, true);
 			/* if the player is to the left of the damage source */
 			if (getCenterX(this) < getCenterX(damageSource)) {
 				velocity.x = -FLINCH_VELOCITY_X;

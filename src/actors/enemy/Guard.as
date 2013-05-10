@@ -24,7 +24,13 @@ package actors.enemy
 public class Guard extends FlxSprite
 {
 	[Embed(source = '../../../assets/img/enemies/guard.png')] private var guardPNG:Class;
-
+	[Embed(source = '../../../assets/soundeffect/enemies/punch.mp3')] private var shootSound:Class;
+	[Embed(source = '../../../assets/soundeffect/enemies/alert.mp3')] private var alertSound:Class;
+	[Embed(source = '../../../assets/soundeffect/enemies/search.mp3')] private var searchSound:Class;
+	[Embed(source = '../../../assets/soundeffect/enemies/punch.mp3')] private var punchSound:Class;
+	[Embed(source = '../../../assets/soundeffect/enemies/enemyhurt.mp3')] private var hurtSound:Class;
+	[Embed(source = '../../../assets/soundeffect/enemies/confused.mp3')] private var confusedSound:Class;
+	
 	/* initialization of GUARD variables */
 	private const GRAVITY:int = 600;
 	private const levelZeroVelocity:Number = 100;
@@ -180,7 +186,7 @@ public class Guard extends FlxSprite
 		acceleration.y = GRAVITY;
 
 		/* sprite animations */
-		addAnimation("walk", [0,1], 10, true);
+		addAnimation("walk", [0,1], 5, true);
 		addAnimation("shoot", [2], 0, false);
 		addAnimation("alert", [3], 0, false);
 		addAnimation("alertWalk", [4, 5], 2, true);
@@ -405,7 +411,7 @@ public class Guard extends FlxSprite
 			}
 			noiseFace();
 			play("alertWalk");
-
+		FlxG.play(alertSound, 0.2, false, true);
 			
 		//get the path coordinates in array
 		startX = x;
@@ -527,6 +533,7 @@ public class Guard extends FlxSprite
 			tempVelocity = velocity.x;
 			currentBullet = Registry.bulletGroup.getFirstAvailable() as FlxSprite;	
 			play("shoot");	
+			FlxG.play(shootSound, 0.5, false, true);
 			shootingNow = true;
 			currentBullet.x = x;
 			currentBullet.y = y;
@@ -577,6 +584,7 @@ public class Guard extends FlxSprite
 	{
 		
 		play("Punch");
+		FlxG.play(punchSound, 0.5, false, true);
 	}
 	
 	/*check bullet counter */
@@ -679,6 +687,7 @@ public class Guard extends FlxSprite
 		Mode = "Tranq";
 		flicker(2);
 		patrolStatusBeforeNoise = patrolStatus;
+		FlxG.play( hurtSound, 0.5, false, true);
 		tranqb.kill();
 	}
 	
@@ -686,14 +695,23 @@ public class Guard extends FlxSprite
 	public function smokeBombReaction(guard:Guard, smokeC:SmokeCloud):void
 	{
 		confused = true;
+		FlxG.play(confusedSound, 0.5, false, true);
 		Mode = "SmokeBomb";
 		patrolStatusBeforeNoise = patrolStatus;
 	}
+	
+	public function alertAnimation():void
+	{
+		play("Alert");
+	
+	}
+	
 	
 	/* stun grenade Reaction */
 	public function stunGrenadeReaction(guard:Guard, stunE:StunExplosion):void
 	{
 		froze = true;
+		FlxG.play( hurtSound, 0.5, false, true);
 		Mode = "StunG";
 		flicker(4);
 		patrolStatusBeforeNoise = patrolStatus;
@@ -819,6 +837,7 @@ public class Guard extends FlxSprite
 			if (pointsToFollow.length == 0)
 			{
 				play("search");
+				FlxG.play(searchSound, 0.5, false, true);
 				checkFacing();
 				stopCounter += FlxG.elapsed;
 		
@@ -853,6 +872,7 @@ public class Guard extends FlxSprite
 				if (pointsToFollow.length == 0)
 				{
 					play("search");
+					FlxG.play(searchSound, 0.5, false, true);
 					checkFacing();
 					stopCounter += FlxG.elapsed;
 					

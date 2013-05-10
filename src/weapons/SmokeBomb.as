@@ -8,6 +8,7 @@ package weapons
 	public class SmokeBomb extends ThrowableWeapon
 	{
 		[Embed(source = '../../assets/img/player/weapons/smoke_bomb.png')] private var bombPNG:Class;
+		[Embed(source = '../../assets/soundeffect/player/smokebomb.mp3')] private var bombSound:Class;
 		
 		private const EMIT_SMOKE_DELAY:int = 2000;
 		
@@ -47,6 +48,7 @@ package weapons
 		/* begin to emit smoke to blind the enemies */
 		private function emitSmoke():void
 		{
+			FlxG.play( bombSound, 0.5, false, true);
 			//Registry.noiseHandler.makeNoise(x, y, 100);
 			Registry.smokeBombHandler.emitSmoke(x, y); // this is bad practice imo
 			recycleKill();
