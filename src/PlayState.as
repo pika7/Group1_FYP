@@ -104,7 +104,7 @@ package
 												
 			/* put guards in different positions according to differnet levels */		
 			guards = new Guards;
-			guards.addGuard(32, 493, 48, 657, 1512, 232);
+			guards.addGuard(200, 493, 230, 657, 1512, 232);
 			guards.addGuard(2419, 530, 2611, 657, 3303, 648);
 			guards.addGuard(3372, 386, 3372, 386, 4000, 400);
 			
