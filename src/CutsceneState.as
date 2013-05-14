@@ -13,12 +13,12 @@ package
 		private var file:String; // the file to load the cutscene with
 		
 		/* enumerating the differnet cutscene numbers */
-		public static const CUTSCENE0:String = "https://dl.dropboxusercontent.com/u/9365368/cutscenetest.txt";
-		public static const CUTSCENE1:String = "https://dl.dropboxusercontent.com/u/9365368/cutscene01.txt";
-		public static const CUTSCENE2:String = "https://dl.dropboxusercontent.com/u/9365368/cutscenetest.txt";
-		public static const CUTSCENE3:String = "https://dl.dropboxusercontent.com/u/9365368/cutscenetest.txt";
-		public static const CUTSCENE4:String = "https://dl.dropboxusercontent.com/u/9365368/cutscenetest.txt";
-		public static const CUTSCENE5:String = "https://dl.dropboxusercontent.com/u/9365368/cutscenetest.txt";
+		public static const CUTSCENE0:String = "cutscenes/cutscene00.txt";
+		public static const CUTSCENE1:String = "cutscenes/cutscene01.txt";
+		public static const CUTSCENE2:String = "cutscenes/cutscene00.txt";
+		public static const CUTSCENE3:String = "cutscenes/cutscene00.txt";
+		public static const CUTSCENE4:String = "cutscenes/cutscene00.txt";
+		public static const CUTSCENE5:String = "cutscenes/cutscene00.txt";
 		
 		/**
 		 * Create a new cutscene.
