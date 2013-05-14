@@ -39,6 +39,9 @@ package cutscenes
 			faceGraphics["NONE"] = 0;
 			faceGraphics["GIRL_1"] = 1;
 			faceGraphics["GIRL_2"] = 2;
+			
+			/* start faded */
+			fade();
 		}
 		
 		override public function update():void
@@ -107,22 +110,19 @@ package cutscenes
 		
 		/**
 		 * Fade the character to show that they are not talking.
-		 * 
-		 * @param	callback	The function to call after fading is complete.
 		 */
-		public function fade(callback:Function):void
+		public function fade():void
 		{
-			
+			color = 0x444444;
 		}
 		
 		/**
 		 * Unfade the character to show that they are talking or that nobody is talking.
 		 * 
-		 * @param	callback	The function to call after unfading is complete.
 		 */
-		public function unfade(callback:Function):void
+		public function unfade():void
 		{
-			
+			color = 0xFFFFFF;
 		}
 		///////////////////////////////////////////////////////
 		// TIMER CALLBACKS (fuck these)

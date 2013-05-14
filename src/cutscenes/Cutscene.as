@@ -18,6 +18,7 @@ package cutscenes
 		protected var queue:CutsceneQueue;
 		protected var file:String; // the file from which to load the cutscene
 		protected var instructions:Array; // an array with all the instructions
+		protected var loadingText:FlxText; // says "loading..." on the screen while cutscene  being loaded
 		
 		private var currInstruction:Number = 0; // the instruction it is executing right now
 		private var fileLoaded:Boolean = false; // whether or not the file has finished loading
@@ -30,7 +31,7 @@ package cutscenes
 		/**
 		 * Run a cutscene with the provided file.
 		 * 
-		 * @param	PATH	The path to a cutscene text file.
+		 * @param	PATH	The entire string of the cutscene.
 		 */
 		public function Cutscene(PATH:String) 
 		{
@@ -51,6 +52,11 @@ package cutscenes
 			add(rightFaceGraphic);
 			
 			add(textBox = new TextBox());
+			
+			/* add the loading test */
+			loadingText = new FlxText(300, 450, 800, "LOADING...");
+			loadingText.size = 30;
+			add(loadingText);
 			
 			/* parse the provided text file */
 			var urlRequest:URLRequest = new URLRequest(PATH);
@@ -78,7 +84,6 @@ package cutscenes
 			if (!running && !finished)
 			{
 				running = true;
-				trace(instructions[currInstruction][0] + currInstruction);
 				
 				switch(instructions[currInstruction][0]) // 0 is where the instructions are
 				{
@@ -92,7 +97,24 @@ package cutscenes
 						rightFaceGraphic.enter(FaceGraphic.faceGraphics[instructions[currInstruction][1]], setComplete);
 						break; 
 					case "SAY":
-						textBox.say(instructions[currInstruction][1], instructions[currInstruction][2], setComplete);
+						textBox.say(instructions[currInstruction][1], instructions[currInstruction][3], setComplete);
+						/* highlight one of the facegraphics */
+						if (instructions[currInstruction][2] == "LEFT")
+						{
+							leftFaceGraphic.unfade();
+						}
+						else if (instructions[currInstruction][2] == "RIGHT")
+						{
+							rightFaceGraphic.unfade();
+						}
+						else if (instructions[currInstruction][2] == "NONE")
+						{
+							// do nothing
+						}
+						else
+						{
+							trace("Could not determine which graphic to unfade.");
+						}
 						break;
 					case "EXIT_LEFT":
 						leftFaceGraphic.exit(setComplete);
@@ -113,7 +135,10 @@ package cutscenes
 		//////// PRIVATE FUNCTIONS /////////
 		/* called when the text file is finished loading */
 		private function urlLoader_complete(evt:Event):void
-		{
+		{	
+			/* remove the loading text */
+			remove(loadingText);
+			
 			//trace(evt.target.data);
 			var currInstruction:String;
 			
@@ -133,6 +158,10 @@ package cutscenes
 		/* just a callback function to mark an instruction as completed */
 		private function setComplete():void
 		{
+			/* set both face graphics back to faded */
+			leftFaceGraphic.fade();
+			rightFaceGraphic.fade();
+			
 			running = false;
 			complete = true;
 			

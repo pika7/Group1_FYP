@@ -14,7 +14,7 @@ package
 	import actors.enemy.sightRangesGroup;
 	import actors.enemy.Camera;
 	import actors.Player;
-	import levels.TestLevel;
+	import levels.*;
 	import org.flixel.*;
 	import org.flixel.plugin.photonstorm.BaseTypes.Bullet;
 	import ui.UIHandler;
@@ -30,7 +30,6 @@ package
 	
 	public class PlayState extends FlxState
 	{
-		
 		[Embed(source = '../assets/music/Stage.mp3')] private var SoundEffect:Class;
 		[Embed(source = '../assets/soundeffect/enemies/goalitem.mp3')] private var goalitemEffect:Class;
 		[Embed(source = '../assets/soundeffect/enemies/alert.mp3')] private var alertEffect:Class;
@@ -44,6 +43,12 @@ package
 		public var cameraGroup:Cameras;
 		public var cameraSRGroup:CameraSightRanges;
 		
+		/**
+		 * Create a new PlayState with the player at the specified location.
+		 * 
+		 * @param	X	X-coodinate of the player
+		 * @param	Y	Y-coordinate of the player
+		 */
 		override public function create():void
 		{
 			/* initialise registry objects */
@@ -59,10 +64,36 @@ package
 			Registry.tranqBulletHandler = new TranqBulletHandler();
 			Registry.smokeBombHandler = new SmokeBombHandler();
 			Registry.stunGrenadeHandler = new StunGrenadeHandler();
-			Registry.player = new Player(20, 510); // TODO make it so that it can start at different places
 			
-			/* TODO: allow selection of different levels */
-			Registry.level = new TestLevel();
+			/* load new level depending on current level */
+			switch (Registry.gameStats.level)
+			{
+				case 0:
+					Registry.level = new Level();
+					Registry.player = new Player(50, 510);
+					break;
+					
+				case 1:
+					Registry.level = new Level();
+					Registry.player = new Player(20, 510);
+					break;
+					
+				case 2:
+					Registry.level = new Level();
+					Registry.player = new Player(67, 30);
+					break;
+					
+				case 3:
+					Registry.level = new Level();
+					Registry.player = new Player(4631, 20);
+					break;
+					
+				case 4:
+					Registry.level = new Level();
+					Registry.player = new Player(4631, 20);
+					break;
+			}
+			
 			add(Registry.level);
 			
 			/*add guard patrol path for the level */
@@ -104,7 +135,7 @@ package
 												
 			/* put guards in different positions according to differnet levels */		
 			guards = new Guards;
-			guards.addGuard(32, 493, 48, 657, 1512, 232);
+			guards.addGuard(200, 493, 230, 657, 1512, 232);
 			guards.addGuard(2419, 530, 2611, 657, 3303, 648);
 			guards.addGuard(3372, 386, 3372, 386, 4000, 400);
 			
@@ -214,18 +245,8 @@ package
 			/* for testing purposes only, remove later */
 			if (FlxG.keys.justPressed("F"))
 			{
-				Registry.gameStats.damage(10);
-			}
-			
-			if (FlxG.keys.justPressed("G"))
-			{
-				Registry.gameStats.heal(10);
-			}
-			
-			if (FlxG.keys.justPressed("C"))
-			{
-				clearRegistry();
-				FlxG.switchState(new CutsceneState());
+				Registry.player.gotGoalItem = true;
+				completeLevel(Registry.player, new Exit(0, 0));
 			}
 		}
 		
@@ -245,10 +266,34 @@ package
 		{
 			if (player.gotGoalItem)
 			{
-				
 				clearRegistry();
 				FlxG.music.fadeOut(1);
-				FlxG.switchState(new EndState());
+				
+				/* end the game if final level, otherwise go to next cutscene */
+				switch (Registry.gameStats.level)
+				{
+					case 0:
+						FlxG.switchState(new CutsceneState(CutsceneState.CUTSCENE1));
+						break;
+						
+					case 1:
+						FlxG.switchState(new CutsceneState(CutsceneState.CUTSCENE2));
+						break;
+						
+					case 2:
+						FlxG.switchState(new CutsceneState(CutsceneState.CUTSCENE3));
+						break;
+						
+					case 3:
+						FlxG.switchState(new CutsceneState(CutsceneState.CUTSCENE4));
+						break;
+						
+					case 4:
+						FlxG.switchState(new CutsceneState(CutsceneState.CUTSCENE5));
+						break;
+				}
+				
+				Registry.gameStats.level++;
 			}
 		}
 		

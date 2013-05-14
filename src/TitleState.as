@@ -1,7 +1,7 @@
 package  
 {
 	import org.flixel.*;
-	
+	import util.Registry;
 	
 	
 	public class TitleState extends FlxState 
@@ -11,20 +11,20 @@ package
 
 		override public function create():void
 		{
+			/* reset levels */
+			Registry.gameStats.level = 0;
+			
 			add(new FlxSprite(0, 0, backgroundPNG));
 			FlxG.playMusic(SoundEffect, 1);
 		}
 		
 		override public function update():void
 		{
-			
-			
-
 			/* press space to start the game */
 			if (FlxG.keys.pressed("SPACE"))
 			{
 				FlxG.music.fadeOut(1);
-				FlxG.switchState(new CutsceneState());
+				FlxG.switchState(new CutsceneState(CutsceneState.CUTSCENE0));
 			}
 			super.update();
 		}
