@@ -266,6 +266,7 @@ package
 		{
 			if (player.gotGoalItem)
 			{
+				player.gotGoalItem = false;
 				clearRegistry();
 				FlxG.music.fadeOut(1);
 				
