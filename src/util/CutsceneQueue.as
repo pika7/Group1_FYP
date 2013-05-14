@@ -6,7 +6,7 @@ package util
 	 *@author Michael Avila
 	 *@version 1.0.0
 	 * 
-	 * edited because fucking lazy, fuck you, fuck this
+	 * 
 	 */
 
 	  

@@ -4,9 +4,12 @@ package cutscenes
 	
 	public class Background extends FlxSprite 
 	{
-		[Embed(source = '../../assets/img/cutscene/clsroom.png')] private var bgPNG:Class;
+		[Embed(source = '../../assets/img/cutscene/backgrounds.png')] private var bgPNG:Class;
 		
 		public static var backgrounds:Array;
+		
+
+		
 
 		/**
 		 * Create a new background.  Default is a blank black background.
@@ -18,10 +21,11 @@ package cutscenes
 			
 			/* set up the background array */
 			backgrounds = new Array();
-			backgrounds["NONE"] = 0;
-			//backgrounds["BACKGROUND_A"] = 1;
-		//	backgrounds["BACKGROUND_B"] = 2;
-			
+			backgrounds["CLASSROOM"] = 0;
+			backgrounds["HOME"] = 1;
+			backgrounds["MUSEUM"] = 2;
+			backgrounds["GALLERY"] = 3;
+			backgrounds["MANSION"] = 4;
 			frame = NONE; // no background by default
 		}
 		
