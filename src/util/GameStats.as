@@ -19,11 +19,13 @@ package util
 		/* these are public because sometimes they need to be accessed and stuff */
 		public var health:int;
 		public var money:int;
+		public var level:int; // which game level
 		
 		public function GameStats() 
 		{
 			health = STARTING_LIFE;
 			money = 0;
+			level = 0;
 		}
 		
 		////////////////////////////////////////////////////////////

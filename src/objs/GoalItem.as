@@ -5,7 +5,7 @@ package objs
 	import org.flixel.*;
 	import util.Registry;
 	
-	public class GoalItem extends HidingSpot
+	public class GoalItem extends ParsableObject
 	{
 		/* later on this image can be invisible / have different frames depending on what goal items that level is supposed to have */
 		[Embed(source = '../../assets/img/objs/goal_item.png')] private var itemPNG:Class;

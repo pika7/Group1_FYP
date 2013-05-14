@@ -153,6 +153,7 @@ package actors
 		public var doneClimbingDownLadder:Boolean = false; // returns true if the player just finished climbing to the bottom of the ladder.
 		public var isHangingOnHookshot:Boolean = false;
 		public var isInvulnerable:Boolean = false; // whether or not the player can currently be damaged
+		public var canHide:Boolean = false; // whether or not the player is able to hide (overlapping a hiding spot)
 		
 		public function Player(X:int, Y:int) 
 		{
@@ -264,9 +265,10 @@ package actors
 				{
 					setMode(IN_AIR);
 				}
-				
+
+				//trace(overlaps(Registry.hidingSpots.getFirstExtant()));
 				/* hiding mode, if overlapping with a hiding spot */
-				if (FlxG.keys.justPressed("E") && overlaps(Registry.hidingSpots)) // no need to put this into PlayState because not called every frame
+				if (FlxG.keys.justPressed("E") && canHide) // no need to put this into PlayState because not called every frame
 				{
 					FlxG.play( hideSound, 0.5, false, true);
 					setMode(HIDING);
@@ -356,13 +358,13 @@ package actors
 				if (FlxG.keys.pressed("W"))
 				{
 					velocity.y = -LADDER_VELOCITY;
-					noiseRadius.on();
+					//noiseRadius.on();
 					play("climbing_ladder");
 				}
 				else if (FlxG.keys.pressed("S"))
 				{
 					velocity.y = LADDER_VELOCITY;
-					noiseRadius.on();
+					//noiseRadius.on();
 					play("climbing_ladder");
 				}
 				else
@@ -915,7 +917,7 @@ package actors
 					
 				case REACHING_LADDER_TOP:
 					mode = REACHING_LADDER_TOP;
-					noiseRadius.on();
+					//noiseRadius.on();
 					tempPoint.x = x;
 					tempPoint.y = y - 60;
 					play("climbing_ladder"); // TEMP: change to a climbing up anim later
@@ -927,14 +929,14 @@ package actors
 					
 				case PREPARE_LADDER:
 					mode = PREPARE_LADDER;
-					noiseRadius.on();
+					//noiseRadius.on();
 					stopAllMovement();
 					aimArms.setAll("exists", false);
 					break;
 					
 				case INITIAL_LADDER_ASCENT:
 					mode = INITIAL_LADDER_ASCENT;
-					noiseRadius.on();
+					//noiseRadius.on();
 					tempPoint.x = x;
 					tempPoint.y = y - 10;
 					play("climbing_ladder");
@@ -946,7 +948,7 @@ package actors
 					
 				case INITIAL_LADDER_DESCENT:
 					mode = INITIAL_LADDER_DESCENT;
-					noiseRadius.on();
+					//noiseRadius.on();
 					tempPoint.x = x;
 					tempPoint.y = y + 70;
 					play("climbing_ladder");

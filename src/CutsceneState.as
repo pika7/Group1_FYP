@@ -3,6 +3,7 @@ package
 	import cutscenes.*;
 	import objs.Hole;
 	import org.flixel.*;
+	import util.Registry;
 	
 	public class CutsceneState extends FlxState
 	{
@@ -11,10 +12,23 @@ package
 		private var cutscene:Cutscene;
 		private var file:String; // the file to load the cutscene with
 		
-		public function CutsceneState() 
+		/* enumerating the differnet cutscene numbers */
+		public static const CUTSCENE0:String = "https://dl.dropboxusercontent.com/u/9365368/cutscenetest.txt";
+		public static const CUTSCENE1:String = "https://dl.dropboxusercontent.com/u/9365368/cutscene01.txt";
+		public static const CUTSCENE2:String = "https://dl.dropboxusercontent.com/u/9365368/cutscenetest.txt";
+		public static const CUTSCENE3:String = "https://dl.dropboxusercontent.com/u/9365368/cutscenetest.txt";
+		public static const CUTSCENE4:String = "https://dl.dropboxusercontent.com/u/9365368/cutscenetest.txt";
+		public static const CUTSCENE5:String = "https://dl.dropboxusercontent.com/u/9365368/cutscenetest.txt";
+		
+		/**
+		 * Create a new cutscene.
+		 * 
+		 * @param	url		The url the cutscene is stored at.
+		 */
+		public function CutsceneState(url:String) 
 		{
 			// TODO: make a function in playstate (or whatever state cutscene is switching from that passes a file
-			cutscene = new Cutscene("cutscenes/cutscene01.txt");
+			cutscene = new Cutscene(url);
 			add(cutscene);
 			FlxG.playMusic(SoundEffect, 1);
 		}
@@ -26,7 +40,15 @@ package
 			if (cutscene.finished)
 			{
 				FlxG.music.fadeOut(1);
-				FlxG.switchState(new PlayState());
+				if (Registry.gameStats.level < 5)
+				{
+					FlxG.switchState(new PlayState());
+				}
+				else
+				{
+					FlxG.switchState(new EndState());
+				}
+				
 			}
 			
 			super.update();
