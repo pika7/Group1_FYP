@@ -35,10 +35,10 @@ package levels
 		[Embed(source = "../../assets/csv/5th_level/mapCSV_5th_level_background.csv", mimeType = "application/octet-stream")] public var backgroundCSV5:Class;
 		
 		[Embed(source = "../../assets/img/tilemaps/demo_bg.png")] public var demoBackgroundTilesPNG:Class;
-		[Embed(source = "../../assets/img/tilemaps/demo_bg.png")] public var backgroundTilesPNG2:Class;
-		[Embed(source = "../../assets/img/tilemaps/demo_bg.png")] public var backgroundTilesPNG3:Class;
-		[Embed(source = "../../assets/img/tilemaps/demo_bg.png")] public var backgroundTilesPNG4:Class;
-		[Embed(source = "../../assets/img/tilemaps/demo_bg.png")] public var backgroundTilesPNG5:Class;
+		[Embed(source = "../../assets/img/tilemaps/bg2.png")] public var backgroundTilesPNG2:Class;
+		[Embed(source = "../../assets/img/tilemaps/bg3.png")] public var backgroundTilesPNG3:Class;
+		[Embed(source = "../../assets/img/tilemaps/bg4.png")] public var backgroundTilesPNG4:Class;
+		[Embed(source = "../../assets/img/tilemaps/bg5.png")] public var backgroundTilesPNG5:Class;
 		
 		[Embed(source = "../../assets/csv/demo_level/mapCSV_demo_level_over.csv", mimeType = "application/octet-stream")] public var demoOverCSV:Class;
 		[Embed(source = "../../assets/csv/2nd_level/mapCSV_2nd_level_over.csv", mimeType = "application/octet-stream")] public var overCSV2:Class;

@@ -15,10 +15,10 @@ package
 		/* enumerating the differnet cutscene numbers */
 		public static const CUTSCENE0:String = "cutscenes/cutscene00.txt";
 		public static const CUTSCENE1:String = "cutscenes/cutscene01.txt";
-		public static const CUTSCENE2:String = "cutscenes/cutscene00.txt";
-		public static const CUTSCENE3:String = "cutscenes/cutscene00.txt";
-		public static const CUTSCENE4:String = "cutscenes/cutscene00.txt";
-		public static const CUTSCENE5:String = "cutscenes/cutscene00.txt";
+		public static const CUTSCENE2:String = "cutscenes/cutscene02.txt";
+		public static const CUTSCENE3:String = "cutscenes/cutscene03.txt";
+		public static const CUTSCENE4:String = "cutscenes/cutscene04.txt";
+		public static const CUTSCENE5:String = "cutscenes/cutscene05.txt";
 		
 		/**
 		 * Create a new cutscene.
