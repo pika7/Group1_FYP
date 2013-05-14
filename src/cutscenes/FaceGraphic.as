@@ -37,8 +37,12 @@ package cutscenes
 			/* set up face graphic array */
 			faceGraphics = new Array();
 			faceGraphics["NONE"] = 0;
-			faceGraphics["GIRL_1"] = 1;
-			faceGraphics["GIRL_2"] = 2;
+			faceGraphics["JANE"] = 1;
+			faceGraphics["CHRISTINE"] = 2;
+			faceGraphics["CHRIS"] = 3;
+			faceGraphics["HOLLOW"] = 4;
+			faceGraphics["MM"] = 5;
+			
 			
 			/* start faded */
 			fade();
