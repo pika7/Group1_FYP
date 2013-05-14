@@ -96,9 +96,60 @@ package
 			
 			add(Registry.level);
 			
-			/*add guard patrol path for the level */
-			Registry.levelGuardPath = new TestGuardPath();
+				/*add guard patrol path for the level */
+			guards = new Guards;
+			
+			switch (Registry.gameStats.level)
+			{
+				case 0:
+					Registry.levelGuardPath = new TestGuardPath();
+					guards.addGuard(200, 493, 230, 657, 1512, 232);
+					guards.addGuard(2419, 530, 2611, 657, 3303, 648);
+					guards.addGuard(3372, 386, 3372, 386, 4000, 400);
+					break;
+
+				case 1:
+					Registry.levelGuardPath = new TestGuardPath();
+					guards.addGuard(647, 100, 665, 168, 1478, 750);
+					break;
+	
+				case 2:
+					Registry.levelGuardPath = new TestGuardPath();
+					guards.addGuard(79, 315, 79, 361, 709, 371);
+					guards.addGuard(1066, 315, 1068, 367, 1638, 359);
+					guards.addGuard(4046, 443, 4050, 493, 4708, 480);
+					break;
+	
+				case 3:
+					Registry.levelGuardPath = new TestGuardPath();
+					guards.addGuard(335, 630, 335, 751, 937, 746);
+					guards.addGuard(2012, 109, 2012, 240, 2922, 233);
+					guards.addGuard(1366, 630, 1366, 751, 2090, 745);
+					guards.addGuard(2131, 500, 2131, 654, 3086, 657);
+					guards.addGuard(3847, 600, 3847, 713, 4739, 713);
+					break;
+					
+				case 4:
+					Registry.levelGuardPath = new TestGuardPath();
+					guards.addGuard(2688, 592, 2642, 746, 3951, 332);
+					guards.addGuard(2888, 592, 2642, 746, 3951, 332);
+					guards.addGuard(3000, 592, 2642, 746, 3951, 332);
+					guards.addGuard(3524, 592, 2642, 746, 3951, 332);
+					guards.addGuard(4000, 592, 2642, 746, 3951, 332);
+					guards.addGuard(116, 592, 118, 746, 2312, 742);
+					guards.addGuard(200, 592, 210, 746, 2312, 742);
+					guards.addGuard(400, 592, 401, 746, 2312, 742);
+					guards.addGuard(500, 592, 401, 746, 2312, 742);
+					guards.addGuard(600, 592, 401, 746, 2312, 742);
+					break;
+				
+			}	
+				
 			add(Registry.levelGuardPath);	
+			add(guards);
+			
+			
+		
 			
 			/* add registry objects */
 			add(Registry.hidingSpots);
@@ -131,27 +182,26 @@ package
 			add(Registry.uiHandler = new UIHandler());
 		
 			
-			/* FOR TESTING GUARDS*/
-												
-			/* put guards in different positions according to differnet levels */		
-			guards = new Guards;
-			guards.addGuard(200, 493, 230, 657, 1512, 232);
-			guards.addGuard(2419, 530, 2611, 657, 3303, 648);
-			guards.addGuard(3372, 386, 3372, 386, 4000, 400);
 			
-			add(guards);
 			
 			/* put sight ranges in different places according to different levels */
 			guardSightRanges = new sightRangesGroup;
 			guardSightRanges.addSightRange(160, 20);
 			guardSightRanges.addSightRange(628, 20);
 			guardSightRanges.addSightRange(1128, 20);
+			guardSightRanges.addSightRange(1128, 20);
+			guardSightRanges.addSightRange(1128, 20);
+			guardSightRanges.addSightRange(160, 20);
+			guardSightRanges.addSightRange(628, 20);
+			guardSightRanges.addSightRange(1128, 20);
+			guardSightRanges.addSightRange(1128, 20);
+			guardSightRanges.addSightRange(1128, 20);
 			add(guardSightRanges);
 			
 			/* put cameras in different positions according to different levels */
-			cameraGroup = new Cameras;
-			cameraGroup.addCamera(876, 106);
-			add(cameraGroup);
+		//	cameraGroup = new Cameras;
+	//		cameraGroup.addCamera(876, 106);
+		//	add(cameraGroup);
 			
 			/* put camera sight ranges in different places according to different levels */
 			cameraSRGroup = new CameraSightRanges;
@@ -356,6 +406,7 @@ package
 			Registry.markers_hookshotable.clear();
 			remove(Registry.markers_hookshotable);
 			
+			guards.clear();
 			/* TEMPORARY */
 			//remove(Registry.guard);
 		}
